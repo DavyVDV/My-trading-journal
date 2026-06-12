@@ -1389,6 +1389,11 @@ function renderChart() {
     if (!canvas) return;
     var chron = getFilteredTrades().slice().sort(function(a,b){ return a.time - b.time; });
     var cum = 0;
+    var labels = chron.map(function(t) {
+        return (t.time instanceof Date && !isNaN(t.time))
+            ? t.time.toLocaleString('nl-NL', {month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})
+            : (t.dateStr || 'Unknown');
+    });
     var data = chron.map(function(t){
         cum += (t.pnl - ((t.fee != null) ? t.fee : getCommission(t.symbol, t.volume)));
         return Math.round(cum * 100) / 100;
@@ -1403,17 +1408,77 @@ function renderChart() {
     gradient.addColorStop(0, gradientCss + ' 0.2)');
     gradient.addColorStop(1, gradientCss + ' 0)');
 
+    var crosshairPlugin = {
+        id: 'crosshair',
+        afterDraw: function(chart) {
+            if (chart.tooltip && chart.tooltip._active && chart.tooltip._active.length) {
+                var activePoint = chart.tooltip._active[0];
+                var _ctx = chart.ctx;
+                var x = activePoint.element.x;
+                var y = activePoint.element.y;
+                var topY = chart.scales.y.top;
+                var bottomY = chart.scales.y.bottom;
+                var leftX = chart.scales.x.left;
+                var rightX = chart.scales.x.right;
+
+                _ctx.save();
+                _ctx.beginPath();
+                _ctx.moveTo(x, topY);
+                _ctx.lineTo(x, bottomY);
+                _ctx.moveTo(leftX, y);
+                _ctx.lineTo(rightX, y);
+                _ctx.lineWidth = 1;
+                _ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                _ctx.setLineDash([4, 4]);
+                _ctx.stroke();
+                _ctx.restore();
+            }
+        }
+    };
+
     pnlChartInstance = new Chart(ctx, {
         type: 'line',
-        data: { labels: chron.map(function(_,i){ return i+1; }), datasets: [{
+        data: { labels: labels, datasets: [{
             data: data, borderColor: lineColor, backgroundColor: gradient,
-            borderWidth: 2, tension: 0.2, pointRadius: 0, fill: true
+            borderWidth: 2, tension: 0.2, pointRadius: 0, hoverRadius: 4, fill: true
         }]},
+        plugins: [crosshairPlugin],
         options: {
             responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(24, 24, 27, 0.9)',
+                    titleColor: '#94a3b8',
+                    bodyColor: '#fff',
+                    titleFont: { family: 'JetBrains Mono', size: 11 },
+                    bodyFont: { family: 'JetBrains Mono', size: 12, weight: 'bold' },
+                    borderColor: '#3f3f46',
+                    borderWidth: 1,
+                    displayColors: false,
+                    callbacks: {
+                        label: function(context) {
+                            return 'Net P&L: ' + new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.y);
+                        }
+                    }
+                }
+            },
             scales: { 
-                x: { display: false }, 
+                x: { 
+                    display: true, 
+                    grid: { display: false },
+                    ticks: { 
+                        color: '#94a3b8', 
+                        font: { size: 9, family: 'JetBrains Mono' },
+                        maxRotation: 45,
+                        minRotation: 45,
+                        maxTicksLimit: 12
+                    } 
+                }, 
                 y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 10, family: 'JetBrains Mono' } } } 
             }
         }
