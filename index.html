@@ -492,8 +492,8 @@
 <script>
 var trades = [];
 var pnlChartInstance = null;
-var sortCol = 'time';
-var sortDir = 'desc';
+var sortCol = localStorage.getItem('qt_sortCol') || 'time';
+var sortDir = localStorage.getItem('qt_sortDir') || 'desc';
 var selectedAccount = 'ALL';
 var activeTab = 'dashboard';
 
@@ -1197,6 +1197,8 @@ function parseQuantowerCSV(csvText) {
 function sortBy(col) {
     if (sortCol === col) { sortDir = sortDir === 'asc' ? 'desc' : 'asc'; }
     else { sortCol = col; sortDir = ['volume','pnl','commission','netpnl'].indexOf(col) >= 0 ? 'desc' : 'asc'; }
+    localStorage.setItem('qt_sortCol', sortCol);
+    localStorage.setItem('qt_sortDir', sortDir);
     renderHeaders();
     renderTable();
 }
