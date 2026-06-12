@@ -98,6 +98,9 @@
             CSV IMPORTEREN
         </button>
         <input type="file" id="fileInput" accept=".csv" class="hidden" onchange="handleFileUpload(event)">
+        <button onclick="openAccountManagerModal()" class="bg-blue-900/40 hover:bg-blue-800/60 text-blue-300 px-2.5 py-1 rounded-sm border border-blue-800 transition-colors">
+            <i class="fas fa-wallet mr-1"></i> ACCOUNTS
+        </button>
         <button onclick="openSettings()" class="bg-terminal-input hover:bg-zinc-800 text-slate-300 border border-terminal px-2.5 py-1 rounded-sm transition-colors">
             <i class="fas fa-sliders-h text-[10px]"></i>
         </button>
@@ -159,6 +162,18 @@
                 <div id="colDropdown" class="hidden absolute right-0 mt-1 w-44 bg-terminal-card border border-terminal rounded-sm shadow-2xl p-2.5 space-y-1.5 z-30">
                     <div id="colVisibilityItems" class="space-y-1 text-[11px]"></div>
                 </div>
+            </div>
+        </div>
+
+        <div id="bulkActionsBar" class="hidden bg-slate-800 border border-slate-600 rounded-sm p-3 flex justify-between items-center transition-all animate-fade-in font-mono">
+            <div class="text-sm font-bold text-white uppercase tracking-widest"><span id="selectedCountDisplay">0</span> Trades Geselecteerd</div>
+            <div class="flex gap-2">
+                <button onclick="promptEditSelectedTrades()" class="bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border border-blue-500/30 px-3 py-1.5 rounded-sm font-bold uppercase transition-colors text-xs flex items-center gap-2">
+                    <i class="fas fa-edit"></i> Bewerk Accounts/Tags
+                </button>
+                <button onclick="deleteSelectedTrades()" class="bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-sm font-bold uppercase transition-colors text-xs flex items-center gap-2">
+                    <i class="fas fa-trash-alt"></i> Verwijder
+                </button>
             </div>
         </div>
 
@@ -286,6 +301,50 @@
 </main>
 
 <!-- Modals follow here... -->
+
+<div id="bulkEditModal" class="fixed inset-0 bg-black/90 items-center justify-center z-50 px-4 hidden">
+    <div class="bg-terminal-card border border-terminal w-full max-w-sm flex flex-col rounded-sm font-mono text-xs">
+        <div class="flex justify-between items-center p-4 border-b border-terminal bg-slate-900">
+            <span class="text-[11px] font-bold tracking-widest text-slate-400 uppercase">BEWERK GESELECTEERD</span>
+            <button onclick="closeBulkEditModal()" class="text-slate-500 hover:text-slate-200 text-base leading-none">&times;</button>
+        </div>
+        <div class="p-5 space-y-4">
+            <div>
+                <label class="block text-[10px] text-slate-500 uppercase tracking-wider mb-1">Stel Account in</label>
+                <select id="bulkAccountSelect" class="w-full bg-terminal-input border border-terminal rounded-sm p-1.5 text-zinc-200 focus:outline-none cursor-pointer">
+                    <option value="">-- KIES EEN ACCOUNT --</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-[10px] text-slate-500 uppercase tracking-wider mb-1">Voeg Tag Toe</label>
+                <input type="text" id="bulkTagInput" placeholder="NIEUWE TAG" class="w-full bg-terminal-input border border-terminal rounded-sm p-1.5 text-zinc-200 focus:outline-none uppercase">
+            </div>
+        </div>
+        <div class="p-4 border-t border-terminal bg-slate-900/40 flex justify-end gap-2 text-xs">
+            <button onclick="closeBulkEditModal()" class="px-3 py-1.5 bg-terminal-input border border-terminal rounded-sm text-slate-300 hover:text-white hover:bg-slate-800 transition-colors font-bold">ANNULEER</button>
+            <button onclick="applyBulkEdits()" class="px-4 py-1.5 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-sm font-bold hover:bg-blue-600/40 hover:text-white transition-colors">TOEPASSEN</button>
+        </div>
+    </div>
+</div>
+
+<div id="accountManagerModal" class="fixed inset-0 bg-black/90 items-center justify-center z-50 px-4 hidden">
+    <div class="bg-terminal-card border border-terminal w-full max-w-md flex flex-col rounded-sm font-mono text-xs">
+        <div class="flex justify-between items-center p-4 border-b border-terminal bg-slate-900">
+            <span class="text-[11px] font-bold tracking-widest text-slate-400 uppercase">ACCOUNT BEHEER</span>
+            <button onclick="closeAccountManagerModal()" class="text-slate-500 hover:text-slate-200 text-base leading-none">&times;</button>
+        </div>
+        <div class="p-5 space-y-4">
+            <div class="flex gap-2">
+                <input type="text" id="newAccountInput" placeholder="ACCOUNT NAAM (bv. LIVE_01)" class="w-full bg-terminal-input border border-terminal rounded-sm p-1.5 text-zinc-200 focus:outline-none uppercase">
+                <button onclick="addAccount()" class="bg-white hover:bg-slate-200 text-black px-3 py-1 rounded-sm font-bold transition-colors whitespace-nowrap">TOEVOEGEN</button>
+            </div>
+            <div>
+                <label class="block text-[10px] text-slate-500 uppercase tracking-wider mb-2">Bestaande Accounts</label>
+                <div id="accountListContainer" class="space-y-2 max-h-[40vh] overflow-y-auto"></div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div id="manualTradeModal" class="fixed inset-0 bg-black/90 items-center justify-center z-50 px-4 hidden">
     <div class="bg-terminal-card border border-terminal w-full max-w-lg flex flex-col rounded-sm font-mono text-xs">
@@ -445,17 +504,18 @@ var currentEditTags = [];
 var analyticsFilterTags = [];
 
 var COLUMN_DEFS = [
-    { key: 'time',       label: 'DATUM/TIJD',  align: 'left',   sortable: true  },
+    { key: 'select',     label: '<input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()">', align: 'center', sortable: false, fixed: true },
+    { key: 'time',       label: 'DATE_TIME',   align: 'left',   sortable: true  },
     { key: 'account',    label: 'ACCOUNT',     align: 'left',   sortable: true  },
     { key: 'symbol',     label: 'SYM',         align: 'left',   sortable: true  },
-    { key: 'side',       label: 'KANT',        align: 'left',   sortable: true  },
-    { key: 'volume',     label: 'GROOTTE',     align: 'right',  sortable: true  },
-    { key: 'prices',     label: 'INSTAP/UITSTAP',  align: 'left',   sortable: false },
+    { key: 'side',       label: 'SIDE',        align: 'left',   sortable: true  },
+    { key: 'volume',     label: 'SIZE',        align: 'right',  sortable: true  },
+    { key: 'prices',     label: 'ENTRY/EXIT',  align: 'left',   sortable: false },
     { key: 'commission', label: 'COMM',        align: 'right',  sortable: true  },
-    { key: 'pnl',        label: 'BRUTO P&L',   align: 'right',  sortable: true  },
-    { key: 'netpnl',     label: 'NETTO P&L',     align: 'right',  sortable: true  },
-    { key: 'tags',       label: 'VECTOR TAGS', align: 'left',   sortable: false },
-    { key: 'actions',    label: 'VERWIJDER',         align: 'center', sortable: false, fixed: true },
+    { key: 'pnl',        label: 'GROSS_PNL',   align: 'right',  sortable: true  },
+    { key: 'netpnl',     label: 'NET_PNL',     align: 'right',  sortable: true  },
+    { key: 'tags',       label: 'VECTOR_TAGS', align: 'left',   sortable: false },
+    { key: 'actions',    label: 'DEL',         align: 'center', sortable: false, fixed: true },
 ];
 var colOrder = COLUMN_DEFS.map(function(c){ return c.key; });
 var hiddenCols = [];
@@ -657,7 +717,7 @@ function onAccountChange() {
 }
 
 function updateAccountSelector() {
-    var accounts = [];
+    var accounts = loadCustomAccounts(); // Base accounts
     trades.forEach(function(t){
         if (t.account && accounts.indexOf(t.account) < 0) accounts.push(t.account);
     });
@@ -665,7 +725,7 @@ function updateAccountSelector() {
     var sel = document.getElementById('accountFilter');
     if (!sel) return;
     var prev = selectedAccount;
-    sel.innerHTML = '<option value="ALL">ALL ACCOUNTS (' + trades.length + ')</option>';
+    sel.innerHTML = '<option value="ALL">ALLE ACCOUNTS (' + trades.length + ')</option>';
     accounts.forEach(function(a){
         var count = trades.filter(function(t){ return t.account === a; }).length;
         var opt = document.createElement('option');
@@ -673,10 +733,10 @@ function updateAccountSelector() {
         opt.textContent = a.toUpperCase() + ' (' + count + ')';
         sel.appendChild(opt);
     });
-    if (accounts.length === 1) {
+    if (accounts.length === 1 && trades.length > 0) {
         sel.value = accounts[0];
         selectedAccount = accounts[0];
-    } else if (accounts.indexOf(prev) >= 0) {
+    } else if (accounts.indexOf(prev) >= 0 || prev === 'ALL') {
         sel.value = prev;
         selectedAccount = prev;
     } else {
@@ -1168,7 +1228,7 @@ function renderHeaders() {
         }
         var indicator = '';
         if (def.sortable && key === sortCol) { indicator = sortDir === 'asc' ? ' ▲' : ' ▼'; }
-        th.textContent = def.label + indicator;
+        th.innerHTML = def.label + indicator;
         row.appendChild(th);
     });
 }
@@ -1216,6 +1276,44 @@ function calculateStats() {
     document.getElementById('kpi-trades').innerText = filtered.length;
 }
 
+var selectedTrades = [];
+
+function toggleSelectAll() {
+    var cb = document.getElementById('selectAllCheckbox');
+    if (cb.checked) {
+        var display = getFilteredTrades();
+        var search = document.getElementById('searchInput').value.toLowerCase();
+        display = display.filter(function(t) {
+            return t.symbol.toLowerCase().indexOf(search) >= 0 || (t.tags && t.tags.some(function(tg){ return tg.toLowerCase().indexOf(search) >= 0; }));
+        });
+        selectedTrades = display.map(function(t){ return t.id; });
+    } else {
+        selectedTrades = [];
+    }
+    renderTable();
+}
+
+function toggleTradeSelect(id, event) {
+    if (event) event.stopPropagation();
+    var idx = selectedTrades.indexOf(id);
+    if (idx === -1) {
+        selectedTrades.push(id);
+    } else {
+        selectedTrades.splice(idx, 1);
+    }
+    renderTable();
+}
+
+function updateBulkActionBar() {
+    var bar = document.getElementById('bulkActionsBar');
+    if (selectedTrades.length > 0) {
+        bar.classList.remove('hidden');
+        document.getElementById('selectedCountDisplay').innerText = selectedTrades.length;
+    } else {
+        bar.classList.add('hidden');
+    }
+}
+
 function renderTable() {
     var tbody  = document.getElementById('tradeTableBody');
     var search = document.getElementById('searchInput').value.toLowerCase();
@@ -1234,7 +1332,8 @@ function renderTable() {
 
     tbody.innerHTML = '';
     if (display.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="' + COLUMN_DEFS.length + '" class="px-4 py-6 text-center text-zinc-600 italic">Zero array vectors match parameters.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="' + COLUMN_DEFS.length + '" class="px-4 py-6 text-center text-zinc-600 italic">Geen uitvoeringen gevonden binnen deze weergave.</td></tr>';
+        updateBulkActionBar();
         return;
     }
 
@@ -1250,7 +1349,10 @@ function renderTable() {
             return '<span class="bg-zinc-800 text-zinc-400 px-1 py-0.5 rounded-sm text-[10px] mr-1 border border-zinc-700/50 uppercase">' + esc(tg) + '</span>';
         }).join('') || '<span class="text-zinc-700 italic text-[10px]">+ TAG</span>';
 
+        var isSelected = selectedTrades.indexOf(trade.id) !== -1;
+
         var cells = {
+            select:     '<td class="px-4 py-2 text-center" onclick="event.stopPropagation()"><input type="checkbox" ' + (isSelected ? 'checked' : '') + ' onchange="toggleTradeSelect(\'' + trade.id + '\', event)" class="rounded-sm bg-terminal-input border-terminal text-white focus:ring-0 w-3 h-3 cursor-pointer"></td>',
             time:       '<td class="px-4 py-2 font-mono text-zinc-400">' + dateStr + '</td>',
             account:    '<td class="px-4 py-2 text-zinc-500 uppercase">' + esc(trade.account || '') + '</td>',
             symbol:     '<td class="px-4 py-2 font-bold text-white uppercase tracking-tight">' + esc(trade.symbol) + '</td>',
@@ -1265,13 +1367,19 @@ function renderTable() {
         };
 
         var tr = document.createElement('tr');
-        tr.className = 'hover:bg-zinc-900/60 transition-colors cursor-pointer border-b border-zinc-800/40';
+        tr.className = 'hover:bg-zinc-900/60 transition-colors cursor-pointer border-b border-zinc-800/40 ' + (isSelected ? 'bg-zinc-800/20' : '');
         tr.setAttribute('onclick', 'openModal("' + trade.id + '")');
         var content = '';
         colOrder.forEach(function(k){ if (hiddenCols.indexOf(k) === -1) content += cells[k] || ''; });
         tr.innerHTML = content;
         tbody.appendChild(tr);
     });
+
+    var cb = document.getElementById('selectAllCheckbox');
+    if (cb) {
+        cb.checked = display.length > 0 && display.every(function(t) { return selectedTrades.indexOf(t.id) !== -1; });
+    }
+    updateBulkActionBar();
 }
 
 function renderChart() {
@@ -1308,6 +1416,132 @@ function renderChart() {
             }
         }
     });
+}
+
+// ---- BULK ACTIONS & ACCOUNTS MANIPULATION ----
+function deleteSelectedTrades() {
+    if (!confirm(selectedTrades.length + " trades definitief verwijderen?")) return;
+    trades = trades.filter(function(t) { return selectedTrades.indexOf(t.id) === -1; });
+    saveData();
+    selectedTrades = [];
+    updateUI();
+}
+
+function promptEditSelectedTrades() {
+    var select = document.getElementById('bulkAccountSelect');
+    select.innerHTML = '<option value="">-- KIES EEN ACCOUNT --</option>';
+    
+    // Add dynamically known and custom accounts
+    var allA = [];
+    trades.forEach(function(t) { if (t.account && allA.indexOf(t.account) === -1) allA.push(t.account); });
+    var accounts = loadCustomAccounts();
+    accounts.forEach(function(a) { if (allA.indexOf(a) === -1) allA.push(a); });
+    
+    allA.forEach(function(a) {
+        var opt = document.createElement('option');
+        opt.value = a; opt.innerText = a;
+        select.appendChild(opt);
+    });
+    
+    document.getElementById('bulkTagInput').value = '';
+    document.getElementById('bulkEditModal').classList.remove('hidden');
+}
+
+function closeBulkEditModal() {
+    document.getElementById('bulkEditModal').classList.add('hidden');
+}
+
+function applyBulkEdits() {
+    var acc = document.getElementById('bulkAccountSelect').value;
+    var tag = document.getElementById('bulkTagInput').value.trim().toUpperCase();
+    
+    var count = 0;
+    trades.forEach(function(t) {
+        if (selectedTrades.indexOf(t.id) !== -1) {
+            if (acc) t.account = acc;
+            if (tag) {
+                if (!t.tags) t.tags = [];
+                if (t.tags.indexOf(tag) === -1) t.tags.push(tag);
+            }
+            count++;
+        }
+    });
+    
+    if (tag && globalTags.indexOf(tag) === -1) { globalTags.push(tag); saveGlobalTags(); }
+    
+    if (count > 0) {
+        saveData();
+        selectedTrades = [];
+        updateUI();
+    }
+    closeBulkEditModal();
+}
+
+function loadCustomAccounts() {
+    try {
+        var s = localStorage.getItem('qt_custom_accounts_v3');
+        if (s) return JSON.parse(s);
+    } catch(e) {}
+    return [];
+}
+
+function saveCustomAccounts(arr) {
+    localStorage.setItem('qt_custom_accounts_v3', JSON.stringify(arr));
+}
+
+function openAccountManagerModal() {
+    renderAccountManagerList();
+    document.getElementById('accountManagerModal').classList.remove('hidden');
+}
+
+function closeAccountManagerModal() {
+    document.getElementById('accountManagerModal').classList.add('hidden');
+    updateFiltersGrid();
+}
+
+function renderAccountManagerList() {
+    var container = document.getElementById('accountListContainer');
+    container.innerHTML = '';
+    var accounts = loadCustomAccounts();
+    
+    // Auto-detect existing accounts to show them too
+    trades.forEach(function(t) {
+        if (t.account && accounts.indexOf(t.account) === -1) accounts.push(t.account);
+    });
+    
+    if (accounts.length === 0) {
+        container.innerHTML = '<span class="text-slate-500 italic text-[11px]">Geen accounts geregistreerd.</span>';
+        return;
+    }
+    
+    accounts.forEach(function(acc) {
+        var div = document.createElement('div');
+        div.className = 'flex justify-between items-center bg-terminal-input border border-terminal p-2 rounded-sm';
+        div.innerHTML = '<span class="font-bold text-slate-300 uppercase">' + esc(acc) + '</span>' +
+                        '<button onclick="deleteAccount(\'' + esc(acc) + '\')" class="text-zinc-600 hover:text-red-400 p-1 transition-colors"><i class="fas fa-trash-alt"></i></button>';
+        container.appendChild(div);
+    });
+}
+
+function addAccount() {
+    var input = document.getElementById('newAccountInput');
+    var val = input.value.trim().toUpperCase();
+    if (!val) return;
+    var accounts = loadCustomAccounts();
+    if (accounts.indexOf(val) === -1) {
+        accounts.push(val);
+        saveCustomAccounts(accounts);
+    }
+    input.value = '';
+    renderAccountManagerList();
+}
+
+function deleteAccount(acc) {
+    if (!confirm('Dit account verwijderen? Bestaande trades blijven behouden tenzij u ze expliciet verwijdert.')) return;
+    var accounts = loadCustomAccounts();
+    accounts = accounts.filter(function(a) { return a !== acc; });
+    saveCustomAccounts(accounts);
+    renderAccountManagerList();
 }
 
 // ---- METADATA MODALS & STRUCTURAL VARIABLE MANIPULATION ----
