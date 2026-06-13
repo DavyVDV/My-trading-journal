@@ -102,12 +102,13 @@
                  Menu <i class="fas fa-chevron-down text-[8px]"></i>
             </button>
             <div id="dataMenuDropdown" class="hidden absolute right-0 mt-1.5 w-48 bg-slate-900 border border-slate-700 rounded-sm shadow-2xl p-1 z-50 text-slate-200">
-                <button onclick="openManualTradeModal(); toggleDropdown('dataMenuDropdown')" class="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-white rounded-sm text-xs transition-colors">
-                    <i class="fas fa-keyboard w-4 text-center mr-1 text-slate-200"></i> Manuele Invoer
-                </button>
                 <button onclick="document.getElementById('fileInput').click(); toggleDropdown('dataMenuDropdown')" class="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-white rounded-sm text-xs transition-colors">
                     <i class="fas fa-file-csv w-4 text-center mr-1 text-slate-200"></i> CSV Importeren
                 </button>
+                <button onclick="openManualTradeModal(); toggleDropdown('dataMenuDropdown')" class="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-white rounded-sm text-xs transition-colors">
+                    <i class="fas fa-keyboard w-4 text-center mr-1 text-slate-200"></i> Manuele Invoer
+                </button>
+                <button onclick="resetColumnWidths(); toggleDropdown('dataMenuDropdown')" class="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-white rounded-sm text-xs transition-colors"><i class="fas fa-arrows-alt-h w-4 text-center mr-1 text-slate-200"></i> Reset kolombreedte</button>
                 <div class="border-t border-zinc-800 my-1 mx-2"></div>
                 <button onclick="exportBackup(); toggleDropdown('dataMenuDropdown')" class="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-white rounded-sm text-xs transition-colors">
                     <i class="fas fa-file-export w-4 text-center mr-1 text-slate-200"></i> Backup Maken
@@ -244,15 +245,15 @@
 
         <div class="bg-terminal-card border border-terminal rounded-sm overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="w-full text-left font-mono text-xs text-slate-200">
+                <table class="w-full text-left font-mono text-xs text-slate-200" id="analyticsTable">
                     <thead class="bg-zinc-900 text-slate-200 border-b border-terminal text-[10px] tracking-wider uppercase">
                         <tr>
-                            <th class="px-4 py-2.5">Datum Uitvoering</th>
-                            <th class="px-4 py-2.5">Symbool</th>
-                            <th class="px-4 py-2.5">Kant</th>
-                            <th class="px-4 py-2.5 text-right">Grootte</th>
-                            <th class="px-4 py-2.5 text-right">Netto P&amp;L</th>
-                            <th class="px-4 py-2.5">Toegewezen Vector Tags</th>
+                            <th class="px-4 py-2.5 relative border-r border-zinc-700/50" id="ath_time" data-col-key="time"><span style="pointer-events:none">Datum Uitvoering</span><div class="col-resizer cursor-col-resize absolute right-0 top-0 w-2 h-full hover:bg-white/20 z-10" onmousedown="initColResize(event, this)"></div></th>
+                            <th class="px-4 py-2.5 relative border-r border-zinc-700/50" id="ath_symbol" data-col-key="symbol"><span style="pointer-events:none">Symbool</span><div class="col-resizer cursor-col-resize absolute right-0 top-0 w-2 h-full hover:bg-white/20 z-10" onmousedown="initColResize(event, this)"></div></th>
+                            <th class="px-4 py-2.5 relative border-r border-zinc-700/50" id="ath_side" data-col-key="side"><span style="pointer-events:none">Kant</span><div class="col-resizer cursor-col-resize absolute right-0 top-0 w-2 h-full hover:bg-white/20 z-10" onmousedown="initColResize(event, this)"></div></th>
+                            <th class="px-4 py-2.5 text-right relative border-r border-zinc-700/50" id="ath_volume" data-col-key="volume"><span style="pointer-events:none">Grootte</span><div class="col-resizer cursor-col-resize absolute right-0 top-0 w-2 h-full hover:bg-white/20 z-10" onmousedown="initColResize(event, this)"></div></th>
+                            <th class="px-4 py-2.5 text-right relative border-r border-zinc-700/50" id="ath_netpnl" data-col-key="netpnl"><span style="pointer-events:none">Netto P&amp;L</span><div class="col-resizer cursor-col-resize absolute right-0 top-0 w-2 h-full hover:bg-white/20 z-10" onmousedown="initColResize(event, this)"></div></th>
+                            <th class="px-4 py-2.5 relative border-r border-zinc-700/50" id="ath_tags" data-col-key="tags"><span style="pointer-events:none">Toegewezen Vector Tags</span><div class="col-resizer cursor-col-resize absolute right-0 top-0 w-2 h-full hover:bg-white/20 z-10" onmousedown="initColResize(event, this)"></div></th>
                         </tr>
                     </thead>
                     <tbody id="analyticsTableBody" class="divide-y divide-zinc-800/60">
@@ -566,7 +567,55 @@ var activeTab = 'dashboard';
 
 var currentCalendarDate = new Date(); // Added for Calendar View
 
+
+var colWidths = {};
+function initColResize(e, resizer) {
+    var th = resizer.parentElement;
+    var startX = e.pageX;
+    var startWidth = th.offsetWidth;
+    var tableId = th.closest('table').id || 'unknown';
+    
+    function onMouseMove(moveEvent) {
+        var newWidth = startWidth + (moveEvent.pageX - startX);
+        th.style.width = newWidth + 'px';
+        th.style.minWidth = newWidth + 'px';
+        th.style.maxWidth = newWidth + 'px';
+    }
+    
+    function onMouseUp(upEvent) {
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+        var finalWidth = th.offsetWidth;
+        var colKey = th.getAttribute('data-col-key');
+        if(colKey) {
+            colWidths[tableId + '_' + colKey] = finalWidth;
+            localStorage.setItem('qt_col_widths_v3', JSON.stringify(colWidths));
+        }
+    }
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+}
+
+function resetColumnWidths() {
+    colWidths = {};
+    localStorage.removeItem('qt_col_widths_v3');
+    
+    // reset analytics table
+    ['time', 'symbol', 'side', 'volume', 'netpnl', 'tags'].forEach(function(k) {
+        var th = document.getElementById('ath_' + k);
+        if(th) { th.style.width = ''; th.style.minWidth = ''; th.style.maxWidth = ''; }
+    });
+
+    updateUI(); applyAnalyticsTableWidths();
+}
+
+try {
+    var loadedColWidths = localStorage.getItem('qt_col_widths_v3');
+    if(loadedColWidths) colWidths = JSON.parse(loadedColWidths);
+} catch(err) {}
+
 var globalTags = [];
+
 var tagColors = {};
 var currentEditTags = [];
 var analyticsFilterTags = [];
@@ -1014,7 +1063,7 @@ function renderCalendarView() {
     
     var currentWeekRow = document.createElement('div');
     currentWeekRow.className = 'grid grid-cols-[repeat(7,1fr)_140px] gap-2';
-    var weekNet = 0;
+    var weekNet = 0; var weekTrades = 0;
     
     // Pad to start of month
     for (var i = 1; i < startDayOfWeek; i++) {
@@ -1026,7 +1075,7 @@ function renderCalendarView() {
     for (var date = 1; date <= daysInMonth; date++) {
         var currentDayOfWeek = new Date(year, month, date).getDay() || 7;
         var dayStats = daysData[date];
-        weekNet += dayStats.net;
+        weekNet += dayStats.net; weekTrades += dayStats.count;
         
         var cell = document.createElement('div');
         // highlight today
@@ -1069,14 +1118,15 @@ function renderCalendarView() {
             weekCell.className = "week-net-cell p-4";
             weekCell.innerHTML = 
                 '<span class="text-[10px] uppercase text-slate-200 tracking-widest mb-1">Week Netto</span>' +
-                '<span class="text-[18px] font-extrabold ' + wPnlClass + '">' + fmtUSD(weekNet) + '</span>';
+                '<span class="text-[18px] font-extrabold ' + wPnlClass + '">' + fmtUSD(weekNet) + '</span>' +
+'<span class="text-[10px] uppercase text-slate-400 font-bold mt-2 tracking-wider">' + weekTrades + ' TRADES</span>';
             
             currentWeekRow.appendChild(weekCell);
             gridContainer.appendChild(currentWeekRow);
             
             currentWeekRow = document.createElement('div');
             currentWeekRow.className = 'grid grid-cols-[repeat(7,1fr)_140px] gap-2';
-            weekNet = 0;
+            weekNet = 0; weekTrades = 0;
         }
     }
 }
@@ -1321,14 +1371,17 @@ function renderHeaders() {
         var def = COLUMN_DEFS.find(function(c){ return c.key === key; });
         if (!def) return;
         var th = document.createElement('th');
-        th.className = 'px-4 py-2 text-zinc-300 font-mono font-medium' + (def.align === 'right' ? ' text-right' : def.align === 'center' ? ' text-center' : '');
+        th.className = 'px-4 py-2 text-zinc-300 font-mono font-medium border-r border-zinc-700/50 relative' + (def.align === 'right' ? ' text-right' : def.align === 'center' ? ' text-center' : '');
         if (def.sortable) {
             th.style.cursor = 'pointer';
             th.onclick = function() { sortBy(key); };
         }
         var indicator = '';
         if (def.sortable && key === sortCol) { indicator = sortDir === 'asc' ? ' ▲' : ' ▼'; }
-        th.innerHTML = def.label + indicator;
+        th.setAttribute('data-col-key', key);
+        var savedW = colWidths['tradeTable_' + key];
+        if(savedW) { th.style.width = savedW + 'px'; th.style.minWidth = savedW + 'px'; th.style.maxWidth = savedW + 'px'; }
+        th.innerHTML = '<span style="pointer-events:none">' + def.label + indicator + '</span><div class="col-resizer cursor-col-resize absolute right-0 top-0 w-2 h-full hover:bg-white/20 z-10" onmousedown="initColResize(event, this)"></div>';
         row.appendChild(th);
     });
 }
@@ -1458,7 +1511,7 @@ function renderTable() {
             time:       '<td class="px-4 py-2 font-mono text-zinc-300">' + dateStr + '</td>',
             account:    '<td class="px-4 py-2 text-zinc-300 uppercase">' + esc(trade.account || '') + '</td>',
             symbol:     '<td class="px-4 py-2 font-bold text-white uppercase tracking-tight">' + esc(trade.symbol) + '</td>',
-            side:       '<td class="px-4 py-2 font-bold text-[10px] ' + (isLong ? 'text-blue-400' : 'text-amber-500') + '">' + (isLong ? 'LONG' : 'SHORT') + '</td>',
+            side:       '<td class="px-4 py-2 font-bold text-[10px] ' + (isLong ? 'text-emerald-500' : 'text-red-500') + '">' + (isLong ? 'LONG' : 'SHORT') + '</td>',
             volume:     '<td class="px-4 py-2 text-right text-zinc-300">' + trade.volume + '</td>',
             prices:     '<td class="px-4 py-2 text-zinc-300 text-[11px] font-mono">' + trade.entry.toFixed(2) + ' → ' + trade.exit.toFixed(2) + '</td>',
             pnl:        '<td class="px-4 py-2 text-right font-mono ' + (trade.pnl >= 0 ? 'pnl-profit' : 'pnl-loss') + '">' + fmtUSD(trade.pnl) + '</td>',
@@ -1646,6 +1699,19 @@ function applyBulkEdits() {
     closeBulkEditModal();
 }
 
+function applyAnalyticsTableWidths() {
+    ['time', 'symbol', 'side', 'volume', 'netpnl', 'tags'].forEach(function(k) {
+        var savedW = colWidths['analyticsTable_' + k];
+        if(savedW) {
+            var th = document.getElementById('ath_' + k);
+            if(th) {
+                th.style.width = savedW + 'px';
+                th.style.minWidth = savedW + 'px';
+                th.style.maxWidth = savedW + 'px';
+            }
+        }
+    });
+}
 function loadCustomAccounts() {
     try {
         var s = localStorage.getItem('qt_custom_accounts_v3');
@@ -1863,7 +1929,9 @@ function renderAnalyticsView() {
     globalTags.forEach(function(t) {
         var active = analyticsFilterTags.indexOf(t) >= 0;
         var btn = document.createElement('button');
+        var c = tagColors[t] || '#64748b';
         btn.className = 'px-2.5 py-1 rounded-sm text-xs border transition-colors uppercase font-mono ' + (active ? 'bg-white text-black border-white font-bold' : 'bg-terminal-input text-zinc-300 border-terminal hover:text-white');
+        btn.style.borderLeft = '4px solid ' + c;
         btn.textContent = t;
         btn.onclick = function() {
             if(active) { analyticsFilterTags = analyticsFilterTags.filter(function(x){ return x !== t; }); }
@@ -1882,7 +1950,8 @@ function renderAnalyticsView() {
     globalTags.forEach(function(t) {
         var row = document.createElement('div');
         row.className = 'flex justify-between items-center bg-terminal-input/50 border border-terminal/60 rounded-sm px-2 py-1 text-[11px]';
-        row.innerHTML = '<span class="text-zinc-300 uppercase font-mono tracking-tight">' + esc(t) + '</span>' +
+        var c = tagColors[t] || '#64748b';
+        row.innerHTML = '<span class="text-zinc-300 uppercase font-mono tracking-tight pt-1 pb-1" style="border-bottom: 2px solid ' + c + ';">' + esc(t) + '</span>' +
                         '<button class="text-zinc-300 hover:text-red-400 transition-colors font-bold text-xs px-1">&times;</button>';
         row.querySelector('button').onclick = function() { purgeGlobalTagPermanently(t); };
         vault.appendChild(row);
@@ -1943,7 +2012,10 @@ function calculateTagSpecificMetrics() {
 
         var isLong = trade.side.toLowerCase().indexOf('buy') >= 0 || trade.side.toLowerCase() === 'long';
         var dateTxt = (trade.time instanceof Date && !isNaN(trade.time)) ? trade.time.toLocaleDateString('nl-NL', {month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}) : trade.dateStr;
-        var badges = trade.tags.map(function(tg){ return '<span class="bg-zinc-800 text-zinc-300 px-1 py-0.5 rounded-sm text-[10px] mr-1 border border-zinc-700/40 uppercase">' + esc(tg) + '</span>'; }).join('');
+        var badges = trade.tags.map(function(tg){
+    var c = tagColors[tg] || '#64748b';
+    return '<span class="bg-zinc-800 text-zinc-300 px-1 py-0.5 rounded-sm text-[10px] mr-1 border border-zinc-700/40 uppercase" style="border-left: 3px solid ' + c + '">' + esc(tg) + '</span>'; 
+}).join('');
 
         var tr = document.createElement('tr');
         tr.className = 'hover:bg-zinc-900/40 border-b border-zinc-800/40 cursor-pointer';
@@ -1951,7 +2023,7 @@ function calculateTagSpecificMetrics() {
         tr.innerHTML = 
             '<td class="px-4 py-2 font-mono text-zinc-300">' + dateTxt + '</td>' +
             '<td class="px-4 py-2 font-bold text-white uppercase">' + esc(trade.symbol) + '</td>' +
-            '<td class="px-4 py-2 font-bold text-[10px] ' + (isLong ? 'text-blue-400' : 'text-amber-500') + '">' + (isLong ? 'LONG' : 'SHORT') + '</td>' +
+            '<td class="px-4 py-2 font-bold text-[10px] ' + (isLong ? 'text-emerald-500' : 'text-red-500') + '">' + (isLong ? 'LONG' : 'SHORT') + '</td>' +
             '<td class="px-4 py-2 text-right text-zinc-300">' + trade.volume + '</td>' +
             '<td class="px-4 py-2 text-right font-mono ' + (net >= 0 ? 'pnl-profit' : 'pnl-loss') + '">' + fmtUSD(net) + '</td>' +
             '<td class="px-4 py-2">' + badges + '</td>';
