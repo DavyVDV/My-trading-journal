@@ -80,10 +80,9 @@
 <nav class="bg-terminal-card border-b border-terminal px-6 py-2.5 flex justify-between items-center sticky top-0 z-40">
     <div class="flex items-center gap-8">
         <div class="flex items-center gap-2">
-            <div class="w-5 h-5 bg-white text-black font-bold text-xs flex items-center justify-center rounded-sm tracking-tighter">Q</div>
-            <span class="text-xs font-bold tracking-widest uppercase font-mono text-zinc-200">Quantower.Terminal</span>
+            <div class="h-5 px-1.5 bg-white text-black font-bold text-xs flex items-center justify-center rounded-sm tracking-tighter uppercase">Journal</div>
         </div>
-        <div class="flex gap-5 text-xs font-mono text-slate-400">
+        <div class="flex gap-5 text-xs font-mono text-slate-200">
             <button onclick="switchTab('dashboard')" id="tab-dashboard" class="py-1 border-b-2 border-transparent transition-colors hover:text-zinc-200 tab-nav-active">[ 01. LOGBOEK &amp; EQUITY ]</button>
             <button onclick="switchTab('analytics')" id="tab-analytics" class="py-1 border-b-2 border-transparent transition-colors hover:text-zinc-200">[ 02. TAG MATRIX ]</button>
             <button onclick="switchTab('calendar')" id="tab-calendar" class="py-1 border-b-2 border-transparent transition-colors hover:text-zinc-200">[ 03. KALENDER ]</button>
@@ -94,27 +93,27 @@
         <button onclick="openAccountManagerModal()" class="bg-blue-900/40 hover:bg-blue-800/60 text-blue-300 px-2.5 py-1 rounded-sm border border-blue-800 transition-colors">
             <i class="fas fa-wallet mr-1"></i> ACCOUNTS
         </button>
-        <button onclick="openSettings()" class="bg-terminal-input hover:bg-zinc-800 text-slate-300 border border-terminal px-2.5 py-1 rounded-sm transition-colors">
+        <button onclick="openSettings()" class="bg-terminal-input hover:bg-zinc-800 text-slate-200 border border-terminal px-2.5 py-1 rounded-sm transition-colors">
             <i class="fas fa-sliders-h text-[10px]"></i>
         </button>
 
         <div class="relative inline-block text-left">
-            <button onclick="toggleDropdown('dataMenuDropdown')" class="bg-terminal-input hover:bg-zinc-800 text-slate-300 border border-terminal px-2.5 py-1 rounded-sm font-semibold transition-colors flex items-center gap-1.5 focus:outline-none">
+            <button onclick="toggleDropdown('dataMenuDropdown')" class="bg-terminal-input hover:bg-zinc-800 text-slate-200 border border-terminal px-2.5 py-1 rounded-sm font-semibold transition-colors flex items-center gap-1.5 focus:outline-none">
                  Menu <i class="fas fa-chevron-down text-[8px]"></i>
             </button>
-            <div id="dataMenuDropdown" class="hidden absolute right-0 mt-1.5 w-48 bg-slate-900 border border-slate-700 rounded-sm shadow-2xl p-1 z-50 text-slate-300">
+            <div id="dataMenuDropdown" class="hidden absolute right-0 mt-1.5 w-48 bg-slate-900 border border-slate-700 rounded-sm shadow-2xl p-1 z-50 text-slate-200">
                 <button onclick="openManualTradeModal(); toggleDropdown('dataMenuDropdown')" class="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-white rounded-sm text-xs transition-colors">
-                    <i class="fas fa-keyboard w-4 text-center mr-1 text-slate-500"></i> Manuele Invoer
+                    <i class="fas fa-keyboard w-4 text-center mr-1 text-slate-200"></i> Manuele Invoer
                 </button>
                 <button onclick="document.getElementById('fileInput').click(); toggleDropdown('dataMenuDropdown')" class="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-white rounded-sm text-xs transition-colors">
-                    <i class="fas fa-file-csv w-4 text-center mr-1 text-slate-500"></i> CSV Importeren
+                    <i class="fas fa-file-csv w-4 text-center mr-1 text-slate-200"></i> CSV Importeren
                 </button>
                 <div class="border-t border-zinc-800 my-1 mx-2"></div>
                 <button onclick="exportBackup(); toggleDropdown('dataMenuDropdown')" class="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-white rounded-sm text-xs transition-colors">
-                    <i class="fas fa-file-export w-4 text-center mr-1 text-slate-500"></i> Backup Maken
+                    <i class="fas fa-file-export w-4 text-center mr-1 text-slate-200"></i> Backup Maken
                 </button>
                 <button onclick="document.getElementById('importBackupInput').click(); toggleDropdown('dataMenuDropdown')" class="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-white rounded-sm text-xs transition-colors">
-                    <i class="fas fa-file-import w-4 text-center mr-1 text-slate-500"></i> Backup Herstellen
+                    <i class="fas fa-file-import w-4 text-center mr-1 text-slate-200"></i> Backup Herstellen
                 </button>
                 <div class="border-t border-zinc-800 my-1 mx-2"></div>
                 <button onclick="clearAllData(); toggleDropdown('dataMenuDropdown')" class="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-red-400 rounded-sm text-xs transition-colors flex items-start">
@@ -135,49 +134,49 @@
         <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-6">
             <div class="flex flex-col gap-3 md:col-span-1 lg:col-span-1">
                 <div class="bg-terminal-card border border-terminal p-3 rounded-sm">
-                    <span class="text-[10px] uppercase font-mono tracking-wider text-slate-400 block">Bruto P&amp;L</span>
+                    <span class="text-[10px] uppercase font-mono tracking-wider text-slate-200 block">Bruto P&amp;L</span>
                     <div class="text-base font-bold font-mono mt-0.5" id="kpi-pnl">$0.00</div>
                 </div>
                 <div class="bg-terminal-card border border-terminal p-3 rounded-sm">
-                    <span class="text-[10px] uppercase font-mono tracking-wider text-slate-400 block">Netto P&amp;L</span>
+                    <span class="text-[10px] uppercase font-mono tracking-wider text-slate-200 block">Netto P&amp;L</span>
                     <div class="text-base font-bold font-mono mt-0.5" id="kpi-netpnl">$0.00</div>
                 </div>
                 <div class="bg-terminal-card border border-terminal p-3 rounded-sm">
-                    <span class="text-[10px] uppercase font-mono tracking-wider text-slate-400 block">Winstpercentage</span>
+                    <span class="text-[10px] uppercase font-mono tracking-wider text-slate-200 block">Winstpercentage</span>
                     <div class="text-base font-bold font-mono text-zinc-200 mt-0.5" id="kpi-winrate">0.0%</div>
                 </div>
                 <div class="bg-terminal-card border border-terminal p-3 rounded-sm">
-                    <span class="text-[10px] uppercase font-mono tracking-wider text-slate-400 block">Winstfactor</span>
+                    <span class="text-[10px] uppercase font-mono tracking-wider text-slate-200 block">Winstfactor</span>
                     <div class="text-base font-bold font-mono text-zinc-200 mt-0.5" id="kpi-pf">0.00</div>
                 </div>
                 <div class="bg-terminal-card border border-terminal p-3 rounded-sm">
-                    <span class="text-[10px] uppercase font-mono tracking-wider text-slate-400 block">Uitvoeringen</span>
+                    <span class="text-[10px] uppercase font-mono tracking-wider text-slate-200 block">Uitvoeringen</span>
                     <div class="text-base font-bold font-mono text-zinc-200 mt-0.5" id="kpi-trades">0</div>
                 </div>
             </div>
 
             <div class="md:col-span-3 lg:col-span-4 bg-terminal-card border border-terminal p-4 min-h-[300px] flex flex-col relative rounded-sm">
-                <span class="text-[10px] font-mono uppercase tracking-widest text-slate-400 absolute top-3 left-4">EQUITY CURVE NETTO</span>
+                <span class="text-[10px] font-mono uppercase tracking-widest text-slate-200 absolute top-3 left-4">EQUITY CURVE NETTO</span>
                 <div class="flex-1 w-full pt-4 relative"><canvas id="pnlChart"></canvas></div>
             </div>
         </div>
 
         <div class="flex justify-between items-center bg-terminal-card border border-terminal p-3 rounded-sm font-mono text-xs">
             <div class="flex items-center gap-3">
-                <select id="accountFilter" onchange="onAccountChange()" class="bg-terminal-input border border-terminal rounded-sm px-2.5 py-1 text-slate-300 focus:outline-none cursor-pointer">
+                <select id="accountFilter" onchange="onAccountChange()" class="bg-terminal-input border border-terminal rounded-sm px-2.5 py-1 text-slate-200 focus:outline-none cursor-pointer">
                     <option value="ALL">ALLE ACCOUNTS</option>
                 </select>
                 <div class="relative">
-                    <i class="fas fa-search absolute left-2.5 top-2 text-slate-400 text-[10px]"></i>
+                    <i class="fas fa-search absolute left-2.5 top-2 text-slate-200 text-[10px]"></i>
                     <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="FILTER SYM/TAGS..." class="bg-terminal-input border border-terminal rounded-sm pl-7 pr-3 py-1 text-zinc-200 focus:outline-none w-56 placeholder-slate-400 uppercase text-xs">
                 </div>
             </div>
             
             <div class="relative">
-                <button onclick="toggleDropdown('colDropdown')" class="bg-terminal-input border border-terminal text-slate-300 px-2.5 py-1 rounded-sm flex items-center gap-1.5 hover:text-white">
+                <button onclick="toggleDropdown('colDropdown')" class="bg-terminal-input border border-terminal text-slate-200 px-2.5 py-1 rounded-sm flex items-center gap-1.5 hover:text-white">
                     <i class="fas fa-table text-[10px]"></i> KOLOMMEN <i class="fas fa-chevron-down text-[8px]"></i>
                 </button>
-                <div id="colDropdown" class="hidden absolute right-0 mt-1 w-44 bg-terminal-card border border-terminal rounded-sm shadow-2xl p-2.5 space-y-1.5 z-30">
+                <div id="colDropdown" class="hidden absolute right-0 mt-1 w-44 bg-slate-800 border border-terminal rounded-sm shadow-2xl p-2.5 space-y-1.5 z-30">
                     <div id="colVisibilityItems" class="space-y-1 text-[11px]"></div>
                 </div>
             </div>
@@ -197,12 +196,12 @@
 
         <div class="bg-terminal-card border border-terminal rounded-sm overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="w-full text-left font-mono text-xs text-slate-400" id="tradeTable">
-                    <thead class="bg-zinc-900 text-slate-400 border-b border-terminal text-[10px] tracking-wider uppercase">
+                <table class="w-full text-left font-mono text-xs text-slate-200" id="tradeTable">
+                    <thead class="bg-zinc-900 text-slate-200 border-b border-terminal text-[10px] tracking-wider uppercase">
                         <tr id="tradeTableHeaderRow"></tr>
                     </thead>
                     <tbody id="tradeTableBody" class="divide-y divide-zinc-800/60">
-                        <tr><td colspan="11" class="px-4 py-8 text-center text-slate-400 italic">Geen uitvoeringen gevonden binnen deze weergave.</td></tr>
+                        <tr><td colspan="11" class="px-4 py-8 text-center text-slate-200 italic">Geen uitvoeringen gevonden binnen deze weergave.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -213,40 +212,40 @@
     <div id="view-analytics" class="space-y-6 hidden">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="bg-terminal-card border border-terminal p-4 rounded-sm lg:col-span-2">
-                <span class="text-[10px] font-mono uppercase tracking-widest text-slate-400 block mb-2">Tag Intersectie (AND-Logica)</span>
+                <span class="text-[10px] font-mono uppercase tracking-widest text-slate-200 block mb-2">Tag Intersectie (AND-Logica)</span>
                 <div id="analyticsTagCloud" class="flex flex-wrap gap-1.5"></div>
             </div>
             
             <div class="bg-terminal-card border border-terminal p-4 rounded-sm">
-                <span class="text-[10px] font-mono uppercase tracking-widest text-slate-400 block mb-2">Globale Tag Bank Beheerder</span>
-                <p class="text-[11px] text-slate-400 mb-3 font-mono">Klik op het kruisje om een tag definitief uit het systeem te wissen.</p>
+                <span class="text-[10px] font-mono uppercase tracking-widest text-slate-200 block mb-2">Globale Tag Bank Beheerder</span>
+                <p class="text-[11px] text-slate-200 mb-3 font-mono">Klik op het kruisje om een tag definitief uit het systeem te wissen.</p>
                 <div id="globalTagManagerList" class="space-y-1 max-h-40 overflow-y-auto pr-1"></div>
             </div>
         </div>
 
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div class="bg-terminal-card border border-terminal p-3 rounded-sm">
-                <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 block">Gefilterde Netto P&amp;L</span>
+                <span class="text-[10px] font-mono uppercase tracking-wider text-slate-200 block">Gefilterde Netto P&amp;L</span>
                 <h2 class="text-base font-bold font-mono mt-0.5 text-zinc-200" id="tag-kpi-netpnl">$0.00</h2>
             </div>
             <div class="bg-terminal-card border border-terminal p-3 rounded-sm">
-                <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 block">Gefilterd Winstpercentage</span>
+                <span class="text-[10px] font-mono uppercase tracking-wider text-slate-200 block">Gefilterd Winstpercentage</span>
                 <h2 class="text-base font-bold font-mono mt-0.5 text-zinc-200" id="tag-kpi-winrate">0.0%</h2>
             </div>
             <div class="bg-terminal-card border border-terminal p-3 rounded-sm">
-                <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 block">Gefilterde Winstfactor</span>
+                <span class="text-[10px] font-mono uppercase tracking-wider text-slate-200 block">Gefilterde Winstfactor</span>
                 <h2 class="text-base font-bold font-mono mt-0.5 text-zinc-200" id="tag-kpi-pf">0.00</h2>
             </div>
             <div class="bg-terminal-card border border-terminal p-3 rounded-sm">
-                <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 block">Steekproef Grootte</span>
+                <span class="text-[10px] font-mono uppercase tracking-wider text-slate-200 block">Steekproef Grootte</span>
                 <h2 class="text-base font-bold font-mono mt-0.5 text-zinc-200" id="tag-kpi-count">0</h2>
             </div>
         </div>
 
         <div class="bg-terminal-card border border-terminal rounded-sm overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="w-full text-left font-mono text-xs text-slate-400">
-                    <thead class="bg-zinc-900 text-slate-400 border-b border-terminal text-[10px] tracking-wider uppercase">
+                <table class="w-full text-left font-mono text-xs text-slate-200">
+                    <thead class="bg-zinc-900 text-slate-200 border-b border-terminal text-[10px] tracking-wider uppercase">
                         <tr>
                             <th class="px-4 py-2.5">Datum Uitvoering</th>
                             <th class="px-4 py-2.5">Symbool</th>
@@ -257,7 +256,7 @@
                         </tr>
                     </thead>
                     <tbody id="analyticsTableBody" class="divide-y divide-zinc-800/60">
-                        <tr><td colspan="6" class="px-4 py-6 text-center text-slate-400 italic">Selecteer variabelen om resultaten te filteren.</td></tr>
+                        <tr><td colspan="6" class="px-4 py-6 text-center text-slate-200 italic">Selecteer variabelen om resultaten te filteren.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -267,18 +266,18 @@
     <!-- CALENDAR VIEW -->
     <div id="view-calendar" class="space-y-6 hidden">
         <div class="flex justify-between items-center bg-terminal-card border border-terminal p-3 rounded-sm font-mono text-xs gap-2">
-            <button onclick="changeCalendarOffset(-1)" class="bg-terminal-input hover:bg-zinc-800 text-slate-400 px-3 py-1.5 rounded-sm border border-terminal transition-colors hover:text-white uppercase font-bold tracking-wider">
+            <button onclick="changeCalendarOffset(-1)" class="bg-terminal-input hover:bg-zinc-800 text-slate-200 px-3 py-1.5 rounded-sm border border-terminal transition-colors hover:text-white uppercase font-bold tracking-wider">
                 &lt; VORIGEN
             </button>
             <h2 id="calendarMonthLabel" class="text-base font-bold text-zinc-200 uppercase tracking-widest text-center flex-1">
                 MAAND JJJJ
             </h2>
             <div class="flex items-center gap-2">
-                <select id="calendarModeSelector" onchange="toggleCalendarMode()" class="bg-terminal-input border border-terminal rounded-sm px-2.5 py-1 text-slate-300 focus:outline-none cursor-pointer">
+                <select id="calendarModeSelector" onchange="toggleCalendarMode()" class="bg-terminal-input border border-terminal rounded-sm px-2.5 py-1 text-slate-200 focus:outline-none cursor-pointer">
                     <option value="month">MAANDELIJKSE WEERGAVE</option>
                     <option value="year">JAARLIJKSE WEERGAVE</option>
                 </select>
-                <button onclick="changeCalendarOffset(1)" class="bg-terminal-input hover:bg-zinc-800 text-slate-400 px-3 py-1.5 rounded-sm border border-terminal transition-colors hover:text-white uppercase font-bold tracking-wider">
+                <button onclick="changeCalendarOffset(1)" class="bg-terminal-input hover:bg-zinc-800 text-slate-200 px-3 py-1.5 rounded-sm border border-terminal transition-colors hover:text-white uppercase font-bold tracking-wider">
                     VOLGENDE &gt;
                 </button>
             </div>
@@ -287,21 +286,21 @@
         <!-- Metric summaries for the month -->
         <div class="flex gap-8 mb-4">
             <div class="flex flex-col">
-                <span class="text-[11px] uppercase tracking-wider text-slate-400 mb-1 font-bold" id="cal-kpi-gross-label">Maandelijks Bruto</span>
+                <span class="text-[11px] uppercase tracking-wider text-slate-200 mb-1 font-bold" id="cal-kpi-gross-label">Maandelijks Bruto</span>
                 <h2 class="text-[18px] font-bold mt-0.5 text-slate-100" id="cal-kpi-gross">$0.00</h2>
             </div>
             <div class="flex flex-col">
-                <span class="text-[11px] uppercase tracking-wider text-slate-400 mb-1 font-bold" id="cal-kpi-net-label">Maandelijks Netto P&amp;L</span>
+                <span class="text-[11px] uppercase tracking-wider text-slate-200 mb-1 font-bold" id="cal-kpi-net-label">Maandelijks Netto P&amp;L</span>
                 <h2 class="text-[18px] font-bold mt-0.5 text-slate-100" id="cal-kpi-net">$0.00</h2>
             </div>
             <div class="flex flex-col">
-                <span class="text-[11px] uppercase tracking-wider text-slate-400 mb-1 font-bold" id="cal-kpi-trades-label">Maandelijkse Uitvoeringen</span>
+                <span class="text-[11px] uppercase tracking-wider text-slate-200 mb-1 font-bold" id="cal-kpi-trades-label">Maandelijkse Uitvoeringen</span>
                 <h2 class="text-[18px] font-bold mt-0.5 text-slate-100" id="cal-kpi-trades">0</h2>
             </div>
         </div>
 
         <div class="bg-terminal-card border border-terminal rounded-2xl overflow-hidden p-5" id="calendarGridWrapper">
-            <div id="calendarHeader" class="grid grid-cols-[repeat(7,1fr)_140px] gap-2 font-bold text-[12px] text-slate-500 uppercase tracking-wider mb-2 text-center pb-2">
+            <div id="calendarHeader" class="grid grid-cols-[repeat(7,1fr)_140px] gap-2 font-bold text-[12px] text-slate-200 uppercase tracking-wider mb-2 text-center pb-2">
                 <div class="py-2">Ma</div>
                 <div class="py-2">Di</div>
                 <div class="py-2">Wo</div>
@@ -309,7 +308,7 @@
                 <div class="py-2">Vr</div>
                 <div class="py-2">Za</div>
                 <div class="py-2">Zo</div>
-                <div class="text-slate-400 bg-slate-900/50 rounded-lg py-2">Week Netto</div>
+                <div class="text-slate-200 bg-slate-900/50 rounded-lg py-2">Week Netto</div>
             </div>
             <div id="calendarGrid" class="flex flex-col gap-2">
                 <!-- Rows of weeks dynamically generated here -->
@@ -326,7 +325,7 @@
             <span class="text-[11px] font-bold tracking-widest text-red-500 uppercase flex items-center gap-2">
                 <i class="fas fa-exclamation-triangle"></i> BEVESTIG ACTIE
             </span>
-            <button onclick="closeConfirmModal()" class="text-zinc-500 hover:text-white text-base leading-none transition-colors">&times;</button>
+            <button onclick="closeConfirmModal()" class="text-zinc-300 hover:text-white text-base leading-none transition-colors">&times;</button>
         </div>
         <div class="p-6">
             <p id="confirmModalText" class="text-zinc-300 font-mono text-sm mb-6 leading-relaxed"></p>
@@ -334,7 +333,7 @@
                 <button id="confirmModalBtn" class="bg-red-900/40 hover:bg-red-600 text-white border border-red-800/50 hover:border-red-500 px-4 py-2.5 rounded-sm font-bold uppercase tracking-wider transition-colors w-full">
                     Bevestig Actie
                 </button>
-                <button onclick="closeConfirmModal()" class="bg-zinc-900 hover:bg-zinc-800 text-zinc-400 border border-zinc-700 px-4 py-2.5 rounded-sm font-bold uppercase tracking-wider transition-colors w-full">
+                <button onclick="closeConfirmModal()" class="bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-700 px-4 py-2.5 rounded-sm font-bold uppercase tracking-wider transition-colors w-full">
                     Annuleer
                 </button>
             </div>
@@ -345,23 +344,23 @@
 <div id="bulkEditModal" class="fixed inset-0 bg-black/90 flex items-center justify-center z-50 px-4 hidden">
     <div class="bg-terminal-card border border-terminal w-full max-w-sm flex flex-col rounded-sm font-mono text-xs">
         <div class="flex justify-between items-center p-4 border-b border-terminal bg-slate-900">
-            <span class="text-[11px] font-bold tracking-widest text-slate-400 uppercase">BEWERK GESELECTEERD</span>
-            <button onclick="closeBulkEditModal()" class="text-slate-500 hover:text-slate-200 text-base leading-none">&times;</button>
+            <span class="text-[11px] font-bold tracking-widest text-slate-200 uppercase">BEWERK GESELECTEERD</span>
+            <button onclick="closeBulkEditModal()" class="text-slate-200 hover:text-slate-200 text-base leading-none">&times;</button>
         </div>
         <div class="p-5 space-y-4">
             <div>
-                <label class="block text-[10px] text-slate-500 uppercase tracking-wider mb-1">Stel Account in</label>
+                <label class="block text-[10px] text-slate-200 uppercase tracking-wider mb-1">Stel Account in</label>
                 <select id="bulkAccountSelect" class="w-full bg-terminal-input border border-terminal rounded-sm p-1.5 text-zinc-200 focus:outline-none cursor-pointer">
                     <option value="">-- KIES EEN ACCOUNT --</option>
                 </select>
             </div>
             <div>
-                <label class="block text-[10px] text-slate-500 uppercase tracking-wider mb-1">Voeg Tag Toe</label>
+                <label class="block text-[10px] text-slate-200 uppercase tracking-wider mb-1">Voeg Tag Toe</label>
                 <input type="text" id="bulkTagInput" placeholder="NIEUWE TAG" class="w-full bg-terminal-input border border-terminal rounded-sm p-1.5 text-zinc-200 focus:outline-none uppercase">
             </div>
         </div>
         <div class="p-4 border-t border-terminal bg-slate-900/40 flex justify-end gap-2 text-xs">
-            <button onclick="closeBulkEditModal()" class="px-3 py-1.5 bg-terminal-input border border-terminal rounded-sm text-slate-300 hover:text-white hover:bg-slate-800 transition-colors font-bold">ANNULEER</button>
+            <button onclick="closeBulkEditModal()" class="px-3 py-1.5 bg-terminal-input border border-terminal rounded-sm text-slate-200 hover:text-white hover:bg-slate-800 transition-colors font-bold">ANNULEER</button>
             <button onclick="applyBulkEdits()" class="px-4 py-1.5 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-sm font-bold hover:bg-blue-600/40 hover:text-white transition-colors">TOEPASSEN</button>
         </div>
     </div>
@@ -370,8 +369,8 @@
 <div id="accountManagerModal" class="fixed inset-0 bg-black/90 flex items-center justify-center z-50 px-4 hidden">
     <div class="bg-terminal-card border border-terminal w-full max-w-md flex flex-col rounded-sm font-mono text-xs">
         <div class="flex justify-between items-center p-4 border-b border-terminal bg-slate-900">
-            <span class="text-[11px] font-bold tracking-widest text-slate-400 uppercase">ACCOUNT BEHEER</span>
-            <button onclick="closeAccountManagerModal()" class="text-slate-500 hover:text-slate-200 text-base leading-none">&times;</button>
+            <span class="text-[11px] font-bold tracking-widest text-slate-200 uppercase">ACCOUNT BEHEER</span>
+            <button onclick="closeAccountManagerModal()" class="text-slate-200 hover:text-slate-200 text-base leading-none">&times;</button>
         </div>
         <div class="p-5 space-y-4">
             <div class="flex gap-2">
@@ -379,7 +378,7 @@
                 <button onclick="addAccount()" class="bg-white hover:bg-slate-200 text-black px-3 py-1 rounded-sm font-bold transition-colors whitespace-nowrap">TOEVOEGEN</button>
             </div>
             <div>
-                <label class="block text-[10px] text-slate-500 uppercase tracking-wider mb-2">Bestaande Accounts</label>
+                <label class="block text-[10px] text-slate-200 uppercase tracking-wider mb-2">Bestaande Accounts</label>
                 <div id="accountListContainer" class="space-y-2 max-h-[40vh] overflow-y-auto"></div>
             </div>
         </div>
@@ -389,54 +388,54 @@
 <div id="manualTradeModal" class="fixed inset-0 bg-black/90 flex items-center justify-center z-50 px-4 hidden">
     <div class="bg-terminal-card border border-terminal w-full max-w-lg flex flex-col rounded-sm font-mono text-xs">
         <div class="flex justify-between items-center p-4 border-b border-terminal bg-zinc-900">
-            <span class="text-[11px] font-bold tracking-widest text-zinc-400 uppercase">EXECUTION_RECORD // NEW_MANUAL_ENTRY</span>
-            <button onclick="closeManualTradeModal()" class="text-zinc-500 hover:text-zinc-200 text-base leading-none">&times;</button>
+            <span class="text-[11px] font-bold tracking-widest text-zinc-300 uppercase">EXECUTION_RECORD // NEW_MANUAL_ENTRY</span>
+            <button onclick="closeManualTradeModal()" class="text-zinc-300 hover:text-zinc-200 text-base leading-none">&times;</button>
         </div>
         <form id="manualTradeForm" onsubmit="handleManualTradeSubmit(event)" class="p-5 space-y-4 overflow-y-auto max-h-[85vh]">
             <div class="grid grid-cols-2 gap-3">
                 <div>
-                    <label class="block text-[10px] text-zinc-500 uppercase tracking-wider mb-1">Account</label>
+                    <label class="block text-[10px] text-zinc-300 uppercase tracking-wider mb-1">Account</label>
                     <input type="text" id="manAccount" required placeholder="LIVE_01" class="w-full bg-terminal-input border border-terminal rounded-sm p-1.5 text-zinc-200 focus:outline-none uppercase">
                 </div>
                 <div>
-                    <label class="block text-[10px] text-zinc-500 uppercase tracking-wider mb-1">Date &amp; Time</label>
+                    <label class="block text-[10px] text-zinc-300 uppercase tracking-wider mb-1">Date &amp; Time</label>
                     <input type="datetime-local" id="manTime" required class="w-full bg-terminal-input border border-terminal rounded-sm p-1.5 text-zinc-200 focus:outline-none">
                 </div>
             </div>
             <div class="grid grid-cols-3 gap-3">
                 <div>
-                    <label class="block text-[10px] text-zinc-500 uppercase tracking-wider mb-1">Symbol</label>
+                    <label class="block text-[10px] text-zinc-300 uppercase tracking-wider mb-1">Symbol</label>
                     <input type="text" id="manSymbol" required placeholder="ES" class="w-full bg-terminal-input border border-terminal rounded-sm p-1.5 text-zinc-200 focus:outline-none uppercase">
                 </div>
                 <div>
-                    <label class="block text-[10px] text-zinc-500 uppercase tracking-wider mb-1">Side</label>
+                    <label class="block text-[10px] text-zinc-300 uppercase tracking-wider mb-1">Side</label>
                     <select id="manSide" required class="w-full bg-terminal-input border border-terminal rounded-sm p-1.5 text-zinc-200 focus:outline-none cursor-pointer">
                         <option value="Long">LONG</option>
                         <option value="Short">SHORT</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-[10px] text-zinc-500 uppercase tracking-wider mb-1">Size (Contracts)</label>
+                    <label class="block text-[10px] text-zinc-300 uppercase tracking-wider mb-1">Size (Contracts)</label>
                     <input type="number" id="manVolume" min="1" step="1" required class="w-full bg-terminal-input border border-terminal rounded-sm p-1.5 text-zinc-200 focus:outline-none">
                 </div>
             </div>
             <div class="grid grid-cols-2 gap-3">
                 <div>
-                    <label class="block text-[10px] text-zinc-500 uppercase tracking-wider mb-1">Avg Entry Price</label>
+                    <label class="block text-[10px] text-zinc-300 uppercase tracking-wider mb-1">Avg Entry Price</label>
                     <input type="number" id="manEntry" step="0.01" required class="w-full bg-terminal-input border border-terminal rounded-sm p-1.5 text-zinc-200 focus:outline-none">
                 </div>
                 <div>
-                    <label class="block text-[10px] text-zinc-500 uppercase tracking-wider mb-1">Avg Exit Price</label>
+                    <label class="block text-[10px] text-zinc-300 uppercase tracking-wider mb-1">Avg Exit Price</label>
                     <input type="number" id="manExit" step="0.01" required class="w-full bg-terminal-input border border-terminal rounded-sm p-1.5 text-zinc-200 focus:outline-none">
                 </div>
             </div>
             <div class="grid grid-cols-2 gap-3">
                 <div>
-                    <label class="block text-[10px] text-zinc-500 uppercase tracking-wider mb-1">Gross P&amp;L ($)</label>
+                    <label class="block text-[10px] text-zinc-300 uppercase tracking-wider mb-1">Gross P&amp;L ($)</label>
                     <input type="number" id="manPnL" step="0.01" required placeholder="0.00" class="w-full bg-terminal-input border border-terminal rounded-sm p-1.5 text-zinc-200 focus:outline-none">
                 </div>
                 <div>
-                    <label class="block text-[10px] text-zinc-500 uppercase tracking-wider mb-1">Commissions / Fee ($)</label>
+                    <label class="block text-[10px] text-zinc-300 uppercase tracking-wider mb-1">Commissions / Fee ($)</label>
                     <input type="number" id="manFee" step="0.01" placeholder="Auto-calculated if blank" class="w-full bg-terminal-input border border-terminal rounded-sm p-1.5 text-zinc-200 focus:outline-none">
                 </div>
             </div>
@@ -451,37 +450,38 @@
 <div id="noteModal" class="fixed inset-0 bg-black/90 flex items-center justify-center z-50 px-4 hidden">
     <div class="bg-terminal-card border border-terminal w-full max-w-xl flex flex-col rounded-sm font-mono text-xs">
         <div class="flex justify-between items-center p-4 border-b border-terminal bg-zinc-900">
-            <span class="text-[11px] font-bold tracking-widest text-zinc-400 uppercase">DATA_METADATA_EDITION // MATRIX</span>
-            <button onclick="closeModal()" class="text-zinc-500 hover:text-zinc-200 text-base leading-none">&times;</button>
+            <span class="text-[11px] font-bold tracking-widest text-zinc-300 uppercase">DATA_METADATA_EDITION // MATRIX</span>
+            <button onclick="closeModal()" class="text-zinc-300 hover:text-zinc-200 text-base leading-none">&times;</button>
         </div>
         <input type="hidden" id="editTradeId">
         
         <div class="p-5 overflow-y-auto space-y-4 max-h-[80vh]">
             <div>
-                <label class="block text-[10px] uppercase font-bold text-zinc-500 tracking-wider mb-1.5">Attached Structural Tags</label>
+                <label class="block text-[10px] uppercase font-bold text-zinc-300 tracking-wider mb-1.5">Attached Structural Tags</label>
                 <div id="modalActiveTags" class="flex flex-wrap gap-1 mb-2 min-h-[22px]"></div>
                 <div class="flex gap-1.5">
                     <input type="text" id="newTagInput" placeholder="CREATE STRATEGY VALUE..." class="bg-terminal-input border border-terminal rounded-sm px-2 py-1 text-zinc-200 focus:outline-none flex-1 uppercase text-xs">
+                    <input type="color" id="newTagColorInput" value="#64748b" class="h-[26px] w-[26px] p-0 border border-terminal bg-terminal-input cursor-pointer rounded-sm">
                     <button onclick="createNewTag()" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-terminal px-3 rounded-sm text-[11px]">APPEND</button>
                 </div>
                 <div class="mt-3">
-                    <p class="text-[9px] uppercase tracking-wider text-zinc-600 mb-1">Click tag to assign:</p>
+                    <p class="text-[9px] uppercase tracking-wider text-zinc-300 mb-1">Click tag to assign:</p>
                     <div id="modalAvailableTags" class="flex flex-wrap gap-1"></div>
                 </div>
             </div>
 
             <div>
-                <label class="block text-[10px] uppercase font-bold text-zinc-500 tracking-wider mb-1">Context Logs &amp; Dynamics</label>
+                <label class="block text-[10px] uppercase font-bold text-zinc-300 tracking-wider mb-1">Context Logs &amp; Dynamics</label>
                 <textarea id="editNotes" rows="3" placeholder="Market structure conditions, orderflow divergences, tier errors..." class="w-full bg-terminal-input border border-terminal rounded-sm p-2 text-zinc-200 focus:outline-none font-sans text-xs"></textarea>
             </div>
 
             <div>
-                <label class="block text-[10px] uppercase font-bold text-zinc-500 tracking-wider mb-1">Execution Screenshot Array</label>
+                <label class="block text-[10px] uppercase font-bold text-zinc-300 tracking-wider mb-1">Execution Screenshot Array</label>
                 <div class="flex items-center justify-center w-full">
                     <label class="flex flex-col items-center justify-center w-full h-16 border border-dashed border-terminal rounded-sm cursor-pointer bg-terminal-input/50 hover:bg-terminal-input transition-colors">
                         <div class="flex flex-col items-center justify-center pt-2 pb-2">
-                            <i class="fas fa-camera text-zinc-600 mb-1 text-[11px]"></i>
-                            <p class="text-[10px] text-zinc-400">UPLOAD / DROP TRADING CHARTS SCREENSHOT</p>
+                            <i class="fas fa-camera text-zinc-300 mb-1 text-[11px]"></i>
+                            <p class="text-[10px] text-zinc-300">UPLOAD / DROP TRADING CHARTS SCREENSHOT</p>
                         </div>
                         <input type="file" id="screenshotInput" accept="image/*" class="hidden" onchange="handleScreenshotUpload(event)">
                     </label>
@@ -506,14 +506,14 @@
     <div class="bg-terminal-card border border-terminal w-full max-w-sm p-4 font-mono text-xs">
         <div class="flex justify-between items-start mb-3 pb-2 border-b border-terminal">
             <div>
-                <span class="text-[11px] font-bold uppercase tracking-wider text-zinc-400">COMMISSION_MATRIX_RULES</span>
-                <p class="text-[10px] text-zinc-600 mt-0.5">Roundtrip flat rate configuration ($)</p>
+                <span class="text-[11px] font-bold uppercase tracking-wider text-zinc-300">COMMISSION_MATRIX_RULES</span>
+                <p class="text-[10px] text-zinc-300 mt-0.5">Roundtrip flat rate configuration ($)</p>
             </div>
-            <button onclick="closeSettings()" class="text-zinc-500 hover:text-zinc-200 text-base leading-none">&times;</button>
+            <button onclick="closeSettings()" class="text-zinc-300 hover:text-zinc-200 text-base leading-none">&times;</button>
         </div>
         <div class="mb-2 flex justify-between items-center">
-            <span class="text-[9px] font-bold text-zinc-600 uppercase tracking-widest">INSTRUMENT_PREFIX</span>
-            <button onclick="addCommissionRow()" class="text-[10px] font-medium text-zinc-400 hover:text-white">
+            <span class="text-[9px] font-bold text-zinc-300 uppercase tracking-widest">INSTRUMENT_PREFIX</span>
+            <button onclick="addCommissionRow()" class="text-[10px] font-medium text-zinc-300 hover:text-white">
                 + ADD MATRIX LAYER
             </button>
         </div>
@@ -532,8 +532,8 @@
 <div id="exportModal" class="fixed inset-0 bg-black/90 flex items-center justify-center z-50 px-4 hidden">
     <div class="bg-terminal-card border border-terminal w-full max-w-xl flex flex-col rounded-sm font-mono text-xs mx-auto">
         <div class="flex justify-between items-center p-4 border-b border-terminal bg-slate-900">
-            <span class="text-[11px] font-bold tracking-widest text-slate-400 uppercase">BACKUP DATA EXPORT</span>
-            <button onclick="document.getElementById('exportModal').classList.add('hidden')" class="text-slate-500 hover:text-slate-200 text-base leading-none">&times;</button>
+            <span class="text-[11px] font-bold tracking-widest text-slate-200 uppercase">BACKUP DATA EXPORT</span>
+            <button onclick="document.getElementById('exportModal').classList.add('hidden')" class="text-slate-200 hover:text-slate-200 text-base leading-none">&times;</button>
         </div>
         <div class="p-5 space-y-4">
             <div class="bg-emerald-950/30 border border-emerald-900 p-3 rounded-sm mb-2">
@@ -542,8 +542,8 @@
                 </p>
                 <p class="text-[9px] text-emerald-400/70 mt-1">Deze backup bestrijkt 100% van je data inclusief tags, screenshots, commissie regels, custom accounts en al je trades.</p>
             </div>
-            <p class="text-zinc-400">Het preview venster blokkeert mogelijk directe downloads. Je kan de JSON data hier kopiëren of de app in een nieuw tabblad openen om als bestand te downloaden.</p>
-            <textarea id="exportTextarea" class="w-full h-48 bg-zinc-900 border border-zinc-700 rounded-sm p-3 text-slate-300 font-mono text-xs focus:outline-none focus:border-zinc-500 overflow-y-scroll" readonly></textarea>
+            <p class="text-zinc-300">Het preview venster blokkeert mogelijk directe downloads. Je kan de JSON data hier kopiëren of de app in een nieuw tabblad openen om als bestand te downloaden.</p>
+            <textarea id="exportTextarea" class="w-full h-48 bg-zinc-900 border border-zinc-700 rounded-sm p-3 text-slate-200 font-mono text-xs focus:outline-none focus:border-zinc-500 overflow-y-scroll" readonly></textarea>
             <div class="flex justify-end gap-2 mt-4 pt-2">
                 <button onclick="copyBackupToClipboard()" id="copyBackupBtn" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 rounded-sm font-semibold transition-colors">
                     KOPIEER JSON DATA
@@ -567,23 +567,24 @@ var activeTab = 'dashboard';
 var currentCalendarDate = new Date(); // Added for Calendar View
 
 var globalTags = [];
+var tagColors = {};
 var currentEditTags = [];
 var analyticsFilterTags = [];
 
 var COLUMN_DEFS = [
     { key: 'select',     label: '<input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()">', align: 'center', sortable: false, fixed: true },
-    { key: 'time',       label: 'DATE TIME',   align: 'left',   sortable: true  },
-    { key: 'account',    label: 'ACCOUNT',     align: 'left',   sortable: true  },
+    { key: 'time',       label: 'Datum / Tijd',   align: 'left',   sortable: true  },
+    { key: 'account',    label: 'Account',     align: 'left',   sortable: true  },
     { key: 'symbol',     label: 'Symbool',     align: 'left',   sortable: true  },
-    { key: 'side',       label: 'SIDE',        align: 'left',   sortable: true  },
-    { key: 'volume',     label: 'SIZE',        align: 'right',  sortable: true  },
-    { key: 'prices',     label: 'ENTRY/EXIT',  align: 'left',   sortable: false },
+    { key: 'side',       label: 'Richting',        align: 'left',   sortable: true  },
+    { key: 'volume',     label: 'Grootte',        align: 'right',  sortable: true  },
+    { key: 'prices',     label: 'In- / Uitstap',  align: 'left',   sortable: false },
     { key: 'commission', label: 'Commissie',   align: 'right',  sortable: true  },
-    { key: 'pnl',        label: 'GROSS PNL',   align: 'right',  sortable: true  },
-    { key: 'netpnl',     label: 'NET PNL',     align: 'right',  sortable: true  },
+    { key: 'pnl',        label: 'Bruto PNL',   align: 'right',  sortable: true  },
+    { key: 'netpnl',     label: 'Netto PNL',     align: 'right',  sortable: true  },
     { key: 'tags',       label: 'TAGS',        align: 'left',   sortable: false },
     { key: 'screenshots',label: '<i class="fas fa-camera"></i>', align: 'center', sortable: false },
-    { key: 'actions',    label: 'DEL',         align: 'center', sortable: false, fixed: true },
+    { key: 'actions',    label: 'Wis',         align: 'center', sortable: false, fixed: true },
 ];
 var colOrder = COLUMN_DEFS.map(function(c){ return c.key; });
 var hiddenCols = [];
@@ -646,13 +647,21 @@ function saveHiddenCols() {
 function loadGlobalTags() {
     try {
         var s = localStorage.getItem('qt_global_tags_v3');
-        if (s) { globalTags = JSON.parse(s); return; }
+        if (s) { globalTags = JSON.parse(s); }
     } catch(e) {}
-    globalTags = ['MEAN_REVERSION', 'RANGE_SCALP', 'BREAKOUT_FAIL', 'VWAP_BOUNCE'];
+    if(globalTags.length === 0) {
+        globalTags = ['MEAN_REVERSION', 'RANGE_SCALP', 'BREAKOUT_FAIL', 'VWAP_BOUNCE'];
+    }
+    
+    try {
+        var c = localStorage.getItem('qt_tag_colors_v3');
+        if (c) { tagColors = JSON.parse(c); }
+    } catch(e) {}
 }
 
 function saveGlobalTags() {
     localStorage.setItem('qt_global_tags_v3', JSON.stringify(globalTags));
+    localStorage.setItem('qt_tag_colors_v3', JSON.stringify(tagColors));
 }
 
 function loadCommissions() {
@@ -679,7 +688,7 @@ function renderColVisibilitySelectors() {
         if (c.fixed) return;
         var isChecked = hiddenCols.indexOf(c.key) === -1;
         var label = document.createElement('label');
-        label.className = 'flex items-center gap-2 text-zinc-400 cursor-pointer hover:text-white select-none py-0.5';
+        label.className = 'flex items-center gap-2 text-zinc-300 cursor-pointer hover:text-white select-none py-0.5';
         label.innerHTML = '<input type="checkbox" ' + (isChecked ? 'checked' : '') + ' class="rounded-sm bg-terminal-input border-terminal text-white focus:ring-0 w-3 h-3"> ' + c.label;
         label.querySelector('input').onchange = function(e) {
             if (!e.target.checked) {
@@ -723,9 +732,9 @@ function renderCommissionRows() {
         div.innerHTML =
             '<input type="text" value="' + esc(rule.prefix) + '" placeholder="PREFIX" class="comm-prefix flex-1 bg-terminal-input border border-terminal rounded-sm px-2 py-1 text-zinc-200 focus:outline-none uppercase" data-idx="' + i + '">' +
             '<div class="flex items-center gap-1 border border-terminal rounded-sm px-2 py-1 bg-terminal-input shrink-0">' +
-            '<span class="text-zinc-600">$</span>' +
+            '<span class="text-zinc-300">$</span>' +
             '<input type="number" value="' + rule.rate + '" step="0.01" min="0" class="comm-rate w-14 bg-transparent text-zinc-200 focus:outline-none" data-idx="' + i + '"></div>' +
-            '<button onclick="removeCommissionRow(' + i + ')" class="text-zinc-600 hover:text-red-400 px-1 text-sm">&times;</button>';
+            '<button onclick="removeCommissionRow(' + i + ')" class="text-zinc-300 hover:text-red-400 px-1 text-sm">&times;</button>';
         container.appendChild(div);
     });
 }
@@ -926,15 +935,15 @@ function renderCalendarView() {
             var isCurrentMonth = new Date().getFullYear() === year && new Date().getMonth() === m;
             cell.className = "calendar-cell p-4 flex flex-col justify-between cursor-default relative min-h-[120px]" + (isCurrentMonth ? " !border-slate-300" : "");
             
-            var pnlClass = stats.net > 0 ? "pnl-profit" : (stats.net < 0 ? "pnl-loss" : "text-slate-500");
+            var pnlClass = stats.net > 0 ? "pnl-profit" : (stats.net < 0 ? "pnl-loss" : "text-slate-200");
             var countText = stats.count > 0 ? (stats.count + " Trades") : "0 Trades";
             var pnlText = stats.count > 0 ? fmtUSD(stats.net) : "$0.00";
             if (stats.count === 0) { cell.classList.add("opacity-60"); }
             
             cell.innerHTML = 
-                '<div class="text-[14px] font-bold text-slate-300 uppercase tracking-widest">' + monthNamesDutch[m] + '</div>' +
+                '<div class="text-[14px] font-bold text-slate-200 uppercase tracking-widest">' + monthNamesDutch[m] + '</div>' +
                 '<div class="mt-4 flex flex-col items-start">' +
-                    '<div class="text-[13px] text-slate-400 mb-1 font-mono">' + countText + '</div>' +
+                    '<div class="text-[13px] text-slate-200 mb-1 font-mono">' + countText + '</div>' +
                     '<div class="text-[20px] font-bold tracking-tight ' + pnlClass + '">' + pnlText + '</div>' +
                 '</div>';
             yearGrid.appendChild(cell);
@@ -1029,7 +1038,7 @@ function renderCalendarView() {
 
         cell.className = "calendar-cell p-3 flex flex-col justify-between cursor-default relative" + (isToday ? " !border-slate-300" : "");
         
-        var pnlClass = dayStats.net > 0 ? "pnl-profit" : (dayStats.net < 0 ? "pnl-loss" : "text-slate-500");
+        var pnlClass = dayStats.net > 0 ? "pnl-profit" : (dayStats.net < 0 ? "pnl-loss" : "text-slate-200");
         var countText = dayStats.count > 0 ? (dayStats.count + " Trades") : "0 Trades";
         var pnlText = dayStats.count > 0 ? fmtUSD(dayStats.net) : "$0.00";
         if (dayStats.count === 0) {
@@ -1037,9 +1046,9 @@ function renderCalendarView() {
         }
 
         cell.innerHTML = 
-            '<div class="text-[12px] font-bold text-slate-400">' + date + '</div>' +
+            '<div class="text-[12px] font-bold text-slate-200">' + date + '</div>' +
             '<div class="mt-2 flex flex-col items-start">' +
-                '<div class="text-[11px] text-slate-400 mb-1">' + countText + '</div>' +
+                '<div class="text-[11px] text-slate-200 mb-1">' + countText + '</div>' +
                 '<div class="text-[15px] font-bold tracking-tight ' + pnlClass + '">' + pnlText + '</div>' +
             '</div>';
         
@@ -1059,7 +1068,7 @@ function renderCalendarView() {
             var weekCell = document.createElement('div');
             weekCell.className = "week-net-cell p-4";
             weekCell.innerHTML = 
-                '<span class="text-[10px] uppercase text-slate-400 tracking-widest mb-1">Week Netto</span>' +
+                '<span class="text-[10px] uppercase text-slate-200 tracking-widest mb-1">Week Netto</span>' +
                 '<span class="text-[18px] font-extrabold ' + wPnlClass + '">' + fmtUSD(weekNet) + '</span>';
             
             currentWeekRow.appendChild(weekCell);
@@ -1312,7 +1321,7 @@ function renderHeaders() {
         var def = COLUMN_DEFS.find(function(c){ return c.key === key; });
         if (!def) return;
         var th = document.createElement('th');
-        th.className = 'px-4 py-2 text-zinc-500 font-mono font-medium' + (def.align === 'right' ? ' text-right' : def.align === 'center' ? ' text-center' : '');
+        th.className = 'px-4 py-2 text-zinc-300 font-mono font-medium' + (def.align === 'right' ? ' text-right' : def.align === 'center' ? ' text-center' : '');
         if (def.sortable) {
             th.style.cursor = 'pointer';
             th.onclick = function() { sortBy(key); };
@@ -1423,7 +1432,7 @@ function renderTable() {
 
     tbody.innerHTML = '';
     if (display.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="' + COLUMN_DEFS.length + '" class="px-4 py-6 text-center text-zinc-600 italic">Geen uitvoeringen gevonden binnen deze weergave.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="' + COLUMN_DEFS.length + '" class="px-4 py-6 text-center text-zinc-300 italic">Geen uitvoeringen gevonden binnen deze weergave.</td></tr>';
         updateBulkActionBar();
         return;
     }
@@ -1437,7 +1446,8 @@ function renderTable() {
             : trade.dateStr;
 
         var tagsHtml = (trade.tags || []).map(function(tg){
-            return '<span class="bg-zinc-800 text-zinc-400 px-1 py-0.5 rounded-sm text-[10px] mr-1 border border-zinc-700/50 uppercase">' + esc(tg) + '</span>';
+            var c = tagColors[tg] || '#64748b';
+            return '<span class="bg-zinc-800 text-zinc-300 px-1 py-0.5 rounded-sm text-[10px] mr-1 border border-zinc-700/50 uppercase" style="border-left: 3px solid ' + c + '">' + esc(tg) + '</span>';
         }).join('') || '<span class="text-zinc-700 italic text-[10px]">+ TAG</span>';
 
         var isSelected = selectedTrades.indexOf(trade.id) !== -1;
@@ -1445,18 +1455,18 @@ function renderTable() {
 
         var cells = {
             select:     '<td class="px-4 py-2 text-center" onclick="event.stopPropagation()"><input type="checkbox" ' + (isSelected ? 'checked' : '') + ' onchange="toggleTradeSelect(\'' + trade.id + '\', event)" class="rounded-sm bg-terminal-input border-terminal text-white focus:ring-0 w-3 h-3 cursor-pointer"></td>',
-            time:       '<td class="px-4 py-2 font-mono text-zinc-400">' + dateStr + '</td>',
-            account:    '<td class="px-4 py-2 text-zinc-500 uppercase">' + esc(trade.account || '') + '</td>',
+            time:       '<td class="px-4 py-2 font-mono text-zinc-300">' + dateStr + '</td>',
+            account:    '<td class="px-4 py-2 text-zinc-300 uppercase">' + esc(trade.account || '') + '</td>',
             symbol:     '<td class="px-4 py-2 font-bold text-white uppercase tracking-tight">' + esc(trade.symbol) + '</td>',
             side:       '<td class="px-4 py-2 font-bold text-[10px] ' + (isLong ? 'text-blue-400' : 'text-amber-500') + '">' + (isLong ? 'LONG' : 'SHORT') + '</td>',
             volume:     '<td class="px-4 py-2 text-right text-zinc-300">' + trade.volume + '</td>',
-            prices:     '<td class="px-4 py-2 text-zinc-500 text-[11px] font-mono">' + trade.entry.toFixed(2) + ' → ' + trade.exit.toFixed(2) + '</td>',
+            prices:     '<td class="px-4 py-2 text-zinc-300 text-[11px] font-mono">' + trade.entry.toFixed(2) + ' → ' + trade.exit.toFixed(2) + '</td>',
             pnl:        '<td class="px-4 py-2 text-right font-mono ' + (trade.pnl >= 0 ? 'pnl-profit' : 'pnl-loss') + '">' + fmtUSD(trade.pnl) + '</td>',
-            commission: '<td class="px-4 py-2 text-right text-zinc-600">-$' + c.toFixed(2) + '</td>',
+            commission: '<td class="px-4 py-2 text-right text-zinc-300">-$' + c.toFixed(2) + '</td>',
             netpnl:     '<td class="px-4 py-2 text-right font-bold font-mono ' + (net >= 0 ? 'pnl-profit' : 'pnl-loss') + '">' + fmtUSD(net) + '</td>',
             tags:       '<td class="px-4 py-2 truncate max-w-xs">' + tagsHtml + '</td>',
-            screenshots:'<td class="px-4 py-2 text-center" onclick="event.stopPropagation(); openModal(\'' + trade.id + '\'); document.getElementById(\'screenshotInput\').click();"><i class="fas fa-check-circle cursor-pointer transition-colors ' + (hasScreenshot ? 'text-emerald-500' : 'text-zinc-700 hover:text-zinc-500') + '"></i></td>',
-            actions:    '<td class="px-4 py-2 text-center" onclick="event.stopPropagation()"><button onclick="deleteTradeDirect(\'' + trade.id + '\', event)" class="text-zinc-600 hover:text-red-400 p-1"><i class="fas fa-trash-alt text-[11px]"></i></button></td>'
+            screenshots:'<td class="px-4 py-2 text-center" onclick="event.stopPropagation(); openModal(\'' + trade.id + '\'); document.getElementById(\'screenshotInput\').click();"><i class="fas fa-check-circle cursor-pointer transition-colors ' + (hasScreenshot ? 'text-emerald-500' : 'text-zinc-700 hover:text-zinc-300') + '"></i></td>',
+            actions:    '<td class="px-4 py-2 text-center" onclick="event.stopPropagation()"><button onclick="deleteTradeDirect(\'' + trade.id + '\', event)" class="text-zinc-300 hover:text-red-400 p-1"><i class="fas fa-trash-alt text-[11px]"></i></button></td>'
         };
 
         var tr = document.createElement('tr');
@@ -1669,15 +1679,15 @@ function renderAccountManagerList() {
     });
     
     if (accounts.length === 0) {
-        container.innerHTML = '<span class="text-slate-500 italic text-[11px]">Geen accounts geregistreerd.</span>';
+        container.innerHTML = '<span class="text-slate-200 italic text-[11px]">Geen accounts geregistreerd.</span>';
         return;
     }
     
     accounts.forEach(function(acc) {
         var div = document.createElement('div');
         div.className = 'flex justify-between items-center bg-terminal-input border border-terminal p-2 rounded-sm';
-        div.innerHTML = '<span class="font-bold text-slate-300 uppercase">' + esc(acc) + '</span>' +
-                        '<button onclick="deleteAccount(\'' + esc(acc) + '\')" class="text-zinc-600 hover:text-red-400 p-1 transition-colors"><i class="fas fa-trash-alt"></i></button>';
+        div.innerHTML = '<span class="font-bold text-slate-200 uppercase">' + esc(acc) + '</span>' +
+                        '<button onclick="deleteAccount(\'' + esc(acc) + '\')" class="text-zinc-300 hover:text-red-400 p-1 transition-colors"><i class="fas fa-trash-alt"></i></button>';
         container.appendChild(div);
     });
 }
@@ -1721,9 +1731,11 @@ function renderModalTags() {
     var containerActive = document.getElementById('modalActiveTags');
     containerActive.innerHTML = '';
     currentEditTags.forEach(function(t) {
+        var c = tagColors[t] || '#64748b';
         var pill = document.createElement('span');
-        pill.className = 'bg-white text-black px-2 py-0.5 rounded-sm text-[10px] font-bold uppercase tracking-wide flex items-center gap-1.5 select-none';
-        pill.innerHTML = esc(t) + '<i class="fas fa-times text-[8px] cursor-pointer text-zinc-500 hover:text-black"></i>';
+        pill.className = 'bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded-sm text-[10px] font-bold uppercase tracking-wide flex items-center gap-1.5 select-none border border-zinc-700/50';
+        pill.style.borderLeft = '3px solid ' + c;
+        pill.innerHTML = esc(t) + '<i class="fas fa-times text-[8px] cursor-pointer text-zinc-400 hover:text-white transition-colors"></i>';
         pill.querySelector('i').onclick = function() {
             currentEditTags = currentEditTags.filter(function(x){ return x !== t; });
             renderModalTags();
@@ -1735,21 +1747,49 @@ function renderModalTags() {
     containerAvailable.innerHTML = '';
     globalTags.forEach(function(t) {
         if (currentEditTags.indexOf(t) >= 0) return;
+        var c = tagColors[t] || '#64748b';
+        
+        var wrapper = document.createElement('div');
+        wrapper.className = 'flex items-center gap-0.5';
+
         var btn = document.createElement('button');
-        btn.className = 'bg-terminal-input hover:bg-zinc-800 text-zinc-400 border border-terminal px-2 py-0.5 rounded-sm text-[10px] uppercase';
+        btn.className = 'bg-terminal-input hover:bg-zinc-800 text-zinc-300 border border-terminal px-2 py-0.5 rounded-l-sm text-[10px] uppercase';
+        btn.style.borderLeft = '3px solid ' + c;
         btn.textContent = t;
         btn.onclick = function() { currentEditTags.push(t); renderModalTags(); };
-        containerAvailable.appendChild(btn);
+        
+        var colorPicker = document.createElement('input');
+        colorPicker.type = 'color';
+        colorPicker.value = c;
+        colorPicker.className = 'h-[22px] w-[18px] p-0 border-y border-r border-terminal bg-terminal-input cursor-pointer rounded-r-sm';
+        colorPicker.onchange = function(e) {
+            tagColors[t] = e.target.value;
+            saveGlobalTags();
+            updateUI(); // live update table
+            renderModalTags();
+        };
+
+        wrapper.appendChild(btn);
+        wrapper.appendChild(colorPicker);
+        containerAvailable.appendChild(wrapper);
     });
 }
 
 function createNewTag() {
     var input = document.getElementById('newTagInput');
+    var colorInput = document.getElementById('newTagColorInput') || {value: '#64748b'};
     var val = input.value.trim().toUpperCase().replace(/\s+/g, '_');
     if(!val) return;
-    if(globalTags.indexOf(val) === -1) { globalTags.push(val); saveGlobalTags(); }
+    if(globalTags.indexOf(val) === -1) { 
+        globalTags.push(val); 
+    }
+    // Also update color
+    tagColors[val] = colorInput.value;
+    saveGlobalTags();
+    
     if(currentEditTags.indexOf(val) === -1) { currentEditTags.push(val); }
     input.value = '';
+    updateUI();
     renderModalTags();
 }
 
@@ -1823,7 +1863,7 @@ function renderAnalyticsView() {
     globalTags.forEach(function(t) {
         var active = analyticsFilterTags.indexOf(t) >= 0;
         var btn = document.createElement('button');
-        btn.className = 'px-2.5 py-1 rounded-sm text-xs border transition-colors uppercase font-mono ' + (active ? 'bg-white text-black border-white font-bold' : 'bg-terminal-input text-zinc-400 border-terminal hover:text-white');
+        btn.className = 'px-2.5 py-1 rounded-sm text-xs border transition-colors uppercase font-mono ' + (active ? 'bg-white text-black border-white font-bold' : 'bg-terminal-input text-zinc-300 border-terminal hover:text-white');
         btn.textContent = t;
         btn.onclick = function() {
             if(active) { analyticsFilterTags = analyticsFilterTags.filter(function(x){ return x !== t; }); }
@@ -1837,13 +1877,13 @@ function renderAnalyticsView() {
     var vault = document.getElementById('globalTagManagerList');
     vault.innerHTML = '';
     if(globalTags.length === 0) {
-        vault.innerHTML = '<span class="text-zinc-600 italic text-[11px]">No active string structures.</span>';
+        vault.innerHTML = '<span class="text-zinc-300 italic text-[11px]">No active string structures.</span>';
     }
     globalTags.forEach(function(t) {
         var row = document.createElement('div');
         row.className = 'flex justify-between items-center bg-terminal-input/50 border border-terminal/60 rounded-sm px-2 py-1 text-[11px]';
         row.innerHTML = '<span class="text-zinc-300 uppercase font-mono tracking-tight">' + esc(t) + '</span>' +
-                        '<button class="text-zinc-600 hover:text-red-400 transition-colors font-bold text-xs px-1">&times;</button>';
+                        '<button class="text-zinc-300 hover:text-red-400 transition-colors font-bold text-xs px-1">&times;</button>';
         row.querySelector('button').onclick = function() { purgeGlobalTagPermanently(t); };
         vault.appendChild(row);
     });
@@ -1881,7 +1921,7 @@ function calculateTagSpecificMetrics() {
         ['tag-kpi-netpnl','tag-kpi-pf'].forEach(function(id){ document.getElementById(id).innerText = '$0.00'; });
         document.getElementById('tag-kpi-winrate').innerText = '0.0%';
         document.getElementById('tag-kpi-count').innerText = '0';
-        tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-6 text-center text-zinc-600 italic">Select structural attributes to filter database vectors.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-6 text-center text-zinc-300 italic">Select structural attributes to filter database vectors.</td></tr>';
         return;
     }
 
@@ -1890,7 +1930,7 @@ function calculateTagSpecificMetrics() {
         ['tag-kpi-netpnl','tag-kpi-pf'].forEach(function(id){ document.getElementById(id).innerText = '$0.00'; });
         document.getElementById('tag-kpi-winrate').innerText = '0.0%';
         document.getElementById('tag-kpi-count').innerText = '0';
-        tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-6 text-center text-zinc-600 italic">Zero variables match current parameters.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-6 text-center text-zinc-300 italic">Zero variables match current parameters.</td></tr>';
         return;
     }
 
@@ -1903,13 +1943,13 @@ function calculateTagSpecificMetrics() {
 
         var isLong = trade.side.toLowerCase().indexOf('buy') >= 0 || trade.side.toLowerCase() === 'long';
         var dateTxt = (trade.time instanceof Date && !isNaN(trade.time)) ? trade.time.toLocaleDateString('nl-NL', {month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}) : trade.dateStr;
-        var badges = trade.tags.map(function(tg){ return '<span class="bg-zinc-800 text-zinc-400 px-1 py-0.5 rounded-sm text-[10px] mr-1 border border-zinc-700/40 uppercase">' + esc(tg) + '</span>'; }).join('');
+        var badges = trade.tags.map(function(tg){ return '<span class="bg-zinc-800 text-zinc-300 px-1 py-0.5 rounded-sm text-[10px] mr-1 border border-zinc-700/40 uppercase">' + esc(tg) + '</span>'; }).join('');
 
         var tr = document.createElement('tr');
         tr.className = 'hover:bg-zinc-900/40 border-b border-zinc-800/40 cursor-pointer';
         tr.setAttribute('onclick', 'openModal("' + trade.id + '")');
         tr.innerHTML = 
-            '<td class="px-4 py-2 font-mono text-zinc-400">' + dateTxt + '</td>' +
+            '<td class="px-4 py-2 font-mono text-zinc-300">' + dateTxt + '</td>' +
             '<td class="px-4 py-2 font-bold text-white uppercase">' + esc(trade.symbol) + '</td>' +
             '<td class="px-4 py-2 font-bold text-[10px] ' + (isLong ? 'text-blue-400' : 'text-amber-500') + '">' + (isLong ? 'LONG' : 'SHORT') + '</td>' +
             '<td class="px-4 py-2 text-right text-zinc-300">' + trade.volume + '</td>' +
