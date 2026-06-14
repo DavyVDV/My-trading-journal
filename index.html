@@ -1458,26 +1458,58 @@ function parseQuantowerCSV(csvText) {
         var openQ = {};
         fills.forEach(function(f) {
             if (!openQ[f.symbol]) openQ[f.symbol] = [];
-            if (openQ[f.symbol].length === 0 || openQ[f.symbol][0].side === f.side) { openQ[f.symbol].push(f); }
+            
+            if (openQ[f.symbol].length === 0 || openQ[f.symbol][0].side === f.side) { 
+                openQ[f.symbol].push(f); 
+            }
             else {
-                var entry = openQ[f.symbol].shift() || null;
-                var entryFee = entry ? entry.fee : 0;
-                newTrades.push({
-                    id:       'tr_' + Date.now() + '_' + Math.random().toString(36).substr(2,6),
-                    account:  account,
-                    dateStr:  entry ? entry.dateStr : f.dateStr,
-                    time:     entry ? entry.time : f.time,
-                    symbol:   f.symbol,
-                    side:     entry ? entry.side : f.side,
-                    volume:   f.qty,
-                    entry:    entry ? Math.round(entry.price * 100) / 100 : 0,
-                    exit:     Math.round(f.price * 100) / 100,
-                    pnl:      Math.round(f.gross * 100) / 100,
-                    fee:      Math.round((entryFee + f.fee) * 100) / 100,
-                    tags:     [],
-                    screenshots: [],
-                    notes:    ''
-                });
+                var remainingExitQty = f.qty;
+                
+                while (remainingExitQty > 0 && openQ[f.symbol].length > 0) {
+                    var entry = openQ[f.symbol][0];
+                    var matchedQty = Math.min(entry.qty, remainingExitQty);
+                    
+                    var entryFeeRatio = matchedQty / entry.qty;
+                    var entryFee = entry.fee * entryFeeRatio;
+                    
+                    var exitFeeRatio = matchedQty / f.qty;
+                    var exitFee = f.fee * exitFeeRatio;
+                    var exitGross = f.gross * exitFeeRatio;
+                    
+                    newTrades.push({
+                        id:       'tr_' + Date.now() + '_' + Math.random().toString(36).substr(2,6),
+                        account:  account,
+                        dateStr:  entry.dateStr,
+                        time:     entry.time,
+                        symbol:   f.symbol,
+                        side:     entry.side,
+                        volume:   matchedQty,
+                        entry:    Math.round(entry.price * 100) / 100,
+                        exit:     Math.round(f.price * 100) / 100,
+                        pnl:      Math.round(exitGross * 100) / 100,
+                        fee:      Math.round((entryFee + exitFee) * 100) / 100,
+                        tags:     [],
+                        screenshots: [],
+                        notes:    ''
+                    });
+                    
+                    remainingExitQty -= matchedQty;
+                    
+                    if (matchedQty === entry.qty) {
+                        openQ[f.symbol].shift();
+                    } else {
+                        entry.qty -= matchedQty;
+                        entry.fee -= entryFee;
+                    }
+                }
+                
+                if (remainingExitQty > 0) {
+                    var rem = Object.assign({}, f);
+                    rem.qty = remainingExitQty;
+                    rem.fee = f.fee * (remainingExitQty / f.qty);
+                    rem.gross = f.gross * (remainingExitQty / f.qty); // Though typically gross is 0 for opening fills
+                    openQ[f.symbol].push(rem);
+                }
             }
         });
     });
