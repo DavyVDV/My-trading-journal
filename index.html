@@ -324,93 +324,89 @@
         
         <div class="flex flex-col xl:flex-row gap-6">
              <!-- Settings Panel - Left side -->
-            <div class="bg-white text-slate-800 p-6 rounded-sm shadow-sm flex-none xl:w-[350px] flex flex-col h-fit border border-slate-200">
+            <div class="bg-terminal-card border border-terminal p-6 rounded-sm flex-none xl:w-[350px] flex flex-col h-fit">
                  
                  <div class="grid grid-cols-2 gap-x-4 gap-y-6 mb-6">
                      <div class="col-span-2 sm:col-span-1">
-                         <label class="block mb-2 text-xs font-bold text-slate-500">Initial balance</label>
-                         <input type="number" id="mcCapital" value="3000" class="w-full bg-white border border-slate-300 rounded p-2 focus:border-[#3b82f6] focus:outline-none text-slate-800 transition-colors">
+                         <label class="block mb-2 text-[10px] uppercase font-bold text-slate-400 tracking-wider">Initial balance</label>
+                         <input type="number" id="mcCapital" value="3000" class="w-full bg-terminal-input border border-terminal rounded-sm p-2 text-zinc-200 focus:outline-none focus:border-zinc-500 transition-colors">
                      </div>
                      <div class="col-span-2 sm:col-span-1">
-                         <label class="block mb-2 text-xs font-bold text-slate-500">Risk % per 1 trade</label>
-                         <input type="number" step="0.1" id="mcRiskPct" value="0.5" class="w-full bg-white border border-slate-300 rounded p-2 focus:border-[#3b82f6] focus:outline-none text-slate-800 transition-colors">
+                         <label class="block mb-2 text-[10px] uppercase font-bold text-slate-400 tracking-wider">Risk % / trade</label>
+                         <input type="number" step="0.1" id="mcRiskPct" value="1.0" class="w-full bg-terminal-input border border-terminal rounded-sm p-2 text-zinc-200 focus:outline-none focus:border-zinc-500 transition-colors">
                      </div>
                      <div class="col-span-2 sm:col-span-1">
-                         <label class="block mb-2 text-xs font-bold text-slate-500">Winning trades %</label>
-                         <input type="number" step="0.1" id="mcWinrate" value="55" class="w-full bg-white border border-slate-300 rounded p-2 focus:border-[#3b82f6] focus:outline-none text-slate-800 transition-colors">
+                         <label class="block mb-2 text-[10px] uppercase font-bold text-slate-400 tracking-wider">Win rate %</label>
+                         <input type="number" step="0.1" id="mcWinrate" value="55" class="w-full bg-terminal-input border border-terminal rounded-sm p-2 text-zinc-200 focus:outline-none focus:border-zinc-500 transition-colors">
                      </div>
                      <div class="col-span-2 sm:col-span-1">
-                         <label class="block mb-2 text-xs font-bold text-slate-500">Break even trades %</label>
-                         <input type="number" step="0.1" id="mcBreakEven" value="5" class="w-full bg-white border border-slate-300 rounded p-2 focus:border-[#3b82f6] focus:outline-none text-slate-800 transition-colors">
+                         <label class="block mb-2 text-[10px] uppercase font-bold text-slate-400 tracking-wider">Trades / month</label>
+                         <input type="number" step="1" id="mcTradesPerMonth" value="30" class="w-full bg-terminal-input border border-terminal rounded-sm p-2 text-zinc-200 focus:outline-none focus:border-zinc-500 transition-colors">
                      </div>
                      <div class="col-span-2 sm:col-span-1">
-                         <label class="block mb-2 text-xs font-bold text-slate-500">Avg. no. trades per month</label>
-                         <input type="number" step="1" id="mcTradesPerMonth" value="30" class="w-full bg-white border border-slate-300 rounded p-2 focus:border-[#3b82f6] focus:outline-none text-slate-800 transition-colors">
+                         <label class="block mb-2 text-[10px] uppercase font-bold text-slate-400 tracking-wider">Total months</label>
+                         <input type="number" step="1" id="mcHorizon" value="12" class="w-full bg-terminal-input border border-terminal rounded-sm p-2 text-zinc-200 focus:outline-none focus:border-zinc-500 transition-colors">
                      </div>
                      <div class="col-span-2 sm:col-span-1">
-                         <label class="block mb-2 text-xs font-bold text-slate-500">Total months</label>
-                         <input type="number" step="1" id="mcHorizon" value="48" class="w-full bg-white border border-slate-300 rounded p-2 focus:border-[#3b82f6] focus:outline-none text-slate-800 transition-colors">
-                     </div>
-                     <div class="col-span-2">
-                         <label class="block mb-2 text-xs font-bold text-slate-500">Take profit/Stop loss ratio</label>
-                         <input type="number" step="0.01" id="mcRRRatio" value="1.0" class="w-full bg-white border border-slate-300 rounded p-2 focus:border-[#3b82f6] focus:outline-none text-slate-800 transition-colors">
+                         <label class="block mb-2 text-[10px] uppercase font-bold text-slate-400 tracking-wider">TP/SL ratio</label>
+                         <input type="number" step="0.01" id="mcRRRatio" value="1.0" class="w-full bg-terminal-input border border-terminal rounded-sm p-2 text-zinc-200 focus:outline-none focus:border-zinc-500 transition-colors">
                      </div>
                  </div>
                  
                  <div class="mt-auto space-y-3">
-                     <button onclick="runMonteCarlo()" class="w-full bg-[#3b82f6] hover:bg-[#2563eb] text-white font-bold px-4 py-3.5 rounded shadow transition-colors uppercase text-sm tracking-wide">
-                         Simulate Returns
+                     <button onclick="runMonteCarlo()" class="w-full bg-blue-900 hover:bg-blue-800 text-blue-200 font-bold px-4 py-3 rounded-sm border border-blue-800 transition-colors uppercase text-[11px] tracking-widest gap-2 flex justify-center items-center">
+                         <i class="fas fa-play text-[10px]"></i> SIMULATE RETURNS
                      </button>
-                     <button onclick="resetMCStats()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-4 py-2.5 rounded border border-slate-200 transition-colors text-xs flex justify-center items-center gap-2">
-                         <i class="fas fa-sync-alt"></i> Reset from Logbook
+                     <button onclick="resetMCStats()" class="w-full bg-terminal-input hover:bg-zinc-800 text-zinc-300 font-bold px-4 py-3 rounded-sm border border-terminal transition-colors uppercase text-[11px] tracking-widest flex justify-center items-center gap-2">
+                         <i class="fas fa-sync-alt text-[10px]"></i> RESET FROM LOGBOOK
                      </button>
-                     <div id="mcError" class="text-red-500 mt-2 hidden text-xs text-center font-semibold"></div>
+                     <div id="mcError" class="text-red-400 mt-2 hidden text-[10px] text-center font-bold tracking-widest uppercase border border-red-900/50 bg-red-950/20 py-1"></div>
                  </div>
             </div>
             
             <!-- Right side: Chart & Results -->
             <div class="flex-1 flex flex-col gap-6">
                  <!-- Chart Card -->
-                 <div class="bg-white border border-slate-200 rounded-sm shadow-sm relative h-[400px]">
+                 <div class="bg-terminal-card border border-terminal rounded-sm relative h-[400px]">
                     <canvas id="mcChart"></canvas>
                  </div>
                  
                  <!-- Tabs -->
                  <div class="flex gap-4">
-                     <button id="mcTabMedian" onclick="selectMCPath('median')" class="flex-1 py-3.5 text-center text-white bg-[#3b82f6] font-bold rounded shadow-sm transition-colors text-xs sm:text-sm uppercase tracking-wider">Most Possible</button>
-                     <button id="mcTabWorst" onclick="selectMCPath('worst')" class="flex-1 py-3.5 text-center text-[#ffc6c6] bg-[#ffe4e4] font-bold rounded shadow-sm transition-colors text-xs sm:text-sm uppercase tracking-wider">Worst</button>
-                     <button id="mcTabBest" onclick="selectMCPath('best')" class="flex-1 py-3.5 text-center text-[#bbf7d0] bg-[#dcfce7] font-bold rounded shadow-sm transition-colors text-xs sm:text-sm uppercase tracking-wider">Best</button>
+                     <button id="mcTabMedian" onclick="selectMCPath('median')" class="flex-1 py-3 text-center bg-blue-900 text-blue-200 font-bold rounded-sm border border-blue-800 transition-all text-[10px] sm:text-xs uppercase tracking-widest hover:bg-blue-800 shadow-[0_0_15px_rgba(30,58,138,0.3)]">Most Possible</button>
+                     <button id="mcTabWorst" onclick="selectMCPath('worst')" class="flex-1 py-3 text-center bg-terminal-input text-slate-500 font-bold rounded-sm border border-terminal transition-all text-[10px] sm:text-xs uppercase tracking-widest hover:bg-zinc-800 hover:text-slate-300">Worst</button>
+                     <button id="mcTabBest" onclick="selectMCPath('best')" class="flex-1 py-3 text-center bg-terminal-input text-slate-500 font-bold rounded-sm border border-terminal transition-all text-[10px] sm:text-xs uppercase tracking-widest hover:bg-zinc-800 hover:text-slate-300">Best</button>
                  </div>
                  
                  <!-- Stats Row -->
-                 <div class="bg-white border text-center border-slate-200 rounded-sm shadow-sm grid grid-cols-2 md:grid-cols-7 divide-x divide-y md:divide-y-0 divide-slate-100 uppercase tracking-tight">
+                 <div class="bg-terminal-card border border-terminal rounded-sm grid grid-cols-2 md:grid-cols-7 divide-y md:divide-y-0 md:divide-x divide-terminal uppercase tracking-tight">
                      <div class="p-4 flex flex-col justify-between items-center h-full">
-                         <div class="text-[10px] text-slate-400 font-medium mb-3">Initial balance</div>
-                         <div id="mcStatInitial" class="font-bold text-slate-700 text-[13px]">-</div>
+                         <div class="text-[9px] text-slate-500 font-bold mb-3 tracking-widest text-center uppercase">Initial balance</div>
+                         <div id="mcStatInitial" class="font-bold text-white text-[13px] font-mono">-</div>
                      </div>
                      <div class="p-4 flex flex-col justify-between items-center h-full">
-                         <div class="text-[10px] text-slate-400 font-medium mb-3">Result balance</div>
-                         <div id="mcStatResult" class="font-bold text-slate-700 text-[13px]">-</div>
+                         <div class="text-[9px] text-slate-500 font-bold mb-3 tracking-widest text-center uppercase">Result balance</div>
+                         <div id="mcStatResult" class="font-bold text-white text-[13px] font-mono">-</div>
                      </div>
                      <div class="p-4 flex flex-col justify-between items-center h-full">
-                         <div class="text-[10px] text-slate-400 font-medium mb-3">Return % after<br>whole period</div>
-                         <div id="mcStatReturn" class="font-bold text-slate-700 text-[13px]">-</div>
+                         <div class="text-[9px] text-slate-500 font-bold mb-3 tracking-widest text-center uppercase">Return % after<br>whole period</div>
+                         <div id="mcStatReturn" class="font-bold text-white text-[13px] font-mono">-</div>
                      </div>
                      <div class="p-4 flex flex-col justify-between items-center h-full">
-                         <div class="text-[10px] text-slate-400 font-medium mb-3">Maximum<br>drawdown</div>
-                         <div id="mcStatDD" class="font-bold text-slate-700 text-[13px]">-</div>
+                         <div class="text-[9px] text-slate-500 font-bold mb-3 tracking-widest text-center uppercase">Maximum<br>drawdown</div>
+                         <div id="mcStatDD" class="font-bold text-red-500 text-[13px] font-mono">-</div>
                      </div>
                      <div class="p-4 flex flex-col justify-between items-center h-full">
-                         <div class="text-[10px] text-slate-400 font-medium mb-3">Max consecutive<br>losses</div>
-                         <div id="mcStatLosses" class="font-bold text-slate-700 text-[13px]">-</div>
+                         <div class="text-[9px] text-slate-500 font-bold mb-3 tracking-widest text-center uppercase">Max consecutive<br>losses</div>
+                         <div id="mcStatLosses" class="font-bold text-red-500 text-[13px] font-mono">-</div>
                      </div>
                      <div class="p-4 flex flex-col justify-between items-center h-full">
-                         <div class="text-[10px] text-slate-400 font-medium mb-3">Max consecutive<br>wins</div>
-                         <div id="mcStatWins" class="font-bold text-slate-700 text-[13px]">-</div>
+                         <div class="text-[9px] text-slate-500 font-bold mb-3 tracking-widest text-center uppercase">Max consecutive<br>wins</div>
+                         <div id="mcStatWins" class="font-bold text-emerald-500 text-[13px] font-mono">-</div>
                      </div>
                      <div class="p-4 flex flex-col justify-between items-center h-full">
-                         <div class="text-[10px] text-slate-400 font-medium mb-3">Win trades<br>percentage</div>
-                         <div id="mcStatWinRate" class="font-bold text-slate-700 text-[13px]">-</div>
+                         <div class="text-[9px] text-slate-500 font-bold mb-3 tracking-widest text-center uppercase">Win trades<br>percentage</div>
+                         <div id="mcStatWinRate" class="font-bold text-white text-[13px] font-mono">-</div>
                      </div>
                  </div>
                  
@@ -608,6 +604,37 @@
     </div>
 </div>
 
+<div id="dayTradesModal" class="fixed inset-0 bg-black/95 flex flex-col items-center justify-center z-[100] px-4 hidden">
+    <div class="bg-terminal-card border border-terminal w-full max-w-7xl flex flex-col rounded-sm font-mono text-xs overflow-hidden h-[85vh]">
+        <div class="flex justify-between items-center p-4 border-b border-terminal bg-zinc-900">
+            <span id="dayTradesModalTitle" class="text-[14px] font-bold tracking-widest text-zinc-300 uppercase">TRADES ON DATE</span>
+            <button onclick="closeDayTradesModal()" class="text-zinc-300 hover:text-zinc-200 text-base leading-none">&times;</button>
+        </div>
+        <div class="flex-1 overflow-auto bg-zinc-950">
+            <table class="w-full text-left font-mono text-[11px] text-slate-200">
+                <thead class="bg-zinc-900/60 sticky top-0 z-10 shadow-md">
+                    <tr class="text-[10px] uppercase text-zinc-300 tracking-wider">
+                        <th class="px-4 py-2">Tijd</th>
+                        <th class="px-4 py-2">Account</th>
+                        <th class="px-4 py-2">Symbool</th>
+                        <th class="px-4 py-2">Richting</th>
+                        <th class="px-4 py-2 text-right">Volume</th>
+                        <th class="px-4 py-2 text-right">In- / Uitstap</th>
+                        <th class="px-4 py-2 text-right">PNL</th>
+                        <th class="px-4 py-2 text-right">Netto PNL</th>
+                        <th class="px-4 py-2">Tags</th>
+                        <th class="px-4 py-2 text-center"><i class="fas fa-camera"></i></th>
+                    </tr>
+                </thead>
+                <tbody id="dayTradesModalBody"></tbody>
+            </table>
+        </div>
+        <div class="p-4 border-t border-terminal bg-zinc-900/40 flex justify-end">
+            <button onclick="closeDayTradesModal()" class="px-4 py-1.5 bg-terminal-input border border-terminal rounded-sm hover:bg-zinc-800 text-white">SLUITEN</button>
+        </div>
+    </div>
+</div>
+
 <div id="settingsModal" class="fixed inset-0 bg-black/90 flex items-center justify-center z-50 px-4 hidden">
     <div class="bg-terminal-card border border-terminal w-full max-w-sm p-4 font-mono text-xs">
         <div class="flex justify-between items-start mb-3 pb-2 border-b border-terminal">
@@ -756,6 +783,9 @@ document.addEventListener('DOMContentLoaded', function() {
     loadCommissions();
     loadGlobalTags();
     loadData();
+    
+    // Setup initial MC stats
+    resetMCStats();
     
     window.addEventListener('click', function(e) {
         if (!e.target.closest('.relative')) {
@@ -1193,13 +1223,18 @@ function renderCalendarView() {
             isToday = true;
         }
 
-        cell.className = "calendar-cell p-3 flex flex-col justify-between cursor-default relative" + (isToday ? " !border-slate-300" : "");
+        cell.className = "calendar-cell p-3 flex flex-col justify-between relative" + (isToday ? " !border-slate-300" : "");
         
         var pnlClass = dayStats.net > 0 ? "pnl-profit" : (dayStats.net < 0 ? "pnl-loss" : "text-slate-200");
         var countText = dayStats.count > 0 ? (dayStats.count + " Trades") : "0 Trades";
         var pnlText = dayStats.count > 0 ? fmtUSD(dayStats.net) : "$0.00";
         if (dayStats.count === 0) {
-            cell.classList.add("opacity-60");
+            cell.classList.add("opacity-60", "cursor-default");
+        } else {
+            cell.classList.add("cursor-pointer", "hover:bg-zinc-800/80");
+            (function(y, m, d) {
+                cell.onclick = function() { openDayTradesModal(y, m, d); };
+            })(year, month, date);
         }
 
         cell.innerHTML = 
@@ -1267,7 +1302,7 @@ function handleManualTradeSubmit(e) {
     var newTrade = {
         id: 'tr_manual_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
         account: account,
-        dateStr: timeVal.toLocaleString('nl-NL'),
+        dateStr: fmtDateCore(timeVal),
         time: timeVal,
         symbol: symbol,
         side: side,
@@ -1318,6 +1353,21 @@ function handleFileUpload(event) {
     reader.onload = function(e) { parseQuantowerCSV(e.target.result); };
     reader.readAsText(file);
     event.target.value = '';
+}
+
+function fmtDateCore(d) {
+    if (!(d instanceof Date) || isNaN(d)) return '';
+    var day = String(d.getDate()).padStart(2, '0');
+    var month = String(d.getMonth() + 1).padStart(2, '0');
+    var hh = String(d.getHours()).padStart(2, '0');
+    var mm = String(d.getMinutes()).padStart(2, '0');
+    return day + '-' + month + ' ' + hh + ':' + mm;
+}
+function fmtTimeCore(d) {
+    if (!(d instanceof Date) || isNaN(d)) return '';
+    var hh = String(d.getHours()).padStart(2, '0');
+    var mm = String(d.getMinutes()).padStart(2, '0');
+    return hh + ':' + mm;
 }
 
 function parseEuropeanNumber(str) {
@@ -1408,17 +1458,17 @@ function parseQuantowerCSV(csvText) {
         var openQ = {};
         fills.forEach(function(f) {
             if (!openQ[f.symbol]) openQ[f.symbol] = [];
-            if (f.gross === 0) { openQ[f.symbol].push(f); }
+            if (openQ[f.symbol].length === 0 || openQ[f.symbol][0].side === f.side) { openQ[f.symbol].push(f); }
             else {
                 var entry = openQ[f.symbol].shift() || null;
                 var entryFee = entry ? entry.fee : 0;
                 newTrades.push({
                     id:       'tr_' + Date.now() + '_' + Math.random().toString(36).substr(2,6),
                     account:  account,
-                    dateStr:  f.dateStr,
-                    time:     f.time,
+                    dateStr:  entry ? entry.dateStr : f.dateStr,
+                    time:     entry ? entry.time : f.time,
                     symbol:   f.symbol,
-                    side:     f.side,
+                    side:     entry ? entry.side : f.side,
                     volume:   f.qty,
                     entry:    entry ? Math.round(entry.price * 100) / 100 : 0,
                     exit:     Math.round(f.price * 100) / 100,
@@ -1606,7 +1656,7 @@ function renderTable() {
         var net = trade.pnl - c;
         var isLong = trade.side.toLowerCase().indexOf('buy') >= 0 || trade.side.toLowerCase() === 'long';
         var dateStr = (trade.time instanceof Date && !isNaN(trade.time))
-            ? trade.time.toLocaleString('nl-NL', {month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})
+            ? fmtDateCore(trade.time)
             : trade.dateStr;
 
         var tagsHtml = (trade.tags || []).map(function(tg){
@@ -1656,7 +1706,7 @@ function renderChart() {
     var cum = 0;
     var labels = chron.map(function(t) {
         return (t.time instanceof Date && !isNaN(t.time))
-            ? t.time.toLocaleString('nl-NL', {month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})
+            ? fmtDateCore(t.time)
             : (t.dateStr || 'Unknown');
     });
     var data = chron.map(function(t){
@@ -2021,6 +2071,50 @@ function renderScreenshotPreviews(list) {
 
 function closeModal() { document.getElementById('noteModal').classList.add('hidden'); }
 
+function openDayTradesModal(y, m, d) {
+    document.getElementById('dayTradesModal').classList.remove('hidden');
+    var monthNames = ["Januari", "Februari", "Maart", "April", "Mei", "Juni", "Juli", "Augustus", "September", "Oktober", "November", "December"];
+    document.getElementById('dayTradesModalTitle').innerText = 'Trades op ' + d + ' ' + monthNames[m] + ' ' + y;
+    
+    var filteredTrades = getFilteredTrades().filter(function(t) {
+        var dt = t.time instanceof Date ? t.time : new Date();
+        return dt.getFullYear() === y && dt.getMonth() === m && dt.getDate() === d;
+    }).sort(function(a,b) { return a.time - b.time; });
+    
+    var tbody = document.getElementById('dayTradesModalBody');
+    tbody.innerHTML = '';
+    
+    filteredTrades.forEach(function(trade) {
+        var c = (trade.fee != null) ? trade.fee : getCommission(trade.symbol, trade.volume);
+        var net = trade.pnl - c;
+        var isLong = trade.side.toLowerCase().indexOf('buy') >= 0 || trade.side.toLowerCase() === 'long';
+        var tDateStr = trade.time instanceof Date ? fmtTimeCore(trade.time) : '';
+        
+        var tagsHtml = (trade.tags || []).map(function(tg){
+            var cc = tagColors[tg] || '#64748b';
+            return '<span class="bg-zinc-800 text-zinc-300 px-1 py-0.5 rounded-sm text-[10px] mr-1 border border-zinc-700/50 uppercase" style="border-left: 3px solid ' + cc + '">' + esc(tg) + '</span>';
+        }).join('');
+        var hasScreenshot = trade.screenshots && trade.screenshots.length > 0;
+        
+        var tr = document.createElement('tr');
+        tr.className = 'hover:bg-zinc-900/60 border-b border-zinc-800/40 cursor-pointer';
+        tr.setAttribute('onclick', 'openModal("' + trade.id + '")');
+        tr.innerHTML = 
+            '<td class="px-4 py-2 font-mono text-zinc-300">' + tDateStr + '</td>' +
+            '<td class="px-4 py-2 text-zinc-300 uppercase">' + esc(trade.account || '') + '</td>' +
+            '<td class="px-4 py-2 font-bold text-white uppercase">' + esc(trade.symbol) + '</td>' +
+            '<td class="px-4 py-2 font-bold text-[10px] ' + (isLong ? 'text-emerald-500' : 'text-red-500') + '">' + (isLong ? 'LONG' : 'SHORT') + '</td>' +
+            '<td class="px-4 py-2 text-right text-zinc-300">' + trade.volume + '</td>' +
+            '<td class="px-4 py-2 text-right text-[11px] text-zinc-300 font-mono">' + trade.entry.toFixed(2) + ' → ' + trade.exit.toFixed(2) + '</td>' +
+            '<td class="px-4 py-2 text-right font-mono ' + (trade.pnl >= 0 ? 'pnl-profit' : 'pnl-loss') + '">' + fmtUSD(trade.pnl) + '</td>' +
+            '<td class="px-4 py-2 text-right font-bold font-mono ' + (net >= 0 ? 'pnl-profit' : 'pnl-loss') + '">' + fmtUSD(net) + '</td>' +
+            '<td class="px-4 py-2 truncate max-w-xs">' + tagsHtml + '</td>' +
+            '<td class="px-4 py-2 text-center" onclick="event.stopPropagation(); openModal(\'' + trade.id + '\'); document.getElementById(\'screenshotInput\').click();"><i class="fas fa-check-circle cursor-pointer transition-colors ' + (hasScreenshot ? 'text-emerald-500' : 'text-zinc-700 hover:text-zinc-300') + '"></i></td>';
+        tbody.appendChild(tr);
+    });
+}
+function closeDayTradesModal() { document.getElementById('dayTradesModal').classList.add('hidden'); }
+
 function saveNote() {
     var id = document.getElementById('editTradeId').value;
     var trade = trades.find(function(t){ return t.id === id; });
@@ -2122,7 +2216,7 @@ function calculateTagSpecificMetrics() {
         if(net > 0) { wins++; profit += net; } else { loss += Math.abs(net); }
 
         var isLong = trade.side.toLowerCase().indexOf('buy') >= 0 || trade.side.toLowerCase() === 'long';
-        var dateTxt = (trade.time instanceof Date && !isNaN(trade.time)) ? trade.time.toLocaleDateString('nl-NL', {month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}) : trade.dateStr;
+        var dateTxt = (trade.time instanceof Date && !isNaN(trade.time)) ? fmtDateCore(trade.time) : trade.dateStr;
         var badges = trade.tags.map(function(tg){
     var c = tagColors[tg] || '#64748b';
     return '<span class="bg-zinc-800 text-zinc-300 px-1 py-0.5 rounded-sm text-[10px] mr-1 border border-zinc-700/40 uppercase" style="border-left: 3px solid ' + c + '">' + esc(tg) + '</span>'; 
@@ -2249,10 +2343,16 @@ function resetMCStats() {
         return;
     }
     pool.sort(function(a,b){ return a.time - b.time; });
-    var daysElapsed = (pool[pool.length - 1].time - pool[0].time) / (1000 * 60 * 60 * 24);
-    if(daysElapsed < 1) daysElapsed = 1;
-    var tradesPerDay = pool.length / daysElapsed;
-    var tradesPerMonth = Math.ceil(tradesPerDay * 30.416);
+    
+    var uniqueDays = {};
+    pool.forEach(function(t) {
+        var dStr = t.time.getFullYear() + '-' + (t.time.getMonth()+1) + '-' + t.time.getDate();
+        uniqueDays[dStr] = true;
+    });
+    var numTradingDays = Object.keys(uniqueDays).length;
+    var avgTradesPerTradingDay = pool.length / numTradingDays;
+    // Assume roughly 21 trading days per month
+    var tradesPerMonth = Math.ceil(avgTradesPerTradingDay * 21);
 
     var wins = 0, lossCount = 0, be = 0;
     var winTotal = 0, lossTotal = 0;
@@ -2278,10 +2378,9 @@ function resetMCStats() {
     var rrRatio = avgLoss > 0 ? (avgWin / avgLoss) : 1;
 
     var startCap = parseFloat(document.getElementById('mcCapital').value) || 3000;
-    var riskPct = avgLoss > 0 ? (avgLoss / startCap) * 100 : 0.5;
+    var riskPct = parseFloat(document.getElementById('mcRiskPct').value) || 1.0;
 
     document.getElementById('mcWinrate').value = winrate.toFixed(1);
-    document.getElementById('mcBreakEven').value = breakEvenRate.toFixed(1);
     document.getElementById('mcRiskPct').value = riskPct.toFixed(2);
     document.getElementById('mcRRRatio').value = rrRatio.toFixed(2);
     document.getElementById('mcTradesPerMonth').value = tradesPerMonth;
@@ -2292,7 +2391,6 @@ function runMonteCarlo() {
     var startCapital = parseFloat(document.getElementById('mcCapital').value) || 3000;
     var riskPct = parseFloat(document.getElementById('mcRiskPct').value) || 0;
     var winrate = parseFloat(document.getElementById('mcWinrate').value) || 0;
-    var breakEvenRate = parseFloat(document.getElementById('mcBreakEven').value) || 0;
     var tradesPerMonth = parseFloat(document.getElementById('mcTradesPerMonth').value) || 0;
     var horizonMonths = parseInt(document.getElementById('mcHorizon').value) || 0;
     var rrRatio = parseFloat(document.getElementById('mcRRRatio').value) || 0;
@@ -2305,13 +2403,22 @@ function runMonteCarlo() {
     }
     errorDiv.style.display = 'none';
 
-    var tradesToSimulate = Math.round(tradesPerMonth * horizonMonths);
-    if(tradesToSimulate < 1) tradesToSimulate = 1;
+    var btn = document.querySelector('button[onclick="runMonteCarlo()"]');
+    var oldText = btn ? btn.innerHTML : '';
+    if(btn) {
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin text-[10px]"></i> SIMULEREN...';
+        btn.disabled = true;
+    }
 
-    var results = [];
+    setTimeout(function() {
+        var tradesToSimulate = Math.round(tradesPerMonth * horizonMonths);
+        if(tradesToSimulate < 1) tradesToSimulate = 1;
+
+        var results = [];
     
     for (var s = 0; s < numSimulations; s++) {
-        var path = [startCapital];
+        var path = new Float32Array(tradesToSimulate + 1);
+        path[0] = startCapital;
         var tradeResults = [];
         var cap = startCapital;
         var peak = startCapital;
@@ -2336,10 +2443,6 @@ function runMonteCarlo() {
                 currentConsWins++;
                 maxConsWins = Math.max(maxConsWins, currentConsWins);
                 currentConsLosses = 0;
-            } else if (rand < winrate + breakEvenRate) {
-                // cap += 0; Break even resets streaks? Usually no profit/loss.
-                currentConsWins = 0;
-                currentConsLosses = 0;
             } else {
                 tradeProfit = -cap * (riskPct / 100);
                 cap += tradeProfit;
@@ -2349,7 +2452,7 @@ function runMonteCarlo() {
             }
             if (cap < 0) cap = 0;
             
-            path.push(cap);
+            path[t + 1] = cap;
             tradeResults.push(tradeProfit > 0);
             
             if (cap > peak) peak = cap;
@@ -2369,7 +2472,7 @@ function runMonteCarlo() {
         
         results.push({
             id: s,
-            path: path,
+            path: Array.from(path),
             endOfMonthBalances: endOfMonthBalances,
             finalBalance: cap,
             maxDD: maxDD,
@@ -2394,8 +2497,15 @@ function runMonteCarlo() {
         startCapital: startCapital
     };
     
+    if(btn) {
+        btn.disabled = false;
+        btn.innerHTML = oldText;
+    }
+    
     renderMCChart();
     selectMCPath('median'); // Default tab
+    
+    }, 10);
 }
 
 function selectMCPath(type) {
@@ -2407,13 +2517,12 @@ function selectMCPath(type) {
     var tWor = document.getElementById('mcTabWorst');
     var tBes = document.getElementById('mcTabBest');
     
-    var baseActive = "opacity-100 shadow-md";
-    var baseInac = "opacity-50 text-opacity-70 bg-opacity-30 border border-transparent";
+    var baseActive = "flex-1 py-3 text-center bg-blue-900 text-blue-200 font-bold rounded-sm border border-blue-800 transition-all text-[10px] sm:text-xs uppercase tracking-widest shadow-[0_0_15px_rgba(30,58,138,0.3)]";
+    var baseInac = "flex-1 py-3 text-center bg-blue-900/40 text-blue-300 font-bold rounded-sm border border-blue-800/50 transition-all text-[10px] sm:text-xs uppercase tracking-widest hover:bg-blue-800/60 hover:text-blue-200";
     
-    // Reset classes
-    tMed.className = "flex-1 py-3.5 text-center text-white bg-[#3b82f6] font-bold rounded transition-all text-[11px] sm:text-sm uppercase tracking-wider " + (type === 'median' ? baseActive : baseInac);
-    tWor.className = "flex-1 py-3.5 text-center text-red-900 bg-[#fee2e2] font-bold rounded transition-all text-[11px] sm:text-sm uppercase tracking-wider " + (type === 'worst' ? "opacity-100 shadow-md border border-red-200" : baseInac);
-    tBes.className = "flex-1 py-3.5 text-center text-emerald-900 bg-[#d1fae5] font-bold rounded transition-all text-[11px] sm:text-sm uppercase tracking-wider " + (type === 'best' ? "opacity-100 shadow-md border border-emerald-200" : baseInac);
+    tMed.className = (type === 'median' ? baseActive : baseInac);
+    tWor.className = (type === 'worst' ? baseActive : baseInac);
+    tBes.className = (type === 'best' ? baseActive : baseInac);
     
     var data = mcSimulationData[type];
     
@@ -2450,11 +2559,11 @@ function renderMCTables(startCapital, eomBalances) {
     while(mIdx < eomBalances.length) {
         var yearStartBalance = prevMonthBalance;
         
-        var yearHtml = '<div class="bg-white rounded border border-slate-200 shadow-sm text-slate-800 text-sm overflow-hidden min-w-[300px] w-[300px] flex-none">';
-        yearHtml += '<div class="flex bg-[#3b66c4] text-white font-bold p-3.5 tracking-wider items-center">';
-        yearHtml += '<div class="flex-1 text-base">' + currentYear + '</div>';
-        yearHtml += '<div class="flex-1 text-center text-xs">Results %</div>';
-        yearHtml += '<div class="flex-1 text-right text-xs">Results $</div>';
+        var yearHtml = '<div class="bg-terminal-card border border-terminal text-zinc-300 text-xs overflow-hidden min-w-[300px] w-[300px] flex-none">';
+        yearHtml += '<div class="flex bg-blue-900 border-b border-terminal text-blue-200 font-bold p-3 uppercase tracking-widest items-center">';
+        yearHtml += '<div class="flex-1">' + currentYear + '</div>';
+        yearHtml += '<div class="flex-1 text-center text-[9px]">Return %</div>';
+        yearHtml += '<div class="flex-1 text-right text-[9px]">Return $</div>';
         yearHtml += '</div>';
         
         var i = 0;
@@ -2464,12 +2573,12 @@ function renderMCTables(startCapital, eomBalances) {
             var mProfitDol = mBalance - prevMonthBalance;
             var mProfitPct = prevMonthBalance > 0 ? (mProfitDol / prevMonthBalance) * 100 : 0;
             
-            var pctColor = mProfitPct > 0 ? 'text-[#22c55e]' : (mProfitPct < 0 ? 'text-[#ef4444]' : 'text-slate-500');
-            var dolColor = 'text-slate-600'; 
+            var pctColor = mProfitPct > 0 ? 'text-emerald-500' : (mProfitPct < 0 ? 'text-red-500' : 'text-slate-500');
+            var dolColor = mProfitPct > 0 ? 'text-emerald-500' : (mProfitPct < 0 ? 'text-red-500' : 'text-slate-500'); 
             
-            yearHtml += '<div class="flex px-4 py-2.5 ' + (i % 2 === 0 ? 'bg-white' : 'bg-slate-50') + ' border-b border-slate-100 font-medium tracking-tight">';
-            yearHtml += '<div class="flex-1 text-slate-600">' + monthNames[i] + '</div>';
-            yearHtml += '<div class="flex-1 text-center ' + pctColor + '">' + (mProfitPct>0?'+':'') + (mProfitPct === 0 ? '0.0' : mProfitPct.toFixed(1)) + '%</div>';
+            yearHtml += '<div class="flex px-4 py-2 border-b border-zinc-800/50 hover:bg-zinc-900 font-mono tracking-tight">';
+            yearHtml += '<div class="flex-1 text-slate-400 uppercase tracking-widest text-[10px]">' + monthNames[i] + '</div>';
+            yearHtml += '<div class="flex-1 text-center font-bold ' + pctColor + '">' + (mProfitPct>0?'+':'') + (mProfitPct === 0 ? '0.0' : mProfitPct.toFixed(1)) + '%</div>';
             yearHtml += '<div class="flex-1 text-right ' + dolColor + '">' + (mProfitDol < 0 ? "-$" : "$") + Math.abs(Math.round(mProfitDol)).toLocaleString() + '</div>';
             yearHtml += '</div>';
             
@@ -2477,8 +2586,8 @@ function renderMCTables(startCapital, eomBalances) {
         }
         
         for(; i < 12; i++) {
-            yearHtml += '<div class="flex px-4 py-2.5 ' + (i % 2 === 0 ? 'bg-white' : 'bg-slate-50') + ' border-b border-slate-100 font-medium text-transparent tracking-tight">';
-            yearHtml += '<div class="flex-1 text-slate-300">' + monthNames[i] + '</div>';
+            yearHtml += '<div class="flex px-4 py-2 border-b border-zinc-800/50 hover:bg-zinc-900 font-mono text-zinc-700 tracking-tight">';
+            yearHtml += '<div class="flex-1">' + monthNames[i] + '</div>';
             yearHtml += '<div class="flex-1 text-center">-</div>';
             yearHtml += '<div class="flex-1 text-right">-</div>';
             yearHtml += '</div>';
@@ -2488,10 +2597,10 @@ function renderMCTables(startCapital, eomBalances) {
         var yProfitDol = yearEndBalance - yearStartBalance;
         var yProfitPct = yearStartBalance > 0 ? (yProfitDol / yearStartBalance) * 100 : 0;
         
-        yearHtml += '<div class="flex bg-[#3b66c4] text-white font-bold p-3 items-center tracking-wider">';
-        yearHtml += '<div class="flex-1">Total</div>';
+        yearHtml += '<div class="flex bg-blue-900 border-t border-terminal text-white font-bold p-3 uppercase tracking-widest items-center">';
+        yearHtml += '<div class="flex-1 text-[10px]">TOTAL</div>';
         yearHtml += '<div class="flex-1 text-center text-sm">' + yProfitPct.toFixed(1) + '%</div>';
-        yearHtml += '<div class="flex-1 text-right text-sm">' + (yProfitDol < 0 ? "-$" : "$") + Math.abs(Math.round(yProfitDol)).toLocaleString() + '</div>';
+        yearHtml += '<div class="flex-1 text-right text-sm font-mono">' + (yProfitDol < 0 ? "-$" : "$") + Math.abs(Math.round(yProfitDol)).toLocaleString() + '</div>';
         yearHtml += '</div>';
         
         yearHtml += '</div>'; 
@@ -2522,60 +2631,117 @@ function renderMCChart() {
     var allPaths = mcSimulationData.all;
     var datasets = [];
     
+    var startVal = mcSimulationData.startCapital;
+    var activeData = mcSimulationData[mcSelectedPath].path;
+    var finalVal = activeData[activeData.length - 1];
+    var isProfitable = finalVal >= startVal;
+    
+    var activeColor = isProfitable ? '#34d399' : '#f87171';
+    var gradientCss = isProfitable ? 'rgba(52, 211, 153,' : 'rgba(248, 113, 113,';
+    var gradient = ctx.createLinearGradient(0, 0, 0, canvas.height || 300);
+    gradient.addColorStop(0, gradientCss + ' 0.2)');
+    gradient.addColorStop(1, gradientCss + ' 0)');
+    
     // Draw background paths light
-    allPaths.forEach(function(r) {
+    var maxBgPaths = 15;
+    var stepBg = Math.max(1, Math.floor(allPaths.length / maxBgPaths));
+    
+    for (var i = 0; i < allPaths.length; i += stepBg) {
+        var r = allPaths[i];
         // don't double draw the selected if we draw it later
-        if (r.id === mcSimulationData[mcSelectedPath].id) return;
+        if (r.id === mcSimulationData[mcSelectedPath].id) continue;
         datasets.push({
             data: r.path,
-            borderColor: 'rgba(56, 189, 248, 0.15)', // light blue tailwind
+            borderColor: 'rgba(161, 161, 170, 0.1)', // dim gray tailwind zinc-400
             borderWidth: 1,
             pointRadius: 0,
             fill: false,
-            tension: 0
+            tension: 0,
+            normalized: true,
+            parsing: false
         });
-    });
-    
-    var activeColor = '#3b82f6';
-    if(mcSelectedPath === 'worst') activeColor = '#ef4444';
-    if(mcSelectedPath === 'best') activeColor = '#22c55e';
+    }
     
     datasets.push({
-        data: mcSimulationData[mcSelectedPath].path,
+        data: activeData,
         borderColor: activeColor,
-        borderWidth: 3,
+        backgroundColor: gradient,
+        borderWidth: 2,
         pointRadius: 0,
-        fill: false,
+        hoverRadius: 4,
+        fill: true,
         tension: 0,
-        zIndex: 10
+        zIndex: 10,
+        normalized: true,
+        parsing: false
     });
+
+    var crosshairPlugin = {
+        id: 'crosshair',
+        afterDraw: function(chart) {
+            if (chart.tooltip && chart.tooltip._active && chart.tooltip._active.length) {
+                var activePoint = chart.tooltip._active[0];
+                var ctx = chart.ctx;
+                var x = activePoint.element.x;
+                var topY = chart.scales.y.top;
+                var bottomY = chart.scales.y.bottom;
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(x, topY);
+                ctx.lineTo(x, bottomY);
+                ctx.lineWidth = 1;
+                ctx.strokeStyle = '#3f3f46';
+                ctx.setLineDash([4, 4]);
+                ctx.stroke();
+                ctx.restore();
+            }
+        }
+    };
 
     mcChartInstance = new Chart(ctx, {
         type: 'line',
         data: { labels: labels, datasets: datasets },
+        plugins: [crosshairPlugin],
         options: {
             responsive: true,
             maintainAspectRatio: false,
             animation: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
             plugins: {
                 legend: { display: false },
-                tooltip: { enabled: false }
-            },
-            scales: {
-                x: {
-                    display: false // hide x axis completely to match screenshot
-                },
-                y: {
-                    display: true,
-                    position: 'left',
-                    grid: { color: 'rgba(0, 0, 0, 0.05)', drawBorder: false },
-                    border: { display: false, dash: [4, 4] },
-                    ticks: {
-                        color: '#64748b',
-                        font: { size: 10, family: 'sans-serif' },
-                        callback: function(v) { return '$' + v.toLocaleString(); }
+                tooltip: { 
+                    backgroundColor: 'rgba(24, 24, 27, 0.9)',
+                    titleColor: '#94a3b8',
+                    bodyColor: '#fff',
+                    titleFont: { family: 'JetBrains Mono', size: 11 },
+                    bodyFont: { family: 'JetBrains Mono', size: 12, weight: 'bold' },
+                    borderColor: '#3f3f46',
+                    borderWidth: 1,
+                    displayColors: false,
+                    callbacks: {
+                        label: function(context) {
+                            if(context.datasetIndex !== datasets.length - 1) return null; // Only show tooltip for active path
+                            return 'Balance: ' + new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.y);
+                        }
                     }
                 }
+            },
+            scales: {
+                x: { 
+                    display: true, 
+                    grid: { display: false },
+                    ticks: { 
+                        color: '#94a3b8', 
+                        font: { size: 9, family: 'JetBrains Mono' },
+                        maxRotation: 45,
+                        minRotation: 45,
+                        maxTicksLimit: 12
+                    } 
+                }, 
+                y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 10, family: 'JetBrains Mono' }, callback: function(v) { return '$' + v.toLocaleString(); } } } 
             }
         }
     });
