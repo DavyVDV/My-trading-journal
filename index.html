@@ -106,6 +106,9 @@
                 <button onclick="document.getElementById('fileInput').click(); toggleDropdown('dataMenuDropdown')" class="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-white rounded-sm text-xs transition-colors">
                     <i class="fas fa-file-csv w-4 text-center mr-1 text-slate-200"></i> CSV Importeren
                 </button>
+                <button onclick="document.getElementById('reimportInput').click(); toggleDropdown('dataMenuDropdown')" class="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-white rounded-sm text-xs transition-colors" title="Bestaande trades herlezen met behoud van tags en notities">
+                    <i class="fas fa-sync-alt w-4 text-center mr-1 text-slate-200"></i> CSV Herlezen (Fix PnL)
+                </button>
                 <button onclick="openManualTradeModal(); toggleDropdown('dataMenuDropdown')" class="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-white rounded-sm text-xs transition-colors">
                     <i class="fas fa-keyboard w-4 text-center mr-1 text-slate-200"></i> Manuele Invoer
                 </button>
@@ -125,6 +128,7 @@
             </div>
             <input type="file" id="fileInput" accept=".csv" class="hidden" onchange="handleFileUpload(event)">
             <input type="file" id="importBackupInput" accept=".json" class="hidden" onchange="importBackup(event)">
+            <input type="file" id="reimportInput" accept=".csv" class="hidden" onchange="handleFileReimport(event)">
         </div>
     </div>
 </nav>
@@ -1350,7 +1354,16 @@ function handleFileUpload(event) {
     var file = event.target.files[0];
     if (!file) return;
     var reader = new FileReader();
-    reader.onload = function(e) { parseQuantowerCSV(e.target.result); };
+    reader.onload = function(e) { parseQuantowerCSV(e.target.result, false); };
+    reader.readAsText(file);
+    event.target.value = '';
+}
+
+function handleFileReimport(event) {
+    var file = event.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e) { parseQuantowerCSV(e.target.result, true); };
     reader.readAsText(file);
     event.target.value = '';
 }
@@ -1394,7 +1407,7 @@ function splitCSVLine(line) {
     return res;
 }
 
-function parseQuantowerCSV(csvText) {
+function parseQuantowerCSV(csvText, isReimport) {
     var text  = csvText.replace(/^\uFEFF/, '');
     var lines = text.split(/\r?\n/).filter(function(l){ return l.trim() !== ''; });
     if (lines.length < 2) { alert('Invalid structural syntax.'); return; }
@@ -1515,16 +1528,45 @@ function parseQuantowerCSV(csvText) {
     });
 
     if (newTrades.length > 0) {
-        var existingMap = {};
-        trades.forEach(function(t) {
-            var fp = t.account + '|' + t.dateStr + '|' + t.symbol + '|' + t.side + '|' + t.volume;
-            existingMap[fp] = true;
-        });
-        var added = 0;
-        newTrades.forEach(function(t) {
-            var fp = t.account + '|' + t.dateStr + '|' + t.symbol + '|' + t.side + '|' + t.volume;
-            if (!existingMap[fp]) { trades.push(t); added++; }
-        });
+        if (isReimport) {
+            var backupMap = {};
+            trades.forEach(function(t) {
+                var timeKey = (t.time instanceof Date) ? t.time.getTime() : t.dateStr;
+                var key = t.account + '|' + t.symbol + '|' + timeKey;
+                if (!backupMap[key]) backupMap[key] = [];
+                backupMap[key].push(t);
+            });
+            
+            newTrades.forEach(function(nt) {
+                var timeKey = (nt.time instanceof Date) ? nt.time.getTime() : nt.dateStr;
+                var key = nt.account + '|' + nt.symbol + '|' + timeKey;
+                if (backupMap[key] && backupMap[key].length > 0) {
+                    var oldT = backupMap[key].shift();
+                    nt.tags = oldT.tags || [];
+                    nt.screenshots = oldT.screenshots || [];
+                    nt.notes = oldT.notes || '';
+                }
+            });
+            
+            var newAccounts = {};
+            newTrades.forEach(function(nt) { newAccounts[nt.account] = true; });
+            
+            trades = trades.filter(function(t) { return !newAccounts[t.account]; });
+            newTrades.forEach(function(nt) { trades.push(nt); });
+            
+            alert(newTrades.length + " trades succesvol heringelezen. Notities/tags zijn bewaard gebleven.");
+        } else {
+            var existingMap = {};
+            trades.forEach(function(t) {
+                var fp = t.account + '|' + t.dateStr + '|' + t.symbol + '|' + t.side + '|' + t.volume;
+                existingMap[fp] = true;
+            });
+            var added = 0;
+            newTrades.forEach(function(t) {
+                var fp = t.account + '|' + t.dateStr + '|' + t.symbol + '|' + t.side + '|' + t.volume;
+                if (!existingMap[fp]) { trades.push(t); added++; }
+            });
+        }
         trades.sort(function(a,b){ return a.time - b.time; });
         saveData();
         updateAccountSelector();
