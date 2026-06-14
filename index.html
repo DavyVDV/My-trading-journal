@@ -106,9 +106,6 @@
                 <button onclick="document.getElementById('fileInput').click(); toggleDropdown('dataMenuDropdown')" class="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-white rounded-sm text-xs transition-colors">
                     <i class="fas fa-file-csv w-4 text-center mr-1 text-slate-200"></i> CSV Importeren
                 </button>
-                <button onclick="document.getElementById('reimportInput').click(); toggleDropdown('dataMenuDropdown')" class="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-white rounded-sm text-xs transition-colors" title="Bestaande trades herlezen met behoud van tags en notities">
-                    <i class="fas fa-sync-alt w-4 text-center mr-1 text-slate-200"></i> CSV Herlezen (Fix PnL)
-                </button>
                 <button onclick="openManualTradeModal(); toggleDropdown('dataMenuDropdown')" class="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-white rounded-sm text-xs transition-colors">
                     <i class="fas fa-keyboard w-4 text-center mr-1 text-slate-200"></i> Manuele Invoer
                 </button>
@@ -128,7 +125,6 @@
             </div>
             <input type="file" id="fileInput" accept=".csv" class="hidden" onchange="handleFileUpload(event)">
             <input type="file" id="importBackupInput" accept=".json" class="hidden" onchange="importBackup(event)">
-            <input type="file" id="reimportInput" accept=".csv" class="hidden" onchange="handleFileReimport(event)">
         </div>
     </div>
 </nav>
@@ -1354,16 +1350,20 @@ function handleFileUpload(event) {
     var file = event.target.files[0];
     if (!file) return;
     var reader = new FileReader();
-    reader.onload = function(e) { parseQuantowerCSV(e.target.result, false); };
-    reader.readAsText(file);
-    event.target.value = '';
-}
+    reader.onload = function(e) { 
+        var csvData = e.target.result;
+        
+        // Save raw CSV data for future auto-reimports
+        try {
+            var savedRaw = JSON.parse(localStorage.getItem('qt_saved_raw_csvs') || '[]');
+            // Try to avoid duplicates by checking the first 200 chars
+            var isDuplicate = savedRaw.some(function(s) { return s.substring(0, 200) === csvData.substring(0, 200); });
+            if (!isDuplicate) savedRaw.push(csvData);
+            localStorage.setItem('qt_saved_raw_csvs', JSON.stringify(savedRaw));
+        } catch(err) {}
 
-function handleFileReimport(event) {
-    var file = event.target.files[0];
-    if (!file) return;
-    var reader = new FileReader();
-    reader.onload = function(e) { parseQuantowerCSV(e.target.result, true); };
+        parseQuantowerCSV(csvData, false); 
+    };
     reader.readAsText(file);
     event.target.value = '';
 }
@@ -1385,7 +1385,27 @@ function fmtTimeCore(d) {
 
 function parseEuropeanNumber(str) {
     if (!str || str.trim() === '' || str.trim() === '0') return 0;
-    return parseFloat(str.trim().replace(/\./g, '').replace(',', '.'));
+    var s = str.trim();
+    // Detect US format: if it contains a dot and it comes AFTER the last comma, OR if it contains only a dot and no comma.
+    // e.g. "1,000.50" -> last comma at 1, last dot at 5. (dot > comma)  => US
+    // "1.000,50" -> last dot at 1, last comma at 5 (comma > dot) => EU
+    var lastDot = s.lastIndexOf('.');
+    var lastComma = s.lastIndexOf(',');
+    
+    if (lastDot > lastComma) {
+        // US format: remove commas, keep dot
+        s = s.replace(/,/g, '');
+    } else if (lastComma > lastDot) {
+        // EU format: remove dots, change comma to dot
+        s = s.replace(/\./g, '').replace(',', '.');
+    } else {
+        // only one of them exists or neither
+        // if only dot, it's already parseable. if only comma, it might be a decimal comma
+        if (lastComma > -1) {
+            s = s.replace(',', '.');
+        }
+    }
+    return parseFloat(s);
 }
 
 function parseDutchDate(str) {
