@@ -91,9 +91,6 @@
     </div>
     
     <div class="flex gap-2 items-center font-mono text-xs relative">
-        <button onclick="openAccountManagerModal()" class="bg-blue-900/40 hover:bg-blue-800/60 text-blue-300 px-2.5 py-1 rounded-sm border border-blue-800 transition-colors">
-            <i class="fas fa-wallet mr-1"></i> ACCOUNTS
-        </button>
         <button onclick="openSettings()" class="bg-terminal-input hover:bg-zinc-800 text-slate-200 border border-terminal px-2.5 py-1 rounded-sm transition-colors">
             <i class="fas fa-sliders-h text-[10px]"></i>
         </button>
@@ -165,9 +162,6 @@
 
         <div class="flex justify-between items-center bg-terminal-card border border-terminal p-3 rounded-sm font-mono text-xs">
             <div class="flex items-center gap-3">
-                <select id="accountFilter" onchange="onAccountChange()" class="bg-terminal-input border border-terminal rounded-sm px-2.5 py-1 text-slate-200 focus:outline-none cursor-pointer">
-                    <option value="ALL">ALLE ACCOUNTS</option>
-                </select>
                 <div class="relative">
                     <i class="fas fa-search absolute left-2.5 top-2 text-slate-200 text-[10px]"></i>
                     <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="FILTER SYM/TAGS..." class="bg-terminal-input border border-terminal rounded-sm pl-7 pr-3 py-1 text-zinc-200 focus:outline-none w-56 placeholder-slate-400 uppercase text-xs">
@@ -451,12 +445,6 @@
         </div>
         <div class="p-5 space-y-4">
             <div>
-                <label class="block text-[10px] text-slate-200 uppercase tracking-wider mb-1">Stel Account in</label>
-                <select id="bulkAccountSelect" class="w-full bg-terminal-input border border-terminal rounded-sm p-1.5 text-zinc-200 focus:outline-none cursor-pointer">
-                    <option value="">-- KIES EEN ACCOUNT --</option>
-                </select>
-            </div>
-            <div>
                 <label class="block text-[10px] text-slate-200 uppercase tracking-wider mb-1">Voeg Tag Toe</label>
                 <input type="text" id="bulkTagInput" placeholder="NIEUWE TAG" class="w-full bg-terminal-input border border-terminal rounded-sm p-1.5 text-zinc-200 focus:outline-none uppercase">
             </div>
@@ -464,25 +452,6 @@
         <div class="p-4 border-t border-terminal bg-slate-900/40 flex justify-end gap-2 text-xs">
             <button onclick="closeBulkEditModal()" class="px-3 py-1.5 bg-terminal-input border border-terminal rounded-sm text-slate-200 hover:text-white hover:bg-slate-800 transition-colors font-bold">ANNULEER</button>
             <button onclick="applyBulkEdits()" class="px-4 py-1.5 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-sm font-bold hover:bg-blue-600/40 hover:text-white transition-colors">TOEPASSEN</button>
-        </div>
-    </div>
-</div>
-
-<div id="accountManagerModal" class="fixed inset-0 bg-black/90 flex items-center justify-center z-50 px-4 hidden">
-    <div class="bg-terminal-card border border-terminal w-full max-w-md flex flex-col rounded-sm font-mono text-xs">
-        <div class="flex justify-between items-center p-4 border-b border-terminal bg-slate-900">
-            <span class="text-[11px] font-bold tracking-widest text-slate-200 uppercase">ACCOUNT BEHEER</span>
-            <button onclick="closeAccountManagerModal()" class="text-slate-200 hover:text-slate-200 text-base leading-none">&times;</button>
-        </div>
-        <div class="p-5 space-y-4">
-            <div class="flex gap-2">
-                <input type="text" id="newAccountInput" placeholder="ACCOUNT NAAM (bv. LIVE_01)" class="w-full bg-terminal-input border border-terminal rounded-sm p-1.5 text-zinc-200 focus:outline-none uppercase">
-                <button onclick="addAccount()" class="bg-white hover:bg-slate-200 text-black px-3 py-1 rounded-sm font-bold transition-colors whitespace-nowrap">TOEVOEGEN</button>
-            </div>
-            <div>
-                <label class="block text-[10px] text-slate-200 uppercase tracking-wider mb-2">Bestaande Accounts</label>
-                <div id="accountListContainer" class="space-y-2 max-h-[40vh] overflow-y-auto"></div>
-            </div>
         </div>
     </div>
 </div>
@@ -495,10 +464,6 @@
         </div>
         <form id="manualTradeForm" onsubmit="handleManualTradeSubmit(event)" class="p-5 space-y-4 overflow-y-auto max-h-[85vh]">
             <div class="grid grid-cols-2 gap-3">
-                <div>
-                    <label class="block text-[10px] text-zinc-300 uppercase tracking-wider mb-1">Account</label>
-                    <input type="text" id="manAccount" required placeholder="LIVE_01" class="w-full bg-terminal-input border border-terminal rounded-sm p-1.5 text-zinc-200 focus:outline-none uppercase">
-                </div>
                 <div>
                     <label class="block text-[10px] text-zinc-300 uppercase tracking-wider mb-1">Date &amp; Time</label>
                     <input type="datetime-local" id="manTime" required class="w-full bg-terminal-input border border-terminal rounded-sm p-1.5 text-zinc-200 focus:outline-none">
@@ -615,7 +580,6 @@
                 <thead class="bg-zinc-900/60 sticky top-0 z-10 shadow-md">
                     <tr class="text-[10px] uppercase text-zinc-300 tracking-wider">
                         <th class="px-4 py-2">Tijd</th>
-                        <th class="px-4 py-2">Account</th>
                         <th class="px-4 py-2">Symbool</th>
                         <th class="px-4 py-2">Richting</th>
                         <th class="px-4 py-2 text-right">Volume</th>
@@ -694,7 +658,6 @@ var trades = [];
 var pnlChartInstance = null;
 var sortCol = localStorage.getItem('qt_sortCol') || 'time';
 var sortDir = localStorage.getItem('qt_sortDir') || 'desc';
-var selectedAccount = 'ALL';
 var activeTab = 'dashboard';
 
 var currentCalendarDate = new Date(); // Added for Calendar View
@@ -755,7 +718,6 @@ var analyticsFilterTags = [];
 var COLUMN_DEFS = [
     { key: 'select',     label: '<input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()">', align: 'center', sortable: false, fixed: true },
     { key: 'time',       label: 'Datum / Tijd',   align: 'left',   sortable: true  },
-    { key: 'account',    label: 'Account',     align: 'left',   sortable: true  },
     { key: 'symbol',     label: 'Symbool',     align: 'left',   sortable: true  },
     { key: 'side',       label: 'Richting',        align: 'left',   sortable: true  },
     { key: 'volume',     label: 'Grootte',        align: 'right',  sortable: true  },
@@ -966,47 +928,11 @@ function loadData() {
             });
         }
     } catch(e) { trades = []; }
-    updateAccountSelector();
     updateUI();
 }
 
 function getFilteredTrades() {
-    if (selectedAccount === 'ALL') return trades;
-    return trades.filter(function(t){ return t.account === selectedAccount; });
-}
-
-function onAccountChange() {
-    selectedAccount = document.getElementById('accountFilter').value;
-    updateUI();
-}
-
-function updateAccountSelector() {
-    var accounts = loadCustomAccounts(); // Base accounts
-    trades.forEach(function(t){
-        if (t.account && accounts.indexOf(t.account) < 0) accounts.push(t.account);
-    });
-    accounts.sort();
-    var sel = document.getElementById('accountFilter');
-    if (!sel) return;
-    var prev = selectedAccount;
-    sel.innerHTML = '<option value="ALL">ALLE ACCOUNTS (' + trades.length + ')</option>';
-    accounts.forEach(function(a){
-        var count = trades.filter(function(t){ return t.account === a; }).length;
-        var opt = document.createElement('option');
-        opt.value = a;
-        opt.textContent = a.toUpperCase() + ' (' + count + ')';
-        sel.appendChild(opt);
-    });
-    if (accounts.length === 1 && trades.length > 0) {
-        sel.value = accounts[0];
-        selectedAccount = accounts[0];
-    } else if (accounts.indexOf(prev) >= 0 || prev === 'ALL') {
-        sel.value = prev;
-        selectedAccount = prev;
-    } else {
-        sel.value = 'ALL';
-        selectedAccount = 'ALL';
-    }
+    return trades;
 }
 
 function saveData() {
@@ -1036,10 +962,8 @@ document.getElementById('confirmModalBtn').addEventListener('click', function() 
 function clearAllData() {
     showConfirm('Wipe complete local database?', function() {
         trades = [];
-        selectedAccount = 'ALL';
         analyticsFilterTags = [];
         saveData();
-        updateAccountSelector();
     });
 }
 
@@ -1287,7 +1211,6 @@ function closeManualTradeModal() {
 
 function handleManualTradeSubmit(e) {
     e.preventDefault();
-    var account = document.getElementById('manAccount').value.trim().toUpperCase();
     var timeVal = new Date(document.getElementById('manTime').value);
     var symbol = document.getElementById('manSymbol').value.trim().toUpperCase();
     var side = document.getElementById('manSide').value;
@@ -1301,7 +1224,6 @@ function handleManualTradeSubmit(e) {
 
     var newTrade = {
         id: 'tr_manual_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
-        account: account,
         dateStr: fmtDateCore(timeVal),
         time: timeVal,
         symbol: symbol,
@@ -1319,7 +1241,6 @@ function handleManualTradeSubmit(e) {
     trades.push(newTrade);
     trades.sort(function(a,b){ return a.time - b.time; });
     saveData();
-    updateAccountSelector();
     closeManualTradeModal();
 }
 
@@ -1327,8 +1248,8 @@ function deleteTradeDirect(id, event) {
     if (event) event.stopPropagation();
     showConfirm('Verwijder deze trade permanent uit het systeem?', function() {
         trades = trades.filter(function(t) { return t.id !== id; });
+        selectedTrades = selectedTrades.filter(function(tid) { return tid !== id; });
         saveData();
-        updateAccountSelector();
         if(activeTab === 'analytics') renderAnalyticsView();
     });
 }
@@ -1338,8 +1259,8 @@ function deleteTradeFromModal() {
     if (!id) return;
     showConfirm('Verwijder deze trade permanent uit het systeem?', function() {
         trades = trades.filter(function(t) { return t.id !== id; });
+        selectedTrades = selectedTrades.filter(function(tid) { return tid !== id; });
         saveData();
-        updateAccountSelector();
         closeModal();
         if(activeTab === 'analytics') renderAnalyticsView();
     });
@@ -1589,7 +1510,6 @@ function parseQuantowerCSV(csvText, isReimport) {
         }
         trades.sort(function(a,b){ return a.time - b.time; });
         saveData();
-        updateAccountSelector();
     }
 }
 
@@ -1605,7 +1525,6 @@ function sortBy(col) {
 
 function getSortVal(t, col) {
     if (col === 'time')    return t.time instanceof Date ? t.time.getTime() : 0;
-    if (col === 'account') return t.account.toLowerCase();
     if (col === 'symbol')  return t.symbol.toLowerCase();
     if (col === 'side')    return t.side.toLowerCase();
     if (col === 'volume')  return t.volume;
@@ -1633,7 +1552,11 @@ function renderHeaders() {
         th.setAttribute('data-col-key', key);
         var savedW = colWidths['tradeTable_' + key];
         if(savedW) { th.style.width = savedW + 'px'; th.style.minWidth = savedW + 'px'; th.style.maxWidth = savedW + 'px'; }
-        th.innerHTML = '<span style="pointer-events:none">' + def.label + indicator + '</span><div class="col-resizer cursor-col-resize absolute right-0 top-0 w-2 h-full hover:bg-white/20 z-10" onmousedown="initColResize(event, this)"></div>';
+        if (def.key === 'select') {
+            th.innerHTML = def.label + '<div class="col-resizer cursor-col-resize absolute right-0 top-0 w-2 h-full hover:bg-white/20 z-10" onmousedown="initColResize(event, this)"></div>';
+        } else {
+            th.innerHTML = '<span style="pointer-events:none">' + def.label + indicator + '</span><div class="col-resizer cursor-col-resize absolute right-0 top-0 w-2 h-full hover:bg-white/20 z-10" onmousedown="initColResize(event, this)"></div>';
+        }
         row.appendChild(th);
     });
 }
@@ -1764,7 +1687,6 @@ function renderTable() {
         var cells = {
             select:     '<td class="px-4 py-2 text-center" onclick="event.stopPropagation()"><input type="checkbox" ' + (isSelected ? 'checked' : '') + ' onchange="toggleTradeSelect(\'' + trade.id + '\', event)" class="rounded-sm bg-terminal-input border-terminal text-white focus:ring-0 w-3 h-3 cursor-pointer"></td>',
             time:       '<td class="px-4 py-2 font-mono text-zinc-300">' + dateStr + '</td>',
-            account:    '<td class="px-4 py-2 text-zinc-300 uppercase">' + esc(trade.account || '') + '</td>',
             symbol:     '<td class="px-4 py-2 font-bold text-white uppercase tracking-tight">' + esc(trade.symbol) + '</td>',
             side:       '<td class="px-4 py-2 font-bold text-[10px] ' + (isLong ? 'text-emerald-500' : 'text-red-500') + '">' + (isLong ? 'LONG' : 'SHORT') + '</td>',
             volume:     '<td class="px-4 py-2 text-right text-zinc-300">' + trade.volume + '</td>',
@@ -1905,21 +1827,6 @@ function deleteSelectedTrades() {
 }
 
 function promptEditSelectedTrades() {
-    var select = document.getElementById('bulkAccountSelect');
-    select.innerHTML = '<option value="">-- KIES EEN ACCOUNT --</option>';
-    
-    // Add dynamically known and custom accounts
-    var allA = [];
-    trades.forEach(function(t) { if (t.account && allA.indexOf(t.account) === -1) allA.push(t.account); });
-    var accounts = loadCustomAccounts();
-    accounts.forEach(function(a) { if (allA.indexOf(a) === -1) allA.push(a); });
-    
-    allA.forEach(function(a) {
-        var opt = document.createElement('option');
-        opt.value = a; opt.innerText = a;
-        select.appendChild(opt);
-    });
-    
     document.getElementById('bulkTagInput').value = '';
     document.getElementById('bulkEditModal').classList.remove('hidden');
 }
@@ -1929,13 +1836,11 @@ function closeBulkEditModal() {
 }
 
 function applyBulkEdits() {
-    var acc = document.getElementById('bulkAccountSelect').value;
     var tag = document.getElementById('bulkTagInput').value.trim().toUpperCase();
     
     var count = 0;
     trades.forEach(function(t) {
         if (selectedTrades.indexOf(t.id) !== -1) {
-            if (acc) t.account = acc;
             if (tag) {
                 if (!t.tags) t.tags = [];
                 if (t.tags.indexOf(tag) === -1) t.tags.push(tag);
@@ -1967,74 +1872,6 @@ function applyAnalyticsTableWidths() {
         }
     });
 }
-function loadCustomAccounts() {
-    try {
-        var s = localStorage.getItem('qt_custom_accounts_v3');
-        if (s) return JSON.parse(s);
-    } catch(e) {}
-    return [];
-}
-
-function saveCustomAccounts(arr) {
-    localStorage.setItem('qt_custom_accounts_v3', JSON.stringify(arr));
-}
-
-function openAccountManagerModal() {
-    renderAccountManagerList();
-    document.getElementById('accountManagerModal').classList.remove('hidden');
-}
-
-function closeAccountManagerModal() {
-    document.getElementById('accountManagerModal').classList.add('hidden');
-    updateFiltersGrid();
-}
-
-function renderAccountManagerList() {
-    var container = document.getElementById('accountListContainer');
-    container.innerHTML = '';
-    var accounts = loadCustomAccounts();
-    
-    // Auto-detect existing accounts to show them too
-    trades.forEach(function(t) {
-        if (t.account && accounts.indexOf(t.account) === -1) accounts.push(t.account);
-    });
-    
-    if (accounts.length === 0) {
-        container.innerHTML = '<span class="text-slate-200 italic text-[11px]">Geen accounts geregistreerd.</span>';
-        return;
-    }
-    
-    accounts.forEach(function(acc) {
-        var div = document.createElement('div');
-        div.className = 'flex justify-between items-center bg-terminal-input border border-terminal p-2 rounded-sm';
-        div.innerHTML = '<span class="font-bold text-slate-200 uppercase">' + esc(acc) + '</span>' +
-                        '<button onclick="deleteAccount(\'' + esc(acc) + '\')" class="text-zinc-300 hover:text-red-400 p-1 transition-colors"><i class="fas fa-trash-alt"></i></button>';
-        container.appendChild(div);
-    });
-}
-
-function addAccount() {
-    var input = document.getElementById('newAccountInput');
-    var val = input.value.trim().toUpperCase();
-    if (!val) return;
-    var accounts = loadCustomAccounts();
-    if (accounts.indexOf(val) === -1) {
-        accounts.push(val);
-        saveCustomAccounts(accounts);
-    }
-    input.value = '';
-    renderAccountManagerList();
-}
-
-function deleteAccount(acc) {
-    showConfirm('Dit account verwijderen? Bestaande trades blijven behouden tenzij u ze expliciet verwijdert.', function() {
-        var accounts = loadCustomAccounts();
-        accounts = accounts.filter(function(a) { return a !== acc; });
-        saveCustomAccounts(accounts);
-        renderAccountManagerList();
-    });
-}
-
 // ---- METADATA MODALS & STRUCTURAL VARIABLE MANIPULATION ----
 function openModal(id) {
     var trade = trades.find(function(t){ return t.id === id; });
@@ -2195,7 +2032,6 @@ function openDayTradesModal(y, m, d) {
         tr.setAttribute('onclick', 'openModal("' + trade.id + '")');
         tr.innerHTML = 
             '<td class="px-4 py-2 font-mono text-zinc-300">' + tDateStr + '</td>' +
-            '<td class="px-4 py-2 text-zinc-300 uppercase">' + esc(trade.account || '') + '</td>' +
             '<td class="px-4 py-2 font-bold text-white uppercase">' + esc(trade.symbol) + '</td>' +
             '<td class="px-4 py-2 font-bold text-[10px] ' + (isLong ? 'text-emerald-500' : 'text-red-500') + '">' + (isLong ? 'LONG' : 'SHORT') + '</td>' +
             '<td class="px-4 py-2 text-right text-zinc-300">' + trade.volume + '</td>' +
@@ -2346,7 +2182,6 @@ var backupDataString = "";
 function exportBackup() {
     var data = {
         trades: trades,
-        accounts: loadCustomAccounts(),
         globalTags: globalTags,
         commissionRules: commissionRules
     };
@@ -2393,7 +2228,6 @@ function importBackup(event) {
                     if (!t.screenshots) t.screenshots = [];
                     return t;
                 });
-                if (importedData.accounts) saveCustomAccounts(importedData.accounts);
                 if (importedData.globalTags) {
                     globalTags = importedData.globalTags;
                     saveGlobalTags();
