@@ -132,25 +132,53 @@
     <div id="view-dashboard" class="space-y-6">
         <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-6">
             <div class="flex flex-col gap-3 md:col-span-1 lg:col-span-1">
-                <div class="bg-terminal-card border border-terminal p-3 rounded-sm">
-                    <span class="text-[10px] uppercase font-mono tracking-wider text-slate-200 block">Bruto P&amp;L</span>
-                    <div class="text-base font-bold font-mono mt-0.5" id="kpi-pnl">$0.00</div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="bg-terminal-card border border-terminal p-2 rounded-sm">
+                        <span class="text-[9px] uppercase font-mono tracking-wider text-slate-400 block">Bruto</span>
+                        <div class="text-sm font-bold font-mono mt-0.5" id="kpi-pnl">$0.00</div>
+                    </div>
+                    <div class="bg-terminal-card border border-terminal p-2 rounded-sm">
+                        <span class="text-[9px] uppercase font-mono tracking-wider text-slate-400 block">Netto</span>
+                        <div class="text-sm font-bold font-mono mt-0.5" id="kpi-netpnl">$0.00</div>
+                    </div>
                 </div>
-                <div class="bg-terminal-card border border-terminal p-3 rounded-sm">
-                    <span class="text-[10px] uppercase font-mono tracking-wider text-slate-200 block">Netto P&amp;L</span>
-                    <div class="text-base font-bold font-mono mt-0.5" id="kpi-netpnl">$0.00</div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="bg-terminal-card border border-terminal p-2 rounded-sm">
+                        <span class="text-[9px] uppercase font-mono tracking-wider text-slate-400 block">Winst %</span>
+                        <div class="text-sm font-bold font-mono text-zinc-200 mt-0.5" id="kpi-winrate">0.0%</div>
+                    </div>
+                    <div class="bg-terminal-card border border-terminal p-2 rounded-sm">
+                        <span class="text-[9px] uppercase font-mono tracking-wider text-slate-400 block">PF</span>
+                        <div class="text-sm font-bold font-mono text-zinc-200 mt-0.5" id="kpi-pf">0.00</div>
+                    </div>
                 </div>
-                <div class="bg-terminal-card border border-terminal p-3 rounded-sm">
-                    <span class="text-[10px] uppercase font-mono tracking-wider text-slate-200 block">Winstpercentage</span>
-                    <div class="text-base font-bold font-mono text-zinc-200 mt-0.5" id="kpi-winrate">0.0%</div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="bg-terminal-card border border-terminal p-2 rounded-sm">
+                        <span class="text-[9px] uppercase font-mono tracking-wider text-slate-400 block">Avg Win</span>
+                        <div class="text-sm font-bold font-mono text-emerald-400 mt-0.5" id="kpi-avgwin">$0.00</div>
+                    </div>
+                    <div class="bg-terminal-card border border-terminal p-2 rounded-sm">
+                        <span class="text-[9px] uppercase font-mono tracking-wider text-slate-400 block">Avg Loss</span>
+                        <div class="text-sm font-bold font-mono text-red-500 mt-0.5" id="kpi-avgloss">$0.00</div>
+                    </div>
                 </div>
-                <div class="bg-terminal-card border border-terminal p-3 rounded-sm">
-                    <span class="text-[10px] uppercase font-mono tracking-wider text-slate-200 block">Winstfactor</span>
-                    <div class="text-base font-bold font-mono text-zinc-200 mt-0.5" id="kpi-pf">0.00</div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="bg-terminal-card border border-terminal p-2 rounded-sm">
+                        <span class="text-[9px] uppercase font-mono tracking-wider text-slate-400 block">R:R</span>
+                        <div class="text-sm font-bold font-mono text-zinc-200 mt-0.5" id="kpi-rr">0.00</div>
+                    </div>
+                    <div class="bg-terminal-card border border-terminal p-2 rounded-sm">
+                        <span class="text-[9px] uppercase font-mono tracking-wider text-slate-400 block">Trades</span>
+                        <div class="text-sm font-bold font-mono text-zinc-200 mt-0.5" id="kpi-trades">0</div>
+                    </div>
                 </div>
-                <div class="bg-terminal-card border border-terminal p-3 rounded-sm">
-                    <span class="text-[10px] uppercase font-mono tracking-wider text-slate-200 block">Uitvoeringen</span>
-                    <div class="text-base font-bold font-mono text-zinc-200 mt-0.5" id="kpi-trades">0</div>
+                <div class="bg-terminal-card border border-terminal p-2 rounded-sm flex flex-col h-[150px] relative">
+                    <span class="text-[9px] uppercase font-mono tracking-wider text-slate-400 block pb-1">Dag (Ma - Vr)</span>
+                    <div class="flex-1 w-full relative min-h-0"><canvas id="dagChart"></canvas></div>
+                </div>
+                <div class="bg-terminal-card border border-terminal p-2 rounded-sm flex flex-col h-[150px] relative">
+                    <span class="text-[9px] uppercase font-mono tracking-wider text-slate-400 block pb-1">Uur (09:00 - 21:00)</span>
+                    <div class="flex-1 w-full relative min-h-0"><canvas id="uurChart"></canvas></div>
                 </div>
             </div>
 
@@ -236,6 +264,11 @@
                 <span class="text-[10px] font-mono uppercase tracking-wider text-slate-200 block">Steekproef Grootte</span>
                 <h2 class="text-base font-bold font-mono mt-0.5 text-zinc-200" id="tag-kpi-count">0</h2>
             </div>
+        </div>
+
+        <div class="bg-terminal-card border border-terminal p-4 min-h-[300px] flex flex-col relative rounded-sm">
+            <span class="text-[10px] font-mono uppercase tracking-widest text-slate-200 absolute top-3 left-4">GEFILTERDE EQUITY CURVE NETTO</span>
+            <div class="flex-1 w-full pt-4 relative"><canvas id="analyticsPnlChart"></canvas></div>
         </div>
 
         <div class="bg-terminal-card border border-terminal rounded-sm overflow-hidden">
@@ -1578,33 +1611,63 @@ function updateUI() {
 function calculateStats() {
     var filtered = getFilteredTrades();
     if (filtered.length === 0) {
-        ['kpi-pnl','kpi-netpnl'].forEach(function(id){ document.getElementById(id).innerText = '$0.00'; });
+        ['kpi-pnl','kpi-netpnl','kpi-avgwin','kpi-avgloss'].forEach(function(id){ document.getElementById(id).innerText = '$0.00'; });
         document.getElementById('kpi-winrate').innerText = '0.0%';
         document.getElementById('kpi-pf').innerText = '0.00';
+        document.getElementById('kpi-rr').innerText = '0.00';
         document.getElementById('kpi-trades').innerText = '0';
+        
+        renderDayChart({});
+        renderHourChart({});
         return;
     }
     var gross = 0, fees = 0, wins = 0, profit = 0, loss = 0;
+    var dayStats = {}, hourStats = {};
+    var dayNames = ["Zondag", "Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag"];
+    
     filtered.forEach(function(t) {
         gross += t.pnl;
         var f = (t.fee != null) ? t.fee : getCommission(t.symbol, t.volume);
         fees += f;
         var net = t.pnl - f;
         if (net > 0) { wins++; profit += net; } else { loss += Math.abs(net); }
+        
+        if (t.time instanceof Date && !isNaN(t.time)) {
+            var d = t.time.getDay();
+            var h = t.time.getHours();
+            if (!dayStats[d]) dayStats[d] = { net: 0, count: 0 };
+            dayStats[d].net += net; dayStats[d].count++;
+            
+            if (!hourStats[h]) hourStats[h] = { net: 0, count: 0 };
+            hourStats[h].net += net; hourStats[h].count++;
+        }
     });
+    
     var wr = ((wins / filtered.length) * 100).toFixed(1);
     var pf = loss === 0 ? profit.toFixed(2) : (profit / loss).toFixed(2);
     
+    var lossesCount = filtered.length - wins;
+    var avgWin = wins > 0 ? (profit / wins) : 0;
+    var avgLoss = lossesCount > 0 ? (loss / lossesCount) : 0;
+    var rr = avgLoss > 0 ? (avgWin / avgLoss).toFixed(2) : (avgWin > 0 ? '∞' : '0.00');
+    
+    document.getElementById('kpi-avgwin').innerText = fmtUSD(avgWin);
+    document.getElementById('kpi-avgloss').innerText = fmtUSD(-avgLoss);
+    document.getElementById('kpi-rr').innerText = rr;
+    
     document.getElementById('kpi-pnl').innerText = fmtUSD(gross);
-    document.getElementById('kpi-pnl').className = 'text-base font-bold font-mono mt-0.5 ' + (gross >= 0 ? 'pnl-profit' : 'pnl-loss');
+    document.getElementById('kpi-pnl').className = 'text-sm font-bold font-mono mt-0.5 ' + (gross >= 0 ? 'pnl-profit' : 'pnl-loss');
     
     var netTotal = gross - fees;
     document.getElementById('kpi-netpnl').innerText = fmtUSD(netTotal);
-    document.getElementById('kpi-netpnl').className = 'text-base font-bold font-mono mt-0.5 ' + (netTotal >= 0 ? 'pnl-profit' : 'pnl-loss');
+    document.getElementById('kpi-netpnl').className = 'text-sm font-bold font-mono mt-0.5 ' + (netTotal >= 0 ? 'pnl-profit' : 'pnl-loss');
     
     document.getElementById('kpi-winrate').innerText = wr + '%';
     document.getElementById('kpi-pf').innerText = pf;
     document.getElementById('kpi-trades').innerText = filtered.length;
+    
+    renderDayChart(dayStats);
+    renderHourChart(hourStats);
 }
 
 var selectedTrades = [];
@@ -1713,6 +1776,96 @@ function renderTable() {
         cb.checked = display.length > 0 && display.every(function(t) { return selectedTrades.indexOf(t.id) !== -1; });
     }
     updateBulkActionBar();
+}
+
+var dagChartInstance = null;
+function renderDayChart(dayStats) {
+    var canvas = document.getElementById('dagChart');
+    if (!canvas) return;
+    if (dagChartInstance) { dagChartInstance.destroy(); }
+    
+    var labels = ['Ma', 'Di', 'Wo', 'Do', 'Vr'];
+    var data = [1, 2, 3, 4, 5].map(function(d) {
+        return dayStats[d] ? dayStats[d].net : 0;
+    });
+    
+    var backgroundColors = data.map(function(val) {
+        return val >= 0 ? 'rgba(52, 211, 153, 0.8)' : 'rgba(248, 113, 113, 0.8)';
+    });
+
+    dagChartInstance = new Chart(canvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: backgroundColors,
+                borderRadius: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(ctx) { return fmtUSD(ctx.raw); }
+                    }
+                }
+            },
+            scales: {
+                x: { ticks: { color: '#a1a1aa', font: { size: 9, family: 'monospace' } }, grid: { display: false } },
+                y: { display: false }
+            }
+        }
+    });
+}
+
+var uurChartInstance = null;
+function renderHourChart(hourStats) {
+    var canvas = document.getElementById('uurChart');
+    if (!canvas) return;
+    if (uurChartInstance) { uurChartInstance.destroy(); }
+    
+    var labels = [];
+    var data = [];
+    for (var h = 9; h <= 21; h++) {
+        labels.push(String(h).padStart(2, '0'));
+        data.push(hourStats[h] ? hourStats[h].net : 0);
+    }
+    
+    var backgroundColors = data.map(function(val) {
+        return val >= 0 ? 'rgba(52, 211, 153, 0.8)' : 'rgba(248, 113, 113, 0.8)';
+    });
+
+    uurChartInstance = new Chart(canvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: backgroundColors,
+                borderRadius: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(ctx) { return fmtUSD(ctx.raw); }
+                    }
+                }
+            },
+            scales: {
+                x: { ticks: { color: '#a1a1aa', font: { size: 9, family: 'monospace' } }, grid: { display: false } },
+                y: { display: false }
+            }
+        }
+    });
 }
 
 function renderChart() {
@@ -2126,6 +2279,7 @@ function calculateTagSpecificMetrics() {
         document.getElementById('tag-kpi-winrate').innerText = '0.0%';
         document.getElementById('tag-kpi-count').innerText = '0';
         tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-6 text-center text-zinc-300 italic">Select structural attributes to filter database vectors.</td></tr>';
+        renderAnalyticsChart([]);
         return;
     }
 
@@ -2135,6 +2289,7 @@ function calculateTagSpecificMetrics() {
         document.getElementById('tag-kpi-winrate').innerText = '0.0%';
         document.getElementById('tag-kpi-count').innerText = '0';
         tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-6 text-center text-zinc-300 italic">Zero variables match current parameters.</td></tr>';
+        renderAnalyticsChart([]);
         return;
     }
 
@@ -2172,6 +2327,130 @@ function calculateTagSpecificMetrics() {
     document.getElementById('tag-kpi-winrate').innerText = wr + '%';
     document.getElementById('tag-kpi-pf').innerText = pf;
     document.getElementById('tag-kpi-count').innerText = matches.length;
+    
+    renderAnalyticsChart(matches);
+}
+
+var analyticsPnlChartInstance = null;
+function renderAnalyticsChart(filteredMatches) {
+    var canvas = document.getElementById('analyticsPnlChart');
+    if (!canvas) return;
+    
+    if (analyticsPnlChartInstance) {
+        analyticsPnlChartInstance.destroy();
+        analyticsPnlChartInstance = null;
+    }
+
+    if (!filteredMatches || filteredMatches.length === 0) {
+        return;
+    }
+
+    var chron = filteredMatches.slice().sort(function(a,b){ return a.time - b.time; });
+    var cum = 0;
+    var labels = chron.map(function(t) {
+        return (t.time instanceof Date && !isNaN(t.time))
+            ? fmtDateCore(t.time)
+            : (t.dateStr || 'Unknown');
+    });
+    var data = chron.map(function(t){
+        var f = (t.fee != null) ? t.fee : getCommission(t.symbol, t.volume);
+        cum += (t.pnl - f);
+        return Math.round(cum * 100) / 100;
+    });
+    
+    var ctx = canvas.getContext('2d');
+    var isProfitable = cum >= 0;
+    var lineColor = isProfitable ? '#34d399' : '#f87171';
+    var gradientCss = isProfitable ? 'rgba(52, 211, 153,' : 'rgba(248, 113, 113,';
+    var gradient = ctx.createLinearGradient(0, 0, 0, canvas.height || 300);
+    gradient.addColorStop(0, gradientCss + ' 0.2)');
+    gradient.addColorStop(1, gradientCss + ' 0)');
+
+    var crosshairPlugin = {
+        id: 'crosshair-analytics',
+        afterDraw: function(chart) {
+            if (chart.tooltip && chart.tooltip._active && chart.tooltip._active.length) {
+                var activePoint = chart.tooltip._active[0];
+                var _ctx = chart.ctx;
+                var x = activePoint.element.x;
+                var y = activePoint.element.y;
+                var topY = chart.scales.y.top;
+                var bottomY = chart.scales.y.bottom;
+                var leftX = chart.scales.x.left;
+                var rightX = chart.scales.x.right;
+
+                _ctx.save();
+                _ctx.beginPath();
+                _ctx.moveTo(x, topY);
+                _ctx.lineTo(x, bottomY);
+                _ctx.lineWidth = 1;
+                _ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                _ctx.setLineDash([4, 4]);
+                _ctx.stroke();
+
+                _ctx.beginPath();
+                _ctx.moveTo(leftX, y);
+                _ctx.lineTo(rightX, y);
+                _ctx.stroke();
+                _ctx.restore();
+            }
+        }
+    };
+
+    analyticsPnlChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Cumulative Net P&L',
+                data: data,
+                borderColor: lineColor,
+                backgroundColor: gradient,
+                borderWidth: 2,
+                fill: true,
+                tension: 0.1,
+                pointRadius: 2,
+                pointBackgroundColor: '#fff',
+                pointHoverRadius: 6,
+                pointHoverBackgroundColor: lineColor
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(9, 9, 11, 0.9)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    borderColor: '#27272a',
+                    borderWidth: 1,
+                    padding: 12,
+                    displayColors: false,
+                    callbacks: {
+                        label: function(ctx) { return 'Netto P&L: ' + fmtUSD(ctx.parsed.y); }
+                    }
+                }
+            },
+            scales: {
+                x: { display: false },
+                y: {
+                    grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
+                    ticks: {
+                        color: 'rgba(255,255,255,0.4)',
+                        font: { family: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace', size: 10 },
+                        callback: function(val) { return fmtUSD(val); }
+                    }
+                }
+            }
+        },
+        plugins: [crosshairPlugin]
+    });
 }
 
 function fmtUSD(n) { return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(n); }
