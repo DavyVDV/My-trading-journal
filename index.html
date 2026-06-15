@@ -2611,107 +2611,119 @@ function runMonteCarlo() {
     errorDiv.style.display = 'none';
 
     var btn = document.querySelector('button[onclick="runMonteCarlo()"]');
-    var oldText = btn ? btn.innerHTML : '';
+    var originalText = '<i class="fas fa-play text-[10px]"></i> SIMULATE RETURNS';
     if(btn) {
         btn.innerHTML = '<i class="fas fa-spinner fa-spin text-[10px]"></i> SIMULEREN...';
         btn.disabled = true;
     }
 
     setTimeout(function() {
-        var tradesToSimulate = Math.round(tradesPerMonth * horizonMonths);
-        if(tradesToSimulate < 1) tradesToSimulate = 1;
+        try {
+            var tradesToSimulate = Math.round(tradesPerMonth * horizonMonths);
+            if(tradesToSimulate < 1) tradesToSimulate = 1;
 
-        var results = [];
-    
-    for (var s = 0; s < numSimulations; s++) {
-        var path = new Float32Array(tradesToSimulate + 1);
-        path[0] = startCapital;
-        var tradeResults = [];
-        var cap = startCapital;
-        var peak = startCapital;
-        var maxDD = 0;
-        var winCount = 0;
+            var results = [];
         
-        var currentConsLosses = 0;
-        var maxConsLosses = 0;
-        var currentConsWins = 0;
-        var maxConsWins = 0;
-        
-        var endOfMonthBalances = [];
-        var tradesInCurrentMonth = 0;
-        
-        for (var t = 0; t < tradesToSimulate; t++) {
-            var rand = Math.random() * 100;
-            var tradeProfit = 0;
-            if (rand < winrate) {
-                tradeProfit = cap * (riskPct / 100) * rrRatio;
-                cap += tradeProfit;
-                winCount++;
-                currentConsWins++;
-                maxConsWins = Math.max(maxConsWins, currentConsWins);
-                currentConsLosses = 0;
-            } else {
-                tradeProfit = -cap * (riskPct / 100);
-                cap += tradeProfit;
-                currentConsLosses++;
-                maxConsLosses = Math.max(maxConsLosses, currentConsLosses);
-                currentConsWins = 0;
+            for (var s = 0; s < numSimulations; s++) {
+                var path = new Float32Array(tradesToSimulate + 1);
+                path[0] = startCapital;
+                var tradeResults = [];
+                var cap = startCapital;
+                var peak = startCapital;
+                var maxDD = 0;
+                var winCount = 0;
+                
+                var currentConsLosses = 0;
+                var maxConsLosses = 0;
+                var currentConsWins = 0;
+                var maxConsWins = 0;
+                
+                var endOfMonthBalances = [];
+                var tradesInCurrentMonth = 0;
+                
+                for (var t = 0; t < tradesToSimulate; t++) {
+                    var rand = Math.random() * 100;
+                    var tradeProfit = 0;
+                    if (rand < winrate) {
+                        tradeProfit = cap * (riskPct / 100) * rrRatio;
+                        cap += tradeProfit;
+                        winCount++;
+                        currentConsWins++;
+                        maxConsWins = Math.max(maxConsWins, currentConsWins);
+                        currentConsLosses = 0;
+                    } else {
+                        tradeProfit = -cap * (riskPct / 100);
+                        cap += tradeProfit;
+                        currentConsLosses++;
+                        maxConsLosses = Math.max(maxConsLosses, currentConsLosses);
+                        currentConsWins = 0;
+                    }
+                    if (cap < 0) cap = 0;
+                    
+                    path[t + 1] = cap;
+                    tradeResults.push(tradeProfit > 0);
+                    
+                    if (cap > peak) peak = cap;
+                    var dd = peak > 0 ? (peak - cap) / peak : 0; 
+                    if (dd > maxDD) maxDD = dd;
+                    
+                    tradesInCurrentMonth++;
+                    if (tradesInCurrentMonth >= tradesPerMonth) {
+                        endOfMonthBalances.push(cap);
+                        tradesInCurrentMonth = 0;
+                    }
+                }
+                
+                if (tradesInCurrentMonth > 0 || endOfMonthBalances.length < horizonMonths) {
+                    endOfMonthBalances.push(cap);
+                }
+                
+                var pathArray = [];
+                for (var i = 0; i < path.length; i++) {
+                    pathArray.push(path[i]);
+                }
+
+                results.push({
+                    id: s,
+                    path: pathArray,
+                    endOfMonthBalances: endOfMonthBalances,
+                    finalBalance: cap,
+                    maxDD: maxDD,
+                    maxConsLosses: maxConsLosses,
+                    maxConsWins: maxConsWins,
+                    winRateActual: (winCount / tradesToSimulate) * 100
+                });
             }
-            if (cap < 0) cap = 0;
+
+            results.sort(function(a, b) { return a.finalBalance - b.finalBalance; });
             
-            path[t + 1] = cap;
-            tradeResults.push(tradeProfit > 0);
+            var worstIndex = Math.floor(numSimulations * 0.05); // 5th percentile
+            var medianIndex = Math.floor(numSimulations * 0.50); // 50th
+            var bestIndex = Math.floor(numSimulations * 0.95); // 95th
             
-            if (cap > peak) peak = cap;
-            var dd = peak > 0 ? (peak - cap) / peak : 0; 
-            if (dd > maxDD) maxDD = dd;
+            mcSimulationData = {
+                all: results,
+                worst: results[worstIndex],
+                median: results[medianIndex],
+                best: results[bestIndex],
+                startCapital: startCapital
+            };
             
-            tradesInCurrentMonth++;
-            if (tradesInCurrentMonth >= tradesPerMonth) {
-                endOfMonthBalances.push(cap);
-                tradesInCurrentMonth = 0;
+            if(btn) {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+            
+            selectMCPath('median');
+        } catch (err) {
+            console.error(err);
+            errorDiv.innerText = "Error in simulatie: " + err.message;
+            errorDiv.style.display = 'block';
+            if(btn) {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
             }
         }
-        
-        if (tradesInCurrentMonth > 0 || endOfMonthBalances.length < horizonMonths) {
-            endOfMonthBalances.push(cap);
-        }
-        
-        results.push({
-            id: s,
-            path: Array.from(path),
-            endOfMonthBalances: endOfMonthBalances,
-            finalBalance: cap,
-            maxDD: maxDD,
-            maxConsLosses: maxConsLosses,
-            maxConsWins: maxConsWins,
-            winRateActual: (winCount / tradesToSimulate) * 100
-        });
-    }
-
-    // Sort to find percentiles
-    results.sort(function(a, b) { return a.finalBalance - b.finalBalance; });
-    
-    var worstIndex = Math.floor(numSimulations * 0.05); // 5th percentile
-    var medianIndex = Math.floor(numSimulations * 0.50); // 50th
-    var bestIndex = Math.floor(numSimulations * 0.95); // 95th
-    
-    mcSimulationData = {
-        all: results,
-        worst: results[worstIndex],
-        median: results[medianIndex],
-        best: results[bestIndex],
-        startCapital: startCapital
-    };
-    
-    if(btn) {
-        btn.disabled = false;
-        btn.innerHTML = oldText;
-    }
-    
-    renderMCChart();
-    selectMCPath('median'); // Default tab
-    
     }, 10);
 }
 
@@ -2863,9 +2875,7 @@ function renderMCChart() {
             borderWidth: 1,
             pointRadius: 0,
             fill: false,
-            tension: 0,
-            normalized: true,
-            parsing: false
+            tension: 0
         });
     }
     
@@ -2878,13 +2888,11 @@ function renderMCChart() {
         hoverRadius: 4,
         fill: true,
         tension: 0,
-        zIndex: 10,
-        normalized: true,
-        parsing: false
+        zIndex: 10
     });
 
     var crosshairPlugin = {
-        id: 'crosshair',
+        id: 'crosshair-mc',
         afterDraw: function(chart) {
             if (chart.tooltip && chart.tooltip._active && chart.tooltip._active.length) {
                 var activePoint = chart.tooltip._active[0];
