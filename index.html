@@ -6,6 +6,7 @@
     <title>Quantower Professional Terminal Journal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -953,20 +954,36 @@ function saveSettings() {
     updateUI();
 }
 
-function loadData() {
+async function loadData() {
     try {
-        var s = localStorage.getItem('qt_journal_trades_v3');
+        var s = await localforage.getItem('qt_journal_trades_v3_idb');
+        if (!s) {
+            var oldS = localStorage.getItem('qt_journal_trades_v3');
+            if (oldS) {
+                s = JSON.parse(oldS);
+                await localforage.setItem('qt_journal_trades_v3_idb', s);
+                localStorage.removeItem('qt_journal_trades_v3');
+            }
+        }
         if (s) {
-            trades = JSON.parse(s);
+            trades = typeof s === 'string' ? JSON.parse(s) : s;
             trades.forEach(function(t){ 
-                t.time = new Date(t.time); 
-                // Restore older data models appropriately 
+                if (typeof t.time === 'string' || typeof t.time === 'number') {
+                    t.time = new Date(t.time); 
+                }
                 if(!t.tags) t.tags = [];
                 if(!t.screenshots) t.screenshots = [];
             });
+        } else {
+            trades = [];
         }
-    } catch(e) { trades = []; }
+    } catch(e) { 
+        console.error("Error loading trades:", e); 
+        trades = []; 
+    }
     updateUI();
+    resetMCStats();
+    if(activeTab === 'montecarlo' && typeof runMonteCarlo === 'function') runMonteCarlo();
 }
 
 function getFilteredTrades() {
@@ -975,14 +992,14 @@ function getFilteredTrades() {
 
 function saveData() {
     try {
-        localStorage.setItem('qt_journal_trades_v3', JSON.stringify(trades));
+        var tradesCopy = trades.map(function(t) { return Object.assign({}, t); });
+        localforage.setItem('qt_journal_trades_v3_idb', tradesCopy).catch(function(e) {
+            console.error(e);
+            alert('Fout bij het opslaan van gegevens (IndexedDB): ' + e.message);
+        });
     } catch (e) {
         console.error(e);
-        if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
-            alert('Opslaglimiet bereikt! Verwijder enkele screenshots of trades om ruimte vrij te maken. De browser limiet voor lokale opslag is ~5MB.');
-        } else {
-            alert('Fout bij het opslaan van gegevens: ' + e.message);
-        }
+        alert('Fout bij voorbereiden data opslag: ' + e.message);
     }
     updateUI();
 }
@@ -1314,15 +1331,30 @@ function deleteTradeFromModal() {
 }
 
 // ---- PARSING MECHANICS ----
-function reprocessRawCSVs() {
+async function reprocessRawCSVs() {
     try {
-        var savedRaw = JSON.parse(localStorage.getItem('qt_saved_raw_csvs') || '[]');
+        var savedRaw = await localforage.getItem('qt_saved_raw_csvs_idb');
+        if (!savedRaw) {
+            var oldS = localStorage.getItem('qt_saved_raw_csvs');
+            if (oldS) {
+                savedRaw = JSON.parse(oldS);
+                await localforage.setItem('qt_saved_raw_csvs_idb', savedRaw);
+                localStorage.removeItem('qt_saved_raw_csvs');
+            } else {
+                savedRaw = [];
+            }
+        }
+        
         if (savedRaw.length === 0) {
             alert('Geen opgeslagen CSV bestanden gevonden om te herverwerken.');
             return;
         }
         
         showConfirm('Alle huidige trades worden overschreven door hun oorspronkelijke tags en notities te matchen, en de logica zal opnieuw worden berekend. Doorgaan?', function() {
+            var oldTrades = trades.slice();
+            trades = [];
+            selectedTrades = [];
+            
             var combinedLines = [];
             var header = "";
             savedRaw.forEach(function(csvData) {
@@ -1337,6 +1369,19 @@ function reprocessRawCSVs() {
             
             parseQuantowerCSV(finalCsv, true);
             
+            trades.forEach(function(newT) {
+                var match = oldTrades.find(function(oldT) {
+                    return Math.abs(oldT.time.getTime() - newT.time.getTime()) < 60000 &&
+                           oldT.account === newT.account &&
+                           oldT.symbol  === newT.symbol;
+                });
+                if (match) {
+                    newT.tags = match.tags;
+                    newT.screenshots = match.screenshots;
+                    newT.notes = match.notes;
+                }
+            });
+            
             saveData();
             closeSettings();
             updateUI();
@@ -1350,17 +1395,31 @@ function handleFileUpload(event) {
     var file = event.target.files[0];
     if (!file) return;
     var reader = new FileReader();
-    reader.onload = function(e) { 
+    reader.onload = async function(e) { 
         var csvData = e.target.result;
         
-        // Save raw CSV data for future auto-reimports
+        // Save raw CSV data for future auto-reimports using IndexedDB
         try {
-            var savedRaw = JSON.parse(localStorage.getItem('qt_saved_raw_csvs') || '[]');
+            var savedRaw = await localforage.getItem('qt_saved_raw_csvs_idb');
+            if (!savedRaw) {
+                var oldS = localStorage.getItem('qt_saved_raw_csvs');
+                if (oldS) {
+                    savedRaw = JSON.parse(oldS);
+                    localStorage.removeItem('qt_saved_raw_csvs');
+                } else {
+                    savedRaw = [];
+                }
+            }
+            
             // Try to avoid duplicates by checking the first 200 chars
             var isDuplicate = savedRaw.some(function(s) { return s.substring(0, 200) === csvData.substring(0, 200); });
-            if (!isDuplicate) savedRaw.push(csvData);
-            localStorage.setItem('qt_saved_raw_csvs', JSON.stringify(savedRaw));
-        } catch(err) {}
+            if (!isDuplicate) {
+                savedRaw.push(csvData);
+                await localforage.setItem('qt_saved_raw_csvs_idb', savedRaw);
+            }
+        } catch(err) {
+            console.error("Error saving raw CSV", err);
+        }
 
         parseQuantowerCSV(csvData, false); 
     };
