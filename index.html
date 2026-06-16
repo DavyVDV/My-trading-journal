@@ -974,7 +974,16 @@ function getFilteredTrades() {
 }
 
 function saveData() {
-    localStorage.setItem('qt_journal_trades_v3', JSON.stringify(trades));
+    try {
+        localStorage.setItem('qt_journal_trades_v3', JSON.stringify(trades));
+    } catch (e) {
+        console.error(e);
+        if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+            alert('Opslaglimiet bereikt! Verwijder enkele screenshots of trades om ruimte vrij te maken. De browser limiet voor lokale opslag is ~5MB.');
+        } else {
+            alert('Fout bij het opslaan van gegevens: ' + e.message);
+        }
+    }
     updateUI();
 }
 
@@ -2184,12 +2193,17 @@ function handleScreenshotUpload(event) {
     reader.onload = function(e) {
         var img = new Image();
         img.onload = function() {
-            var canvas = document.createElement('canvas'), ctx = canvas.getContext('2d'), max = 1920;
+            var canvas = document.createElement('canvas'), ctx = canvas.getContext('2d'), max = 1200;
             var scale = max / img.width;
-            canvas.width = (img.width > max) ? max : img.width;
-            canvas.height = (img.width > max) ? img.height * scale : img.height;
+            if (img.width > max) {
+                canvas.width = max;
+                canvas.height = img.height * scale;
+            } else {
+                canvas.width = img.width;
+                canvas.height = img.height;
+            }
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            var b64 = canvas.toDataURL('image/jpeg', 0.90);
+            var b64 = canvas.toDataURL('image/jpeg', 0.50);
             
             var id = document.getElementById('editTradeId').value;
             var trade = trades.find(function(t){ return t.id === id; });
