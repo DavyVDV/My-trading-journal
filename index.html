@@ -2406,7 +2406,7 @@ function purgeGlobalTagPermanently(tagName) {
             if(t.tags) { t.tags = t.tags.filter(function(x) { return x !== tagName; }); }
         });
         
-        localStorage.setItem('qt_journal_trades_v3', JSON.stringify(trades));
+        saveData();
         renderAnalyticsView();
     });
 }
