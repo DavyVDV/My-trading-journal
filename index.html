@@ -648,6 +648,11 @@
             </button>
         </div>
         <div id="commissionRows" class="space-y-1.5 max-h-44 overflow-y-auto pr-1 mb-3"></div>
+        <div class="mb-3 pt-2 border-t border-terminal">
+            <button onclick="reprocessRawCSVs()" class="w-full text-center px-4 py-2 border border-blue-900 bg-blue-900/20 text-blue-300 rounded-sm hover:bg-blue-900/40 uppercase tracking-widest text-[9px] font-bold">
+                RE-PROCESS SAVED CSV FILES
+            </button>
+        </div>
         <div class="flex justify-end gap-2 border-t border-terminal pt-3">
             <button onclick="closeSettings()" class="px-3 py-1 bg-terminal-input border border-terminal rounded-sm hover:bg-zinc-800">CANCEL</button>
             <button onclick="saveSettings()" class="bg-white text-black px-4 py-1 rounded-sm font-semibold">SAVE</button>
@@ -1300,6 +1305,38 @@ function deleteTradeFromModal() {
 }
 
 // ---- PARSING MECHANICS ----
+function reprocessRawCSVs() {
+    try {
+        var savedRaw = JSON.parse(localStorage.getItem('qt_saved_raw_csvs') || '[]');
+        if (savedRaw.length === 0) {
+            alert('Geen opgeslagen CSV bestanden gevonden om te herverwerken.');
+            return;
+        }
+        
+        showConfirm('Alle huidige trades worden overschreven door hun oorspronkelijke tags en notities te matchen, en de logica zal opnieuw worden berekend. Doorgaan?', function() {
+            var combinedLines = [];
+            var header = "";
+            savedRaw.forEach(function(csvData) {
+                var text  = csvData.replace(/^\uFEFF/, '');
+                var lines = text.split(/\r?\n/).filter(function(l){ return l.trim() !== ''; });
+                if (lines.length >= 2) {
+                    if (!header) header = lines[0]; // grab first header
+                    combinedLines = combinedLines.concat(lines.slice(1));
+                }
+            });
+            var finalCsv = header + "\n" + combinedLines.join("\n");
+            
+            parseQuantowerCSV(finalCsv, true);
+            
+            saveData();
+            closeSettings();
+            updateUI();
+        });
+    } catch(err) {
+        alert('Fout bij het laden van raw csvs: ' + err.message);
+    }
+}
+
 function handleFileUpload(event) {
     var file = event.target.files[0];
     if (!file) return;
@@ -1443,8 +1480,10 @@ function parseQuantowerCSV(csvText, isReimport) {
     Object.keys(byAccount).forEach(function(account) {
         var fills = byAccount[account].sort(function(a,b){ return a.time - b.time; });
         var openQ = {};
+        var activeTrade = {};
+        
         fills.forEach(function(f) {
-            if (!openQ[f.symbol]) openQ[f.symbol] = [];
+            if (!openQ[f.symbol]) { openQ[f.symbol] = []; activeTrade[f.symbol] = null; }
             
             if (openQ[f.symbol].length === 0 || openQ[f.symbol][0].side === f.side) { 
                 openQ[f.symbol].push(f); 
@@ -1463,22 +1502,31 @@ function parseQuantowerCSV(csvText, isReimport) {
                     var exitFee = f.fee * exitFeeRatio;
                     var exitGross = f.gross * exitFeeRatio;
                     
-                    newTrades.push({
-                        id:       'tr_' + Date.now() + '_' + Math.random().toString(36).substr(2,6),
-                        account:  account,
-                        dateStr:  entry.dateStr,
-                        time:     entry.time,
-                        symbol:   f.symbol,
-                        side:     entry.side,
-                        volume:   matchedQty,
-                        entry:    Math.round(entry.price * 100) / 100,
-                        exit:     Math.round(f.price * 100) / 100,
-                        pnl:      Math.round(exitGross * 100) / 100,
-                        fee:      Math.round((entryFee + exitFee) * 100) / 100,
-                        tags:     [],
-                        screenshots: [],
-                        notes:    ''
-                    });
+                    if (!activeTrade[f.symbol]) {
+                        activeTrade[f.symbol] = {
+                            id:       'tr_' + Date.now() + '_' + Math.random().toString(36).substr(2,6),
+                            account:  account,
+                            dateStr:  entry.dateStr,
+                            time:     entry.time,
+                            symbol:   f.symbol,
+                            side:     entry.side,
+                            volume:   0,
+                            entryDollar: 0,
+                            exitDollar: 0,
+                            pnl:      0,
+                            fee:      0,
+                            tags:     [],
+                            screenshots: [],
+                            notes:    ''
+                        };
+                    }
+                    
+                    var at = activeTrade[f.symbol];
+                    at.volume += matchedQty;
+                    at.entryDollar += entry.price * matchedQty;
+                    at.exitDollar += f.price * matchedQty;
+                    at.pnl += exitGross;
+                    at.fee += (entryFee + exitFee);
                     
                     remainingExitQty -= matchedQty;
                     
@@ -1487,6 +1535,18 @@ function parseQuantowerCSV(csvText, isReimport) {
                     } else {
                         entry.qty -= matchedQty;
                         entry.fee -= entryFee;
+                    }
+                    
+                    if (openQ[f.symbol].length === 0) {
+                        var finalizedTrade = activeTrade[f.symbol];
+                        finalizedTrade.entry = Math.round((finalizedTrade.entryDollar / finalizedTrade.volume) * 100) / 100;
+                        finalizedTrade.exit  = Math.round((finalizedTrade.exitDollar / finalizedTrade.volume) * 100) / 100;
+                        finalizedTrade.pnl   = Math.round(finalizedTrade.pnl * 100) / 100;
+                        finalizedTrade.fee   = Math.round(finalizedTrade.fee * 100) / 100;
+                        delete finalizedTrade.entryDollar;
+                        delete finalizedTrade.exitDollar;
+                        newTrades.push(finalizedTrade);
+                        activeTrade[f.symbol] = null;
                     }
                 }
                 
@@ -1497,6 +1557,19 @@ function parseQuantowerCSV(csvText, isReimport) {
                     rem.gross = f.gross * (remainingExitQty / f.qty); // Though typically gross is 0 for opening fills
                     openQ[f.symbol].push(rem);
                 }
+            }
+        });
+        
+        Object.keys(activeTrade).forEach(function(sym) {
+            if (activeTrade[sym]) {
+                var finalizedTrade = activeTrade[sym];
+                finalizedTrade.entry = Math.round((finalizedTrade.entryDollar / finalizedTrade.volume) * 100) / 100;
+                finalizedTrade.exit  = Math.round((finalizedTrade.exitDollar / finalizedTrade.volume) * 100) / 100;
+                finalizedTrade.pnl   = Math.round(finalizedTrade.pnl * 100) / 100;
+                finalizedTrade.fee   = Math.round(finalizedTrade.fee * 100) / 100;
+                delete finalizedTrade.entryDollar;
+                delete finalizedTrade.exitDollar;
+                newTrades.push(finalizedTrade);
             }
         });
     });
