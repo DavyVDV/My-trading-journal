@@ -633,6 +633,37 @@
     </div>
 </div>
 
+<div id="timeFilterDropdown" class="hidden absolute w-60 bg-slate-800 border border-slate-600 rounded-sm shadow-2xl p-3 z-50 animate-fade-in font-mono" style="margin-top: 5px;">
+    <div class="text-xs font-bold text-white mb-2 uppercase pb-1 border-b border-slate-600">Filter Tijd & Dag</div>
+    
+    <div class="space-y-2 mb-3">
+        <label class="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">Dagen (Blijft leeg = Alles)</label>
+        <div class="grid grid-cols-2 gap-y-1 gap-x-2 text-[11px] text-slate-200">
+            <label class="flex items-center space-x-1.5 cursor-pointer"><input type="checkbox" class="time-filter-day accent-blue-500" value="1"> <span>Maandag</span></label>
+            <label class="flex items-center space-x-1.5 cursor-pointer"><input type="checkbox" class="time-filter-day accent-blue-500" value="2"> <span>Dinsdag</span></label>
+            <label class="flex items-center space-x-1.5 cursor-pointer"><input type="checkbox" class="time-filter-day accent-blue-500" value="3"> <span>Woensdag</span></label>
+            <label class="flex items-center space-x-1.5 cursor-pointer"><input type="checkbox" class="time-filter-day accent-blue-500" value="4"> <span>Donderdag</span></label>
+            <label class="flex items-center space-x-1.5 cursor-pointer"><input type="checkbox" class="time-filter-day accent-blue-500" value="5"> <span>Vrijdag</span></label>
+            <label class="flex items-center space-x-1.5 cursor-pointer"><input type="checkbox" class="time-filter-day accent-blue-500" value="6"> <span>Zaterdag</span></label>
+            <label class="flex items-center space-x-1.5 cursor-pointer"><input type="checkbox" class="time-filter-day accent-blue-500" value="0"> <span>Zondag</span></label>
+        </div>
+    </div>
+    
+    <div class="space-y-1 mb-3">
+        <label class="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">Tijdsframe</label>
+        <div class="flex items-center justify-between text-[11px]">
+            <input type="time" id="timeFilterStart" class="bg-terminal-input border border-slate-600 rounded-sm px-1 py-1 text-slate-200 outline-none w-[45%]" title="Starttijd">
+            <span class="text-zinc-500 font-bold">-</span>
+            <input type="time" id="timeFilterEnd" class="bg-terminal-input border border-slate-600 rounded-sm px-1 py-1 text-slate-200 outline-none w-[45%]" title="Eindtijd">
+        </div>
+    </div>
+
+    <div class="flex justify-end gap-2 pt-2 border-t border-slate-600">
+        <button onclick="resetTimeFilter()" class="px-2 py-1.5 bg-slate-700 hover:bg-slate-600 text-white rounded-sm text-[10px] uppercase font-bold transition-colors w-full border border-slate-600">Reset</button>
+        <button onclick="applyTimeFilter()" class="px-2 py-1.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border border-blue-500/30 rounded-sm text-[10px] uppercase font-bold transition-colors w-full">Toepassen</button>
+    </div>
+</div>
+
 <div id="settingsModal" class="fixed inset-0 bg-black/90 flex items-center justify-center z-50 px-4 hidden">
     <div class="bg-terminal-card border border-terminal w-full max-w-sm p-4 font-mono text-xs">
         <div class="flex justify-between items-start mb-3 pb-2 border-b border-terminal">
@@ -792,6 +823,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!e.target.closest('.relative')) {
             document.getElementById('colDropdown').classList.add('hidden');
         }
+        if (!e.target.closest('#timeFilterDropdown') && !e.target.closest('.fa-filter')) {
+            document.getElementById('timeFilterDropdown').classList.add('hidden');
+        }
     });
 
     // Auto switch to calendar if preferred or keep testing dashboard
@@ -867,6 +901,44 @@ function saveCommissions() {
 
 function toggleDropdown(id) {
     document.getElementById(id).classList.toggle('hidden');
+}
+
+function toggleTimeFilter(event, element) {
+    event.stopPropagation();
+    var dd = document.getElementById('timeFilterDropdown');
+    var rect = element.getBoundingClientRect();
+    dd.style.top = (rect.bottom + window.scrollY) + 'px';
+    dd.style.left = (rect.left + window.scrollX) + 'px';
+    
+    // Check boxes based on state
+    document.querySelectorAll('.time-filter-day').forEach(function(cb) {
+        cb.checked = timeFilter.days.indexOf(parseInt(cb.value)) >= 0;
+    });
+    document.getElementById('timeFilterStart').value = timeFilter.startTime;
+    document.getElementById('timeFilterEnd').value = timeFilter.endTime;
+    
+    dd.classList.toggle('hidden');
+}
+
+function applyTimeFilter() {
+    var days = [];
+    document.querySelectorAll('.time-filter-day:checked').forEach(function(cb) {
+        days.push(parseInt(cb.value));
+    });
+    timeFilter.days = days;
+    timeFilter.startTime = document.getElementById('timeFilterStart').value;
+    timeFilter.endTime = document.getElementById('timeFilterEnd').value;
+    
+    document.getElementById('timeFilterDropdown').classList.add('hidden');
+    updateUI();
+}
+
+function resetTimeFilter() {
+    timeFilter.days = [];
+    timeFilter.startTime = '';
+    timeFilter.endTime = '';
+    document.getElementById('timeFilterDropdown').classList.add('hidden');
+    updateUI();
 }
 
 function renderColVisibilitySelectors() {
@@ -986,8 +1058,34 @@ async function loadData() {
     if(activeTab === 'montecarlo' && typeof runMonteCarlo === 'function') runMonteCarlo();
 }
 
+var timeFilter = {
+    days: [], // 0-6 array
+    startTime: '',
+    endTime: ''
+};
+
 function getFilteredTrades() {
-    return trades;
+    var f = trades;
+    
+    if (timeFilter.days.length > 0) {
+        f = f.filter(function(t) {
+            return timeFilter.days.indexOf(t.time.getDay()) >= 0;
+        });
+    }
+    if (timeFilter.startTime) {
+        f = f.filter(function(t) {
+            var hhmm = String(t.time.getHours()).padStart(2, '0') + ':' + String(t.time.getMinutes()).padStart(2, '0');
+            return hhmm >= timeFilter.startTime;
+        });
+    }
+    if (timeFilter.endTime) {
+        f = f.filter(function(t) {
+            var hhmm = String(t.time.getHours()).padStart(2, '0') + ':' + String(t.time.getMinutes()).padStart(2, '0');
+            return hhmm <= timeFilter.endTime;
+        });
+    }
+    
+    return f;
 }
 
 function saveData() {
@@ -1728,6 +1826,12 @@ function renderHeaders() {
         if(savedW) { th.style.width = savedW + 'px'; th.style.minWidth = savedW + 'px'; th.style.maxWidth = savedW + 'px'; }
         if (def.key === 'select') {
             th.innerHTML = def.label + '<div class="col-resizer cursor-col-resize absolute right-0 top-0 w-2 h-full hover:bg-white/20 z-10" onmousedown="initColResize(event, this)"></div>';
+        } else if (def.key === 'time') {
+            var isFilterActive = timeFilter.days.length > 0 || timeFilter.startTime || timeFilter.endTime;
+            var filterColor = isFilterActive ? 'text-blue-400' : 'text-zinc-500 hover:text-white';
+            th.innerHTML = '<div class="flex items-center justify-between"><span style="pointer-events:none">' + def.label + indicator + '</span>' +
+                '<i class="fas fa-filter ' + filterColor + ' cursor-pointer ml-2 z-20" style="pointer-events:auto;" onclick="toggleTimeFilter(event, this)"></i></div>' +
+                '<div class="col-resizer cursor-col-resize absolute right-0 top-0 w-2 h-full hover:bg-white/20 z-10" onmousedown="initColResize(event, this)"></div>';
         } else {
             th.innerHTML = '<span style="pointer-events:none">' + def.label + indicator + '</span><div class="col-resizer cursor-col-resize absolute right-0 top-0 w-2 h-full hover:bg-white/20 z-10" onmousedown="initColResize(event, this)"></div>';
         }
