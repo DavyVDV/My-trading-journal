@@ -2252,7 +2252,7 @@ function handleScreenshotUpload(event) {
     reader.onload = function(e) {
         var img = new Image();
         img.onload = function() {
-            var canvas = document.createElement('canvas'), ctx = canvas.getContext('2d'), max = 1200;
+            var canvas = document.createElement('canvas'), ctx = canvas.getContext('2d'), max = 2560;
             var scale = max / img.width;
             if (img.width > max) {
                 canvas.width = max;
@@ -2262,7 +2262,7 @@ function handleScreenshotUpload(event) {
                 canvas.height = img.height;
             }
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            var b64 = canvas.toDataURL('image/jpeg', 0.50);
+            var b64 = canvas.toDataURL('image/jpeg', 0.90);
             
             var id = document.getElementById('editTradeId').value;
             var trade = trades.find(function(t){ return t.id === id; });
