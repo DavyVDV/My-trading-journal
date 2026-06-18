@@ -75,6 +75,16 @@
             text-align: center;
         }
     </style>
+<style>
+/* ... other styles if any */
+.markdown-body p { margin-bottom: 0.5em; }
+.markdown-body p:last-child { margin-bottom: 0; }
+.markdown-body code { background: rgba(0,0,0,0.3); padding: 0.1rem 0.2rem; border-radius: 2px; }
+.markdown-body pre code { background: transparent; padding: 0; }
+.markdown-body pre { background: rgba(0,0,0,0.3); padding: 0.5rem; border-radius: 4px; overflow-x: auto; margin-bottom: 0.5em; }
+.markdown-body ul { list-style-type: disc; margin-left: 1.5em; margin-bottom: 0.5em; }
+.markdown-body ol { list-style-type: decimal; margin-left: 1.5em; margin-bottom: 0.5em; }
+</style>
 </head>
 <body class="min-h-screen flex flex-col font-sans antialiased text-sm">
 
@@ -3211,6 +3221,136 @@ function renderMCChart() {
         }
     });
 }
+</script>
+<!-- AI Chat UI -->
+<div id="aiChatWindow" class="fixed bottom-20 right-6 w-96 max-w-[90vw] h-[500px] max-h-[70vh] bg-terminal-card border border-terminal rounded-sm shadow-2xl flex flex-col hidden z-50 animate-fade-in font-mono text-sm text-slate-200">
+    <div class="flex justify-between items-center bg-zinc-900 border-b border-terminal p-3 rounded-t-sm">
+        <div class="flex items-center gap-2">
+            <i class="fas fa-robot text-blue-400"></i>
+            <span class="font-bold text-white tracking-wider">Trading AI Assistant</span>
+        </div>
+        <button onclick="toggleAiChat()" class="text-zinc-400 hover:text-white transition-colors">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    
+    <div id="aiChatMessages" class="flex-1 overflow-y-auto p-4 space-y-4">
+        <div class="flex items-start gap-2">
+            <div class="bg-blue-500/20 border border-blue-500/30 rounded-sm p-3 max-w-[85%] text-xs markdown-body">
+                Hallo! Ik ben je Trading AI Assistant. Stel me vragen over je data (bijv. "Wat is mijn meest winstgevende uur?" of "Zie je patronen in mijn verliezende trades?").
+            </div>
+        </div>
+    </div>
+    
+    <div class="p-3 border-t border-terminal bg-zinc-900/50 rounded-b-sm">
+        <form id="aiChatForm" class="flex gap-2" onsubmit="handleAiChatSubmit(event)">
+            <input type="text" id="aiChatInput" class="flex-1 bg-terminal-input border border-slate-600 rounded-sm px-3 py-2 text-white placeholder-zinc-500 outline-none focus:border-blue-500 transition-colors text-xs" placeholder="Stel een vraag..." autocomplete="off">
+            <button type="submit" id="aiChatSubmitBtn" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-sm transition-colors flex items-center justify-center min-w-[50px]">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </form>
+    </div>
+</div>
+
+<button onclick="toggleAiChat()" class="fixed bottom-6 right-6 w-12 h-12 bg-blue-600 hover:bg-blue-500 text-white rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-110 z-40 relative group">
+    <i class="fas fa-robot text-lg"></i>
+    <span class="absolute -top-10 right-0 bg-zinc-900 text-white text-[10px] uppercase font-bold px-2 py-1 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none border border-slate-600">AI Assistant</span>
+</button>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+    function toggleAiChat() {
+        var chatWindow = document.getElementById('aiChatWindow');
+        chatWindow.classList.toggle('hidden');
+        if (!chatWindow.classList.contains('hidden')) {
+            document.getElementById('aiChatInput').focus();
+            scrollToBottomAiChat();
+        }
+    }
+
+    function scrollToBottomAiChat() {
+        var messages = document.getElementById('aiChatMessages');
+        messages.scrollTop = messages.scrollHeight;
+    }
+
+    async function handleAiChatSubmit(e) {
+        e.preventDefault();
+        var inputObj = document.getElementById('aiChatInput');
+        var prompt = inputObj.value.trim();
+        if (!prompt) return;
+
+        inputObj.value = '';
+        inputObj.disabled = true;
+        var btn = document.getElementById('aiChatSubmitBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+        appendAiMessage(prompt, 'user');
+        
+        // filter data so we don't send gigantic payload if possible
+        var payloadData = trades.map(function(t) {
+            return {
+                id: t.id,
+                time: t.time instanceof Date ? t.time.toISOString() : t.time,
+                symbol: t.symbol,
+                side: t.side,
+                volume: t.volume,
+                entry: t.entry,
+                exit: t.exit,
+                pnl: t.pnl,
+                netpnl: t.netpnl,
+                mae: t.mae,
+                mfa: t.mfa,
+                tags: t.tags
+            };
+        });
+
+        try {
+            var res = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: prompt, data: payloadData })
+            });
+            var data = await res.json();
+            
+            if (data.error) {
+                appendAiMessage('Error: ' + data.error, 'ai', true);
+            } else {
+                appendAiMessage(data.response, 'ai');
+            }
+        } catch (err) {
+            appendAiMessage('Error contacting AI server.', 'ai', true);
+        } finally {
+            inputObj.disabled = false;
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+            inputObj.focus();
+        }
+    }
+
+    function appendAiMessage(text, role, isError) {
+        var msgDiv = document.createElement('div');
+        msgDiv.className = 'flex items-start gap-2 ' + (role === 'user' ? 'flex-row-reverse' : '');
+        
+        var innerDiv = document.createElement('div');
+        
+        if (role === 'user') {
+            innerDiv.className = 'bg-slate-700/80 border border-slate-600 rounded-sm p-3 max-w-[85%] text-xs';
+            innerDiv.innerText = text;
+        } else {
+            innerDiv.className = 'bg-blue-500/20 border border-blue-500/30 rounded-sm p-3 max-w-[85%] text-xs markdown-body';
+            if (isError) {
+                innerDiv.className += ' text-red-400 border-red-500/30 bg-red-500/10';
+                innerDiv.innerText = text;
+            } else {
+                innerDiv.innerHTML = marked.parse(text);
+            }
+        }
+        
+        msgDiv.appendChild(innerDiv);
+        document.getElementById('aiChatMessages').appendChild(msgDiv);
+        scrollToBottomAiChat();
+    }
 </script>
 </body>
 </html>
