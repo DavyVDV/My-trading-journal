@@ -28,7 +28,7 @@ async function startServer() {
       const { prompt, data } = req.body;
       
       const response = await ai.models.generateContent({
-        model: "gemini-3.5-flash",
+        model: "gemini-2.5-flash",
         contents: [
             { text: `System Instruction: You are an AI assistant for a trading journal app. The user provides their trade data in JSON format, and asks a question. Analyze the data and respond with helpful advice, patterns, or answers. Be concise and format your response with markdown.\n\nUser Data: ${JSON.stringify(data)}\n\nQuestion: ${prompt}` }
         ]

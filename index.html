@@ -3290,7 +3290,6 @@ function renderMCChart() {
         // filter data so we don't send gigantic payload if possible
         var payloadData = trades.map(function(t) {
             return {
-                id: t.id,
                 time: t.time instanceof Date ? t.time.toISOString() : t.time,
                 symbol: t.symbol,
                 side: t.side,
@@ -3298,12 +3297,9 @@ function renderMCChart() {
                 entry: t.entry,
                 exit: t.exit,
                 pnl: t.pnl,
-                netpnl: t.netpnl,
-                mae: t.mae,
-                mfa: t.mfa,
-                tags: t.tags
+                netpnl: t.netpnl
             };
-        });
+        }).slice(-1000);
 
         try {
             var res = await fetch('/api/chat', {
@@ -3311,6 +3307,10 @@ function renderMCChart() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ prompt: prompt, data: payloadData })
             });
+            if (!res.ok) {
+                var txt = await res.text();
+                throw new Error('HTTP ' + res.status + ' - ' + txt.substring(0, 50));
+            }
             var data = await res.json();
             
             if (data.error) {
@@ -3319,7 +3319,8 @@ function renderMCChart() {
                 appendAiMessage(data.response, 'ai');
             }
         } catch (err) {
-            appendAiMessage('Error contacting AI server.', 'ai', true);
+            console.error(err);
+            appendAiMessage('Error contacting AI server. ' + err.message, 'ai', true);
         } finally {
             inputObj.disabled = false;
             btn.disabled = false;
