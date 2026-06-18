@@ -3229,9 +3229,28 @@ function renderMCChart() {
             <i class="fas fa-robot text-blue-400"></i>
             <span class="font-bold text-white tracking-wider">Trading AI Assistant</span>
         </div>
-        <button onclick="toggleAiChat()" class="text-zinc-400 hover:text-white transition-colors">
-            <i class="fas fa-times"></i>
-        </button>
+        <div class="flex items-center gap-3">
+            <button onclick="toggleAiSettings()" class="text-zinc-400 hover:text-white transition-colors" title="Settings">
+                <i class="fas fa-cog"></i>
+            </button>
+            <button onclick="toggleAiChat()" class="text-zinc-400 hover:text-white transition-colors">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+    
+    <div id="aiChatSettings" class="absolute inset-0 bg-zinc-900 border border-terminal rounded-sm shadow-2xl flex flex-col hidden z-50 animate-fade-in font-mono text-sm text-slate-200 p-4">
+        <h3 class="text-lg font-bold text-white mb-2 pb-2 border-b border-slate-700">Settings</h3>
+        <p class="text-xs text-zinc-400 mb-4">Om AI te gebruiken op een statische website (zoals GitHub Pages), moet je je eigen Google Gemini API Key invullen.</p>
+        <div class="mb-4">
+            <label class="block text-xs text-zinc-400 mb-1">Gemini API Key</label>
+            <input type="password" id="geminiApiKeyInput" class="w-full bg-terminal-input border border-slate-600 rounded-sm px-3 py-2 text-white placeholder-zinc-500 outline-none focus:border-blue-500 transition-colors text-xs" placeholder="AI Studio key..." autocomplete="off">
+        </div>
+        <div class="mt-auto flex justify-end gap-2">
+            <button type="button" onclick="clearAiChatHistory()" class="px-3 py-1 bg-red-600/20 text-red-400 hover:bg-red-600/40 rounded-sm mr-auto text-xs">Clear Chat</button>
+            <button type="button" onclick="toggleAiSettings()" class="px-3 py-1 bg-slate-700 hover:bg-slate-600 text-white rounded-sm">Cancel</button>
+            <button type="button" onclick="saveAiSettings()" class="px-3 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-sm">Save</button>
+        </div>
     </div>
     
     <div id="aiChatMessages" class="flex-1 overflow-y-auto p-4 space-y-4">
@@ -3259,6 +3278,64 @@ function renderMCChart() {
 
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
+    var aiChatHistory = [];
+
+    document.addEventListener("DOMContentLoaded", function() {
+        loadAiSettings();
+        loadAiMessages();
+    });
+
+    function toggleAiSettings() {
+        var settingsModal = document.getElementById('aiChatSettings');
+        settingsModal.classList.toggle('hidden');
+    }
+
+    function loadAiSettings() {
+        var key = localStorage.getItem('tradingAiApiKey');
+        if (key) {
+            document.getElementById('geminiApiKeyInput').value = key;
+        }
+    }
+
+    function saveAiSettings() {
+        var key = document.getElementById('geminiApiKeyInput').value.trim();
+        if (key) {
+            localStorage.setItem('tradingAiApiKey', key);
+        } else {
+            localStorage.removeItem('tradingAiApiKey');
+        }
+        toggleAiSettings();
+    }
+
+    function loadAiMessages() {
+        var stored = localStorage.getItem('tradingAiChatHistory');
+        if (stored) {
+            try {
+                aiChatHistory = JSON.parse(stored);
+                var messagesContainer = document.getElementById('aiChatMessages');
+                messagesContainer.innerHTML = ''; // clear default greeting
+                aiChatHistory.forEach(function(msg) {
+                    appendAiMessageUI(msg.text, msg.role, msg.isError);
+                });
+            } catch (e) {
+                console.error("Failed to parse chat history");
+            }
+        }
+    }
+
+    function saveAiMessages() {
+        localStorage.setItem('tradingAiChatHistory', JSON.stringify(aiChatHistory));
+    }
+
+    function clearAiChatHistory() {
+        if(confirm("Weet je zeker dat je de chatgeschiedenis wilt wissen?")) {
+            aiChatHistory = [];
+            saveAiMessages();
+            document.getElementById('aiChatMessages').innerHTML = '<div class="flex items-start gap-2"><div class="bg-blue-500/20 border border-blue-500/30 rounded-sm p-3 max-w-[85%] text-xs markdown-body">Hallo! Ik ben je Trading AI Assistant. Chat is gereset.</div></div>';
+            toggleAiSettings();
+        }
+    }
+
     function toggleAiChat() {
         var chatWindow = document.getElementById('aiChatWindow');
         chatWindow.classList.toggle('hidden');
@@ -3302,25 +3379,65 @@ function renderMCChart() {
         }).slice(-1000);
 
         try {
-            var res = await fetch('/api/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt: prompt, data: payloadData })
-            });
-            if (!res.ok) {
-                var txt = await res.text();
-                throw new Error('HTTP ' + res.status + ' - ' + txt.substring(0, 50));
-            }
-            var data = await res.json();
-            
-            if (data.error) {
-                appendAiMessage('Error: ' + data.error, 'ai', true);
+            var apiKey = localStorage.getItem('tradingAiApiKey');
+            var responseText = '';
+
+            if (apiKey && apiKey.trim() !== '') {
+                // Call Gemini directly if API key is configured (client-side fallback for static hosting)
+                var apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + apiKey.trim();
+                var sysInstruction = 'System Instruction: You are an AI assistant for a trading journal app. The user provides their trade data in JSON format, and asks a question. Analyze the data and respond with helpful advice, patterns, or answers. Be concise and format your response with markdown.\n\nUser Data: ' + JSON.stringify(payloadData);
+                
+                var body = {
+                    systemInstruction: { parts: [{ text: sysInstruction }] },
+                    contents: [{ role: "user", parts: [{ text: prompt }] }]
+                };
+
+                var res = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                if (!res.ok) {
+                    var txt = await res.text();
+                    throw new Error('Gemini API Error ' + res.status + ' - ' + txt.substring(0, 50));
+                }
+                
+                var data = await res.json();
+                if (data.candidates && data.candidates.length > 0 && data.candidates[0].content) {
+                    responseText = data.candidates[0].content.parts[0].text;
+                } else {
+                    throw new Error("Invalid response format from Gemini");
+                }
             } else {
-                appendAiMessage(data.response, 'ai');
+                // Default server-side logic (for local/cloud-run dev)
+                var res = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: prompt, data: payloadData })
+                });
+                
+                if (!res.ok) {
+                    var txt = await res.text();
+                    // Identify HTML error gracefully, like HTTP 405 from static GitHub Pages
+                    if (txt.toLowerCase().includes('<html>') || txt.includes('<head>')) {
+                        throw new Error('HTTP ' + res.status + '. Host ondersteunt geen POST /api. Open Instellingen (tandwiel) om je eigen API Key te gebruiken!');
+                    }
+                    throw new Error('HTTP ' + res.status + ' - ' + txt.substring(0, 50));
+                }
+                var data = await res.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                } else {
+                    responseText = data.response;
+                }
             }
+
+            appendAiMessage(responseText, 'ai');
         } catch (err) {
             console.error(err);
-            appendAiMessage('Error contacting AI server. ' + err.message, 'ai', true);
+            appendAiMessage('Error contacting AI: ' + err.message, 'ai', true);
         } finally {
             inputObj.disabled = false;
             btn.disabled = false;
@@ -3330,6 +3447,12 @@ function renderMCChart() {
     }
 
     function appendAiMessage(text, role, isError) {
+        aiChatHistory.push({ text: text, role: role, isError: !!isError });
+        saveAiMessages();
+        appendAiMessageUI(text, role, isError);
+    }
+
+    function appendAiMessageUI(text, role, isError) {
         var msgDiv = document.createElement('div');
         msgDiv.className = 'flex items-start gap-2 ' + (role === 'user' ? 'flex-row-reverse' : '');
         
