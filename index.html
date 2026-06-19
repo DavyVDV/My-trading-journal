@@ -247,7 +247,10 @@
     <div id="view-analytics" class="space-y-6 hidden">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="bg-terminal-card border border-terminal p-4 rounded-sm lg:col-span-2">
-                <span class="text-[10px] font-mono uppercase tracking-widest text-slate-200 block mb-2">Tag Intersectie (AND-Logica)</span>
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-[10px] font-mono uppercase tracking-widest text-slate-200 block" id="analyticsLogicLabel">Tag Filter (AND-Logica)</span>
+                    <button onclick="toggleAnalyticsLogic()" id="analyticsLogicToggleBtn" class="bg-zinc-800 border border-slate-600 text-xs text-zinc-300 hover:text-white px-2 py-0.5 rounded-sm font-mono transition-colors">Switch OR-Logica</button>
+                </div>
                 <div id="analyticsTagCloud" class="flex flex-wrap gap-1.5"></div>
             </div>
             
@@ -794,6 +797,7 @@ var globalTags = [];
 var tagColors = {};
 var currentEditTags = [];
 var analyticsFilterTags = [];
+var analyticsFilterLogic = localStorage.getItem('qt_analytics_logic') || 'AND';
 
 var COLUMN_DEFS = [
     { key: 'select',     label: '<input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()">', align: 'center', sortable: false, fixed: true },
@@ -2471,7 +2475,18 @@ function saveNote() {
 }
 
 // ---- INTERSECTIVE MATRIX & POOL PURGE LOGIC ----
+function toggleAnalyticsLogic() {
+    analyticsFilterLogic = analyticsFilterLogic === 'AND' ? 'OR' : 'AND';
+    localStorage.setItem('qt_analytics_logic', analyticsFilterLogic);
+    renderAnalyticsView();
+}
+
 function renderAnalyticsView() {
+    var label = document.getElementById('analyticsLogicLabel');
+    var btnSwitch = document.getElementById('analyticsLogicToggleBtn');
+    if (label) label.innerText = 'Tag Filter (' + analyticsFilterLogic + '-Logica)';
+    if (btnSwitch) btnSwitch.innerText = 'Switch ' + (analyticsFilterLogic === 'AND' ? 'OR' : 'AND') + '-Logica';
+
     var cloud = document.getElementById('analyticsTagCloud');
     cloud.innerHTML = '';
     globalTags.forEach(function(t) {
@@ -2531,7 +2546,11 @@ function calculateTagSpecificMetrics() {
     
     var matches = pool.filter(function(t) {
         if(analyticsFilterTags.length === 0) return false;
-        return analyticsFilterTags.every(function(nt) { return t.tags && t.tags.indexOf(nt) >= 0; });
+        if (analyticsFilterLogic === 'OR') {
+            return analyticsFilterTags.some(function(nt) { return t.tags && t.tags.indexOf(nt) >= 0; });
+        } else {
+            return analyticsFilterTags.every(function(nt) { return t.tags && t.tags.indexOf(nt) >= 0; });
+        }
     });
 
     if(analyticsFilterTags.length === 0) {
@@ -3223,8 +3242,8 @@ function renderMCChart() {
 }
 </script>
 <!-- AI Chat UI -->
-<div id="aiChatWindow" class="fixed bottom-16 md:bottom-20 right-2 md:right-4 w-96 max-w-[90vw] h-[500px] max-h-[70vh] bg-slate-900 border border-terminal rounded-sm shadow-2xl flex flex-col hidden z-50 animate-fade-in font-mono text-sm text-slate-200">
-    <div class="flex justify-between items-center bg-zinc-900 border-b border-terminal p-3 rounded-t-sm">
+<div id="aiChatWindow" class="fixed bottom-16 md:bottom-20 right-2 md:right-4 w-96 max-w-[90vw] h-[500px] max-h-[70vh] bg-terminal-card border border-terminal rounded-sm shadow-[0_0_20px_rgba(0,0,0,0.8)] flex flex-col hidden z-50 animate-fade-in font-mono text-sm text-slate-200">
+    <div class="flex justify-between items-center bg-zinc-800 border-b border-terminal p-3 rounded-t-sm">
         <div class="flex items-center gap-2">
             <i class="fas fa-robot text-blue-400"></i>
             <span class="font-bold text-white tracking-wider">Trading AI Assistant</span>
@@ -3239,7 +3258,7 @@ function renderMCChart() {
         </div>
     </div>
     
-    <div id="aiChatSettings" class="absolute inset-0 bg-zinc-900 border border-terminal rounded-sm shadow-2xl flex flex-col hidden z-50 animate-fade-in font-mono text-sm text-slate-200 p-4">
+    <div id="aiChatSettings" class="absolute inset-0 bg-terminal-card border border-terminal rounded-sm shadow-2xl flex flex-col hidden z-50 animate-fade-in font-mono text-sm text-slate-200 p-4">
         <h3 class="text-lg font-bold text-white mb-2 pb-2 border-b border-slate-700">Settings</h3>
         <p class="text-xs text-zinc-400 mb-4">Om AI te gebruiken op een statische website (zoals GitHub Pages), moet je je eigen Google Gemini API Key invullen.</p>
         <div class="mb-4">
@@ -3247,7 +3266,7 @@ function renderMCChart() {
             <input type="password" id="geminiApiKeyInput" class="w-full bg-terminal-input border border-slate-600 rounded-sm px-3 py-2 text-white placeholder-zinc-500 outline-none focus:border-blue-500 transition-colors text-xs" placeholder="AI Studio key..." autocomplete="off">
         </div>
         <div class="mt-auto flex justify-end gap-2">
-            <button type="button" onclick="clearAiChatHistory()" class="px-3 py-1 bg-red-600/20 text-red-400 hover:bg-red-600/40 rounded-sm mr-auto text-xs">Clear Chat</button>
+            <button type="button" onclick="clearAiChatHistory()" class="px-3 py-1 bg-red-900 border border-red-700 text-red-200 hover:bg-red-800 rounded-sm mr-auto text-xs">Clear Chat</button>
             <button type="button" onclick="toggleAiSettings()" class="px-3 py-1 bg-slate-700 hover:bg-slate-600 text-white rounded-sm">Cancel</button>
             <button type="button" onclick="saveAiSettings()" class="px-3 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-sm">Save</button>
         </div>
@@ -3255,13 +3274,13 @@ function renderMCChart() {
     
     <div id="aiChatMessages" class="flex-1 overflow-y-auto p-4 space-y-4">
         <div class="flex items-start gap-2">
-            <div class="bg-blue-500/20 border border-blue-500/30 rounded-sm p-3 max-w-[85%] text-xs markdown-body">
+            <div class="bg-blue-900 border border-blue-700 rounded-sm p-3 max-w-[85%] text-xs markdown-body">
                 Hallo! Ik ben je Trading AI Assistant. Stel me vragen over je data (bijv. "Wat is mijn meest winstgevende uur?" of "Zie je patronen in mijn verliezende trades?").
             </div>
         </div>
     </div>
     
-    <div class="p-3 border-t border-terminal bg-zinc-900/50 rounded-b-sm">
+    <div class="p-3 border-t border-terminal bg-zinc-800 rounded-b-sm">
         <form id="aiChatForm" class="flex gap-2" onsubmit="handleAiChatSubmit(event)">
             <input type="text" id="aiChatInput" class="flex-1 bg-terminal-input border border-slate-600 rounded-sm px-3 py-2 text-white placeholder-zinc-500 outline-none focus:border-blue-500 transition-colors text-xs" placeholder="Stel een vraag..." autocomplete="off">
             <button type="submit" id="aiChatSubmitBtn" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-sm transition-colors flex items-center justify-center min-w-[50px]">
@@ -3331,7 +3350,7 @@ function renderMCChart() {
         if(confirm("Weet je zeker dat je de chatgeschiedenis wilt wissen?")) {
             aiChatHistory = [];
             saveAiMessages();
-            document.getElementById('aiChatMessages').innerHTML = '<div class="flex items-start gap-2"><div class="bg-blue-500/20 border border-blue-500/30 rounded-sm p-3 max-w-[85%] text-xs markdown-body">Hallo! Ik ben je Trading AI Assistant. Chat is gereset.</div></div>';
+            document.getElementById('aiChatMessages').innerHTML = '<div class="flex items-start gap-2"><div class="bg-blue-900 border border-blue-700 rounded-sm p-3 max-w-[85%] text-xs markdown-body">Hallo! Ik ben je Trading AI Assistant. Chat is gereset.</div></div>';
             toggleAiSettings();
         }
     }
@@ -3459,12 +3478,12 @@ function renderMCChart() {
         var innerDiv = document.createElement('div');
         
         if (role === 'user') {
-            innerDiv.className = 'bg-slate-700/80 border border-slate-600 rounded-sm p-3 max-w-[85%] text-xs';
+            innerDiv.className = 'bg-slate-700 border border-slate-600 rounded-sm p-3 max-w-[85%] text-xs';
             innerDiv.innerText = text;
         } else {
-            innerDiv.className = 'bg-blue-500/20 border border-blue-500/30 rounded-sm p-3 max-w-[85%] text-xs markdown-body';
+            innerDiv.className = 'bg-blue-900 border border-blue-700 rounded-sm p-3 max-w-[85%] text-xs markdown-body';
             if (isError) {
-                innerDiv.className += ' text-red-400 border-red-500/30 bg-red-500/10';
+                innerDiv.className += ' text-red-400 border-red-700 bg-red-900';
                 innerDiv.innerText = text;
             } else {
                 innerDiv.innerHTML = marked.parse(text);
