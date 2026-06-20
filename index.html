@@ -4,7 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Quantower Professional Terminal Journal</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='5' y='5' width='90' height='90' rx='15' fill='white' /><text x='50' y='75' font-family='sans-serif' font-weight='bold' font-size='75' fill='black' text-anchor='middle'>J</text></svg>" />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='5' y='5' width='90' height='90' rx='15' fill='white' /><text x='50' y='75' font-family='sans-serif' font-weight='bold' font-size='75' fill='black' text-anchor='middle'>J</text></svg>"
+    />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
@@ -56,6 +60,21 @@
       }
       .pnl-loss {
         color: #f87171;
+      }
+
+      html.light-mode {
+        filter: invert(1) hue-rotate(180deg) brightness(1.05) contrast(1.05);
+      }
+      html.light-mode body {
+        background-color: #000000;
+      }
+      html.light-mode .bg-terminal-card {
+        background-color: rgba(5, 5, 5, 0.4);
+      }
+      html.light-mode img,
+      html.light-mode canvas,
+      html.light-mode .ai-floating-btn {
+        filter: invert(1) hue-rotate(180deg);
       }
 
       ::-webkit-scrollbar {
@@ -240,6 +259,17 @@
                 class="fas fa-arrows-alt-h w-4 text-center mr-1 text-slate-200"
               ></i>
               Reset kolombreedte
+            </button>
+            <div class="border-t border-zinc-800 my-1 mx-2"></div>
+            <button
+              onclick="
+                toggleTheme();
+                toggleDropdown('dataMenuDropdown');
+              "
+              class="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-white rounded-sm text-xs transition-colors"
+            >
+              <i class="fas fa-sun w-4 text-center mr-1 text-slate-200"></i>
+              Lichte/Donkere modus
             </button>
             <div class="border-t border-zinc-800 my-1 mx-2"></div>
             <button
@@ -1139,10 +1169,11 @@
 
     <div
       id="genericConfirmModal"
-      class="hidden fixed inset-0 bg-black/95 z-[60] flex items-center justify-center p-4"
+      class="hidden fixed inset-0 bg-black/30 backdrop-blur-sm z-[60] flex items-center justify-center p-4"
+      onclick="if (event.target === this) closeConfirmModal();"
     >
       <div
-        class="bg-terminal-card border border-red-900 w-full max-w-sm flex flex-col rounded-sm font-mono text-xs shadow-2xl"
+        class="bg-terminal-card border-2 border-red-700 w-full max-w-sm flex flex-col rounded-sm font-mono text-xs shadow-[0_0_30px_rgba(220,38,38,0.3)]"
       >
         <div
           class="flex justify-between items-center p-4 border-b border-red-900 bg-red-950/20"
@@ -1184,10 +1215,11 @@
 
     <div
       id="bulkEditModal"
-      class="fixed inset-0 bg-black/90 flex items-center justify-center z-50 px-4 hidden"
+      class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 px-4 hidden"
+      onclick="if (event.target === this) closeBulkEditModal();"
     >
       <div
-        class="bg-terminal-card border border-terminal w-full max-w-sm flex flex-col rounded-sm font-mono text-xs"
+        class="bg-terminal-card border-2 border-zinc-500 shadow-[0_0_30px_rgba(0,0,0,0.8)] w-full max-w-sm flex flex-col rounded-sm font-mono text-xs"
       >
         <div
           class="flex justify-between items-center p-4 border-b border-terminal bg-slate-900"
@@ -1238,10 +1270,11 @@
 
     <div
       id="manualTradeModal"
-      class="fixed inset-0 bg-black/90 flex items-center justify-center z-50 px-4 hidden"
+      class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 px-4 hidden"
+      onclick="if (event.target === this) closeManualTradeModal();"
     >
       <div
-        class="bg-terminal-card border border-terminal w-full max-w-lg flex flex-col rounded-sm font-mono text-xs"
+        class="bg-terminal-card border-2 border-zinc-500 shadow-[0_0_30px_rgba(0,0,0,0.8)] w-full max-w-lg flex flex-col rounded-sm font-mono text-xs"
       >
         <div
           class="flex justify-between items-center p-4 border-b border-terminal bg-zinc-900"
@@ -1397,10 +1430,11 @@
 
     <div
       id="noteModal"
-      class="fixed inset-0 bg-black/90 flex items-center justify-center z-[110] px-4 hidden"
+      class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-[110] px-4 hidden"
+      onclick="if (event.target === this) closeModal();"
     >
       <div
-        class="bg-terminal-card border border-terminal w-full max-w-xl flex flex-col rounded-sm font-mono text-xs"
+        class="bg-terminal-card border-2 border-zinc-500 shadow-[0_0_30px_rgba(0,0,0,0.8)] w-full max-w-xl flex flex-col rounded-sm font-mono text-xs"
       >
         <div
           class="flex justify-between items-center p-4 border-b border-terminal bg-zinc-900"
@@ -1531,10 +1565,11 @@
 
     <div
       id="dayTradesModal"
-      class="fixed inset-0 bg-black/95 flex flex-col items-center justify-center z-[100] px-4 hidden"
+      class="fixed inset-0 bg-black/30 backdrop-blur-sm flex flex-col items-center justify-center z-[100] px-4 hidden"
+      onclick="if (event.target === this) closeDayTradesModal();"
     >
       <div
-        class="bg-terminal-card border border-terminal w-full max-w-7xl flex flex-col rounded-sm font-mono text-xs overflow-hidden h-[85vh]"
+        class="bg-terminal-card border-2 border-zinc-500 shadow-[0_0_30px_rgba(0,0,0,0.8)] w-full max-w-7xl flex flex-col rounded-sm font-mono text-xs overflow-hidden h-[85vh]"
       >
         <div
           class="flex justify-between items-center p-4 border-b border-terminal bg-zinc-900"
@@ -1702,10 +1737,11 @@
 
     <div
       id="settingsModal"
-      class="fixed inset-0 bg-black/90 flex items-center justify-center z-50 px-4 hidden"
+      class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 px-4 hidden"
+      onclick="if (event.target === this) closeSettings();"
     >
       <div
-        class="bg-terminal-card border border-terminal w-full max-w-sm p-4 font-mono text-xs"
+        class="bg-terminal-card border-2 border-zinc-500 shadow-[0_0_30px_rgba(0,0,0,0.8)] w-full max-w-sm p-4 font-mono text-xs"
       >
         <div
           class="flex justify-between items-start mb-3 pb-2 border-b border-terminal"
@@ -1833,6 +1869,23 @@
     </div>
 
     <script>
+      var currentTheme = localStorage.getItem("qt_journal_theme") || "dark";
+      if (currentTheme === "light") {
+        document.documentElement.classList.add("light-mode");
+      }
+
+      function toggleTheme() {
+        if (document.documentElement.classList.contains("light-mode")) {
+          document.documentElement.classList.remove("light-mode");
+          currentTheme = "dark";
+          localStorage.setItem("qt_journal_theme", "dark");
+        } else {
+          document.documentElement.classList.add("light-mode");
+          currentTheme = "light";
+          localStorage.setItem("qt_journal_theme", "light");
+        }
+      }
+
       var trades = [];
       var pnlChartInstance = null;
       var sortCol = localStorage.getItem("qt_sortCol") || "time";
@@ -4205,8 +4258,19 @@
         }
       }
 
+      function closeDayTradesModalOnEsc(e) {
+        if (e.key === "Escape") {
+          var lightbox = document.getElementById("lightboxOverlay");
+          if (lightbox && lightbox.style.display === "flex") {
+            return;
+          }
+          closeDayTradesModal();
+        }
+      }
+
       function openDayTradesModal(y, m, d) {
         document.getElementById("dayTradesModal").classList.remove("hidden");
+        document.addEventListener("keydown", closeDayTradesModalOnEsc);
         var monthNames = [
           "Januari",
           "Februari",
@@ -4317,6 +4381,7 @@
       }
       function closeDayTradesModal() {
         document.getElementById("dayTradesModal").classList.add("hidden");
+        document.removeEventListener("keydown", closeDayTradesModalOnEsc);
       }
 
       // --- LIGHTBOX ZOOM ----
@@ -5463,7 +5528,7 @@
     <!-- AI Chat UI -->
     <div
       id="aiChatWindow"
-      class="fixed bottom-16 md:bottom-20 right-2 md:right-4 w-96 max-w-[90vw] h-[500px] max-h-[70vh] bg-terminal-card border border-terminal rounded-sm shadow-[0_0_20px_rgba(0,0,0,0.8)] flex flex-col hidden z-50 animate-fade-in font-mono text-sm text-slate-200"
+      class="fixed bottom-16 md:bottom-20 right-2 md:right-4 w-96 max-w-[90vw] h-[500px] max-h-[70vh] bg-terminal-card border-2 border-zinc-500 rounded-sm shadow-[0_0_30px_rgba(0,0,0,0.8)] flex flex-col hidden z-50 animate-fade-in font-mono text-sm text-slate-200"
     >
       <div
         class="flex justify-between items-center bg-zinc-800 border-b border-terminal p-3 rounded-t-sm"
@@ -5493,7 +5558,7 @@
 
       <div
         id="aiChatSettings"
-        class="absolute inset-0 bg-terminal-card border border-terminal rounded-sm shadow-2xl flex flex-col hidden z-50 animate-fade-in font-mono text-sm text-slate-200 p-4"
+        class="absolute inset-0 bg-terminal-card border-2 border-zinc-500 rounded-sm shadow-2xl flex flex-col hidden z-50 animate-fade-in font-mono text-sm text-slate-200 p-4"
       >
         <h3
           class="text-lg font-bold text-white mb-2 pb-2 border-b border-slate-700"
@@ -5577,7 +5642,8 @@
 
     <button
       onclick="toggleAiChat()"
-      class="fixed bottom-2 right-2 md:bottom-4 md:right-4 w-12 h-12 bg-blue-600 hover:bg-blue-500 text-white rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-110 z-50 group"
+      id="aiFloatingBtn"
+      class="fixed bottom-2 right-2 md:bottom-4 md:right-4 w-12 h-12 bg-blue-600 hover:bg-blue-500 text-white rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-110 z-50 group ai-floating-btn"
     >
       <i class="fas fa-robot text-lg"></i>
       <span
