@@ -1831,72 +1831,6 @@
       </div>
     </div>
 
-    <div
-      id="exportModal"
-      class="fixed inset-0 bg-black/90 flex items-center justify-center z-50 px-4 hidden"
-    >
-      <div
-        class="bg-terminal-card border border-terminal w-full max-w-xl flex flex-col rounded-sm font-mono text-xs mx-auto"
-      >
-        <div
-          class="flex justify-between items-center p-4 border-b border-terminal bg-slate-900"
-        >
-          <span
-            class="text-[11px] font-bold tracking-widest text-slate-200 uppercase"
-            >BACKUP DATA EXPORT</span
-          >
-          <button
-            onclick="
-              document.getElementById('exportModal').classList.add('hidden')
-            "
-            class="text-slate-200 hover:text-slate-200 text-base leading-none"
-          >
-            &times;
-          </button>
-        </div>
-        <div class="p-5 space-y-4">
-          <div
-            class="bg-emerald-950/30 border border-emerald-900 p-3 rounded-sm mb-2"
-          >
-            <p
-              class="text-[10px] text-emerald-500 font-bold uppercase tracking-wider flex items-center gap-2"
-            >
-              <i class="fas fa-check-circle"></i> VOLLEDIGE EIND-TO-EIND BACKUP
-            </p>
-            <p class="text-[9px] text-emerald-400/70 mt-1">
-              Deze backup bestrijkt 100% van je data inclusief tags,
-              screenshots, commissie regels, custom accounts en al je trades.
-            </p>
-          </div>
-          <p class="text-zinc-300">
-            Het preview venster blokkeert mogelijk directe downloads. Je kan de
-            JSON data hier kopiëren of de app in een nieuw tabblad openen om als
-            bestand te downloaden.
-          </p>
-          <textarea
-            id="exportTextarea"
-            class="w-full h-48 bg-zinc-900 border border-zinc-700 rounded-sm p-3 text-slate-200 font-mono text-xs focus:outline-none focus:border-zinc-500 overflow-y-scroll"
-            readonly
-          ></textarea>
-          <div class="flex justify-end gap-2 mt-4 pt-2">
-            <button
-              onclick="copyBackupToClipboard()"
-              id="copyBackupBtn"
-              class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 rounded-sm font-semibold transition-colors"
-            >
-              KOPIEER JSON DATA
-            </button>
-            <button
-              onclick="downloadBackupFile()"
-              class="bg-white text-black px-4 py-1.5 rounded-sm font-semibold hover:bg-zinc-200 transition-colors"
-            >
-              FORCEER DOWNLOAD
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <script>
       var trades = [];
       var pnlChartInstance = null;
@@ -4892,8 +4826,6 @@
           .replace(/"/g, "&quot;");
       }
 
-      var backupDataString = "";
-
       function exportBackup() {
         var data = {
           trades: trades,
@@ -4901,35 +4833,35 @@
           tagColors: tagColors,
           commissionRules: commissionRules,
         };
-        backupDataString = JSON.stringify(data, null, 2);
-        document.getElementById("exportTextarea").value = backupDataString;
-        document.getElementById("exportModal").classList.remove("hidden");
-        document.getElementById("copyBackupBtn").innerText =
-          "KOPIEER JSON DATA";
-      }
+        var backupDataString = JSON.stringify(data, null, 2);
 
-      function copyBackupToClipboard() {
-        navigator.clipboard
-          .writeText(backupDataString)
-          .then(function () {
-            document.getElementById("copyBackupBtn").innerText = "GEKOPIEERD!";
-          })
-          .catch(function (err) {
-            alert("Fout bij kopiëren: " + err);
-          });
-      }
+        var dateToUse = new Date();
+        if (trades && trades.length > 0) {
+          var latestDate = new Date(
+            Math.max.apply(
+              null,
+              trades.map(function (t) {
+                return (
+                  t.time instanceof Date ? t.time : new Date(t.time)
+                ).getTime();
+              }),
+            ),
+          );
+          if (!isNaN(latestDate.getTime())) {
+            dateToUse = latestDate;
+          }
+        }
 
-      function downloadBackupFile() {
+        var d = String(dateToUse.getDate()).padStart(2, "0");
+        var m = String(dateToUse.getMonth() + 1).padStart(2, "0");
+        var y = dateToUse.getFullYear();
+        var dateStr = d + "-" + m + "-" + y;
+
         var blob = new Blob([backupDataString], { type: "application/json" });
         var url = URL.createObjectURL(blob);
         var downloadAnchorNode = document.createElement("a");
         downloadAnchorNode.setAttribute("href", url);
-        downloadAnchorNode.setAttribute(
-          "download",
-          "quant_journal_backup_" +
-            new Date().toISOString().slice(0, 10) +
-            ".json",
-        );
+        downloadAnchorNode.setAttribute("download", dateStr + ".json");
         document.body.appendChild(downloadAnchorNode);
         downloadAnchorNode.click();
         downloadAnchorNode.remove();
