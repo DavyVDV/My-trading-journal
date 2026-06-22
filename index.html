@@ -65,7 +65,8 @@
       html.light-mode {
         filter: invert(1) hue-rotate(180deg) brightness(1.05) contrast(1.05);
       }
-      html.light-mode body {
+      html.light-mode body,
+      html.light-mode .bg-terminal-dark {
         background-color: #000000;
       }
       html.light-mode .bg-terminal-card {
@@ -163,7 +164,7 @@
   </head>
   <body class="min-h-screen flex flex-col font-sans antialiased text-sm">
     <nav
-      class="bg-terminal-card border-b border-terminal px-6 py-2.5 flex justify-between items-center sticky top-0 z-40"
+      class="bg-terminal-dark border-b border-terminal px-6 py-2.5 flex justify-between items-center sticky top-0 z-40"
     >
       <div class="flex items-center gap-8">
         <div class="flex items-center gap-2">
@@ -229,36 +230,36 @@
                 document.getElementById('fileInput').click();
                 toggleDropdown('dataMenuDropdown');
               "
-              class="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-white rounded-sm text-xs transition-colors"
+              class="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-white rounded-sm text-xs transition-colors flex items-start"
             >
               <i
-                class="fas fa-file-csv w-4 text-center mr-1 text-slate-200"
+                class="fas fa-file-csv w-4 text-center mr-1.5 text-slate-200 mt-0.5 shrink-0"
               ></i>
-              CSV Importeren
+              <span>CSV Importeren</span>
             </button>
             <button
               onclick="
                 openManualTradeModal();
                 toggleDropdown('dataMenuDropdown');
               "
-              class="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-white rounded-sm text-xs transition-colors"
+              class="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-white rounded-sm text-xs transition-colors flex items-start"
             >
               <i
-                class="fas fa-keyboard w-4 text-center mr-1 text-slate-200"
+                class="fas fa-keyboard w-4 text-center mr-1.5 text-slate-200 mt-0.5 shrink-0"
               ></i>
-              Manuele Invoer
+              <span>Manuele Invoer</span>
             </button>
             <button
               onclick="
                 resetColumnWidths();
                 toggleDropdown('dataMenuDropdown');
               "
-              class="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-white rounded-sm text-xs transition-colors"
+              class="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-white rounded-sm text-xs transition-colors flex items-start"
             >
               <i
-                class="fas fa-arrows-alt-h w-4 text-center mr-1 text-slate-200"
+                class="fas fa-arrows-alt-h w-4 text-center mr-1.5 text-slate-200 mt-0.5 shrink-0"
               ></i>
-              Reset kolombreedte
+              <span>Reset kolombreedte</span>
             </button>
             <div class="border-t border-zinc-800 my-1 mx-2"></div>
             <button
@@ -266,10 +267,12 @@
                 toggleTheme();
                 toggleDropdown('dataMenuDropdown');
               "
-              class="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-white rounded-sm text-xs transition-colors"
+              class="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-white rounded-sm text-xs transition-colors flex items-start"
             >
-              <i class="fas fa-sun w-4 text-center mr-1 text-slate-200"></i>
-              Lichte/Donkere modus
+              <i
+                class="fas fa-sun w-4 text-center mr-1.5 text-slate-200 mt-0.5 shrink-0"
+              ></i>
+              <span>Lichte/Donkere modus</span>
             </button>
             <div class="border-t border-zinc-800 my-1 mx-2"></div>
             <button
@@ -277,24 +280,24 @@
                 exportBackup();
                 toggleDropdown('dataMenuDropdown');
               "
-              class="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-white rounded-sm text-xs transition-colors"
+              class="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-white rounded-sm text-xs transition-colors flex items-start"
             >
               <i
-                class="fas fa-file-export w-4 text-center mr-1 text-slate-200"
+                class="fas fa-file-export w-4 text-center mr-1.5 text-slate-200 mt-0.5 shrink-0"
               ></i>
-              Backup Maken
+              <span>Backup Maken</span>
             </button>
             <button
               onclick="
                 document.getElementById('importBackupInput').click();
                 toggleDropdown('dataMenuDropdown');
               "
-              class="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-white rounded-sm text-xs transition-colors"
+              class="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-white rounded-sm text-xs transition-colors flex items-start"
             >
               <i
-                class="fas fa-file-import w-4 text-center mr-1 text-slate-200"
+                class="fas fa-file-import w-4 text-center mr-1.5 text-slate-200 mt-0.5 shrink-0"
               ></i>
-              Backup Herstellen
+              <span>Backup Herstellen</span>
             </button>
             <div class="border-t border-zinc-800 my-1 mx-2"></div>
             <button
