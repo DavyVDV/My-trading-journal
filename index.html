@@ -1752,11 +1752,8 @@
           <div>
             <span
               class="text-[11px] font-bold uppercase tracking-wider text-zinc-300"
-              >COMMISSION_MATRIX_RULES</span
+              >Instellingen</span
             >
-            <p class="text-[10px] text-zinc-300 mt-0.5">
-              Roundtrip flat rate configuration ($)
-            </p>
           </div>
           <button
             onclick="closeSettings()"
@@ -1765,23 +1762,7 @@
             &times;
           </button>
         </div>
-        <div class="mb-2 flex justify-between items-center">
-          <span
-            class="text-[9px] font-bold text-zinc-300 uppercase tracking-widest"
-            >INSTRUMENT_PREFIX</span
-          >
-          <button
-            onclick="addCommissionRow()"
-            class="text-[10px] font-medium text-zinc-300 hover:text-white"
-          >
-            + ADD MATRIX LAYER
-          </button>
-        </div>
-        <div
-          id="commissionRows"
-          class="space-y-1.5 max-h-44 overflow-y-auto pr-1 mb-3"
-        ></div>
-        <div class="mb-3 pt-2 border-t border-terminal">
+        <div class="mb-3 pt-2">
           <button
             onclick="reprocessRawCSVs()"
             class="w-full text-center px-4 py-2 border border-blue-900 bg-blue-900/20 text-blue-300 rounded-sm hover:bg-blue-900/40 uppercase tracking-widest text-[9px] font-bold"
@@ -1789,18 +1770,12 @@
             RE-PROCESS SAVED CSV FILES
           </button>
         </div>
-        <div class="flex justify-end gap-2 border-t border-terminal pt-3">
+        <div class="flex justify-end border-t border-terminal pt-3">
           <button
             onclick="closeSettings()"
             class="px-3 py-1 bg-terminal-input border border-terminal rounded-sm hover:bg-zinc-800"
           >
-            CANCEL
-          </button>
-          <button
-            onclick="saveSettings()"
-            class="bg-white text-black px-4 py-1 rounded-sm font-semibold"
-          >
-            SAVE
+            SLUITEN
           </button>
         </div>
       </div>
@@ -2217,86 +2192,12 @@
         });
       }
 
-      function getCommission(symbol, volume) {
-        var sym = (symbol || "").toUpperCase();
-        var sorted = commissionRules.slice().sort(function (a, b) {
-          return b.prefix.length - a.prefix.length;
-        });
-        for (var i = 0; i < sorted.length; i++) {
-          if (
-            sorted[i].prefix &&
-            sym.indexOf(sorted[i].prefix.toUpperCase()) === 0
-          ) {
-            return Math.round(sorted[i].rate * volume * 100) / 100;
-          }
-        }
-        return 0;
-      }
-
       function openSettings() {
-        renderCommissionRows();
         document.getElementById("settingsModal").classList.remove("hidden");
       }
 
       function closeSettings() {
         document.getElementById("settingsModal").classList.add("hidden");
-      }
-
-      function renderCommissionRows() {
-        var container = document.getElementById("commissionRows");
-        container.innerHTML = "";
-        commissionRules.forEach(function (rule, i) {
-          var div = document.createElement("div");
-          div.className = "flex items-center gap-2";
-          div.innerHTML =
-            '<input type="text" value="' +
-            esc(rule.prefix) +
-            '" placeholder="PREFIX" class="comm-prefix flex-1 bg-terminal-input border border-terminal rounded-sm px-2 py-1 text-zinc-200 focus:outline-none uppercase" data-idx="' +
-            i +
-            '">' +
-            '<div class="flex items-center gap-1 border border-terminal rounded-sm px-2 py-1 bg-terminal-input shrink-0">' +
-            '<span class="text-zinc-300">$</span>' +
-            '<input type="number" value="' +
-            rule.rate +
-            '" step="0.01" min="0" class="comm-rate w-14 bg-transparent text-zinc-200 focus:outline-none" data-idx="' +
-            i +
-            '"></div>' +
-            '<button onclick="removeCommissionRow(' +
-            i +
-            ')" class="text-zinc-300 hover:text-red-400 px-1 text-sm">&times;</button>';
-          container.appendChild(div);
-        });
-      }
-
-      function addCommissionRow() {
-        commissionRules.push({ prefix: "", rate: 0.0 });
-        renderCommissionRows();
-      }
-
-      function removeCommissionRow(idx) {
-        commissionRules.splice(idx, 1);
-        renderCommissionRows();
-      }
-
-      function saveSettings() {
-        var prefixInputs = document.querySelectorAll(".comm-prefix");
-        var rateInputs = document.querySelectorAll(".comm-rate");
-        prefixInputs.forEach(function (input) {
-          var i = parseInt(input.dataset.idx);
-          if (commissionRules[i])
-            commissionRules[i].prefix = input.value.toUpperCase().trim();
-        });
-        rateInputs.forEach(function (input) {
-          var i = parseInt(input.dataset.idx);
-          if (commissionRules[i])
-            commissionRules[i].rate = parseFloat(input.value) || 0;
-        });
-        commissionRules = commissionRules.filter(function (r) {
-          return r.prefix !== "";
-        });
-        saveCommissions();
-        closeSettings();
-        updateUI();
       }
 
       async function loadData() {
@@ -2489,7 +2390,7 @@
             var m = t.time instanceof Date ? t.time.getMonth() : 0;
             if (monthsData[m]) {
               monthsData[m].count++;
-              var c = t.fee != null ? t.fee : getCommission(t.symbol, t.volume);
+              var c = t.fee || 0;
               var net = t.pnl - c;
               monthsData[m].net += net;
               monthsData[m].gross += t.pnl;
@@ -2641,7 +2542,7 @@
           var tDate = t.time instanceof Date ? t.time.getDate() : 1;
           if (daysData[tDate]) {
             daysData[tDate].count++;
-            var c = t.fee != null ? t.fee : getCommission(t.symbol, t.volume);
+            var c = t.fee || 0;
             var net = t.pnl - c;
             daysData[tDate].net += net;
             daysData[tDate].gross += t.pnl;
@@ -2814,10 +2715,7 @@
         var pnl = parseFloat(document.getElementById("manPnL").value) || 0;
 
         var manualFee = document.getElementById("manFee").value;
-        var fee =
-          manualFee === ""
-            ? getCommission(symbol, volume)
-            : parseFloat(manualFee) || 0;
+        var fee = parseFloat(manualFee) || 0;
 
         var newTrade = {
           id:
@@ -3094,7 +2992,11 @@
             return h.includes("gross");
           }),
           fee: headers.findIndex(function (h) {
-            return h === "fee";
+            return (
+              h.includes("fee") ||
+              h.includes("commission") ||
+              h.includes("commissie")
+            );
           }),
         };
 
@@ -3372,12 +3274,8 @@
         if (col === "side") return t.side.toLowerCase();
         if (col === "volume") return t.volume;
         if (col === "pnl") return t.pnl;
-        if (col === "commission")
-          return t.fee != null ? t.fee : getCommission(t.symbol, t.volume);
-        if (col === "netpnl")
-          return (
-            t.pnl - (t.fee != null ? t.fee : getCommission(t.symbol, t.volume))
-          );
+        if (col === "commission") return t.fee || 0;
+        if (col === "netpnl") return t.pnl - (t.fee || 0);
         return 0;
       }
 
@@ -3497,7 +3395,7 @@
 
         filtered.forEach(function (t) {
           gross += t.pnl;
-          var f = t.fee != null ? t.fee : getCommission(t.symbol, t.volume);
+          var f = t.fee || 0;
           fees += f;
           var net = t.pnl - f;
           if (net > 0) {
@@ -3639,10 +3537,7 @@
         }
 
         display.forEach(function (trade) {
-          var c =
-            trade.fee != null
-              ? trade.fee
-              : getCommission(trade.symbol, trade.volume);
+          var c = trade.fee || 0;
           var net = trade.pnl - c;
           var isLong =
             trade.side.toLowerCase().indexOf("buy") >= 0 ||
@@ -3890,8 +3785,7 @@
             : t.dateStr || "Unknown";
         });
         var data = chron.map(function (t) {
-          cum +=
-            t.pnl - (t.fee != null ? t.fee : getCommission(t.symbol, t.volume));
+          cum += t.pnl - (t.fee || 0);
           return Math.round(cum * 100) / 100;
         });
         if (pnlChartInstance) pnlChartInstance.destroy();
@@ -4308,10 +4202,7 @@
         tbody.innerHTML = "";
 
         filteredTrades.forEach(function (trade) {
-          var c =
-            trade.fee != null
-              ? trade.fee
-              : getCommission(trade.symbol, trade.volume);
+          var c = trade.fee || 0;
           var net = trade.pnl - c;
           var isLong =
             trade.side.toLowerCase().indexOf("buy") >= 0 ||
@@ -4664,10 +4555,7 @@
           profit = 0,
           loss = 0;
         matches.forEach(function (trade) {
-          var comm =
-            trade.fee != null
-              ? trade.fee
-              : getCommission(trade.symbol, trade.volume);
+          var comm = trade.fee || 0;
           var net = trade.pnl - comm;
           netValue += net;
           if (net > 0) {
@@ -4764,7 +4652,7 @@
             : t.dateStr || "Unknown";
         });
         var data = chron.map(function (t) {
-          var f = t.fee != null ? t.fee : getCommission(t.symbol, t.volume);
+          var f = t.fee || 0;
           cum += t.pnl - f;
           return Math.round(cum * 100) / 100;
         });
@@ -5027,7 +4915,7 @@
           lossTotal = 0;
 
         pool.forEach(function (t) {
-          var c = t.fee != null ? t.fee : getCommission(t.symbol, t.volume);
+          var c = t.fee || 0;
           var net = t.pnl - c;
           if (net > 0) {
             wins++;
