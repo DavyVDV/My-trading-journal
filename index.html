@@ -5636,20 +5636,24 @@
         appendAiMessage(prompt, "user");
 
         // filter data so we don't send gigantic payload if possible
-        var payloadData = trades
-          .map(function (t) {
-            return {
-              time: t.time instanceof Date ? t.time.toISOString() : t.time,
-              symbol: t.symbol,
-              side: t.side,
-              volume: t.volume,
-              entry: t.entry,
-              exit: t.exit,
-              pnl: t.pnl,
-              netpnl: t.netpnl,
-            };
-          })
-          .slice(-1000);
+        var payloadData = {
+          trades: trades
+            .map(function (t) {
+              var flatT = Object.assign({}, t);
+              if (flatT.time instanceof Date)
+                flatT.time = flatT.time.toISOString();
+              if (flatT.screenshots) delete flatT.screenshots; // keep payload reasonably sized
+              if (flatT.note && flatT.note.length > 2000)
+                flatT.note = flatT.note.substring(0, 2000) + "...";
+              flatT.fee = t.fee || 0;
+              flatT.netpnl = t.pnl - flatT.fee;
+              return flatT;
+            })
+            .slice(-2500),
+          globalTags: globalTags,
+          tagColors: tagColors,
+          commissionRules: commissionRules,
+        };
 
         try {
           var apiKey = localStorage.getItem("tradingAiApiKey");
