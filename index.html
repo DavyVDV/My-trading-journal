@@ -1283,6 +1283,7 @@
           class="flex justify-between items-center p-4 border-b border-terminal bg-zinc-900"
         >
           <span
+            id="manualTradeTitle"
             class="text-[11px] font-bold tracking-widest text-zinc-300 uppercase"
             >EXECUTION_RECORD // NEW_MANUAL_ENTRY</span
           >
@@ -2689,16 +2690,63 @@
       }
 
       // ---- MANUAL ENTRY HANDLERS ----
-      function openManualTradeModal() {
-        document.getElementById("manTime").value = new Date()
-          .toISOString()
-          .slice(0, 16);
+      var editingTradeId = null;
+
+      function openManualTradeModal(tradeId) {
+        if (tradeId) {
+          editingTradeId = tradeId;
+          var trade = trades.find(function (t) {
+            return t.id === tradeId;
+          });
+          if (trade) {
+            var dateInput = "";
+            if (trade.time instanceof Date && !isNaN(trade.time)) {
+              dateInput = new Date(
+                trade.time.getTime() - trade.time.getTimezoneOffset() * 60000,
+              )
+                .toISOString()
+                .slice(0, 16);
+            } else {
+              dateInput = new Date(
+                Date.now() - new Date().getTimezoneOffset() * 60000,
+              )
+                .toISOString()
+                .slice(0, 16);
+            }
+            document.getElementById("manTime").value = dateInput;
+            document.getElementById("manSymbol").value = trade.symbol;
+            var isLong =
+              trade.side.toLowerCase().indexOf("buy") >= 0 ||
+              trade.side.toLowerCase() === "long";
+            document.getElementById("manSide").value = isLong
+              ? "Long"
+              : "Short";
+            document.getElementById("manVolume").value = trade.volume;
+            document.getElementById("manEntry").value = trade.entry;
+            document.getElementById("manExit").value = trade.exit;
+            document.getElementById("manPnL").value = trade.pnl;
+            document.getElementById("manFee").value = trade.fee || 0;
+            document.getElementById("manualTradeTitle").innerText =
+              "EXECUTION_RECORD // EDIT_ENTRY";
+          }
+        } else {
+          editingTradeId = null;
+          document.getElementById("manTime").value = new Date(
+            Date.now() - new Date().getTimezoneOffset() * 60000,
+          )
+            .toISOString()
+            .slice(0, 16);
+          document.getElementById("manualTradeTitle").innerText =
+            "EXECUTION_RECORD // NEW_MANUAL_ENTRY";
+          document.getElementById("manualTradeForm").reset();
+        }
         document.getElementById("manualTradeModal").classList.remove("hidden");
       }
 
       function closeManualTradeModal() {
         document.getElementById("manualTradeModal").classList.add("hidden");
         document.getElementById("manualTradeForm").reset();
+        editingTradeId = null;
       }
 
       function handleManualTradeSubmit(e) {
@@ -2717,27 +2765,44 @@
         var manualFee = document.getElementById("manFee").value;
         var fee = parseFloat(manualFee) || 0;
 
-        var newTrade = {
-          id:
-            "tr_manual_" +
-            Date.now() +
-            "_" +
-            Math.random().toString(36).substr(2, 4),
-          dateStr: fmtDateCore(timeVal),
-          time: timeVal,
-          symbol: symbol,
-          side: side,
-          volume: volume,
-          entry: entry,
-          exit: exit,
-          pnl: pnl,
-          fee: fee,
-          tags: [],
-          screenshots: [],
-          notes: "",
-        };
+        if (editingTradeId) {
+          var tradeIndex = trades.findIndex(function (t) {
+            return t.id === editingTradeId;
+          });
+          if (tradeIndex !== -1) {
+            trades[tradeIndex].dateStr = fmtDateCore(timeVal);
+            trades[tradeIndex].time = timeVal;
+            trades[tradeIndex].symbol = symbol;
+            trades[tradeIndex].side = side;
+            trades[tradeIndex].volume = volume;
+            trades[tradeIndex].entry = entry;
+            trades[tradeIndex].exit = exit;
+            trades[tradeIndex].pnl = pnl;
+            trades[tradeIndex].fee = fee;
+          }
+        } else {
+          var newTrade = {
+            id:
+              "tr_manual_" +
+              Date.now() +
+              "_" +
+              Math.random().toString(36).substr(2, 4),
+            dateStr: fmtDateCore(timeVal),
+            time: timeVal,
+            symbol: symbol,
+            side: side,
+            volume: volume,
+            entry: entry,
+            exit: exit,
+            pnl: pnl,
+            fee: fee,
+            tags: [],
+            screenshots: [],
+            notes: "",
+          };
+          trades.push(newTrade);
+        }
 
-        trades.push(newTrade);
         trades.sort(function (a, b) {
           return a.time - b.time;
         });
@@ -3623,7 +3688,11 @@
                 : "text-zinc-700 hover:text-zinc-300") +
               '"></i></td>',
             actions:
-              '<td class="px-4 py-2 text-center" onclick="event.stopPropagation()"><button onclick="deleteTradeDirect(\'' +
+              '<td class="px-4 py-2 text-center" onclick="event.stopPropagation()">' +
+              "<button onclick=\"openManualTradeModal('" +
+              trade.id +
+              '\')" class="text-zinc-300 hover:text-blue-400 p-1 mr-1"><i class="fas fa-edit text-[11px]"></i></button>' +
+              "<button onclick=\"deleteTradeDirect('" +
               trade.id +
               '\', event)" class="text-zinc-300 hover:text-red-400 p-1"><i class="fas fa-trash-alt text-[11px]"></i></button></td>',
           };
