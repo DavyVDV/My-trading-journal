@@ -5096,11 +5096,11 @@
           });
           delBtn.addEventListener("click", function (e) {
             e.stopPropagation();
-            if (confirm("Grafiek verwijderen?")) {
+            showConfirm("Grafiek verwijderen?", function () {
               customCharts.splice(index, 1);
               saveCustomCharts();
               renderCustomCharts();
-            }
+            });
           });
 
           controls.appendChild(editBtn);
@@ -6318,13 +6318,16 @@
       }
 
       function clearAiChatHistory() {
-        if (confirm("Weet je zeker dat je de chatgeschiedenis wilt wissen?")) {
-          aiChatHistory = [];
-          saveAiMessages();
-          document.getElementById("aiChatMessages").innerHTML =
-            '<div class="flex items-start gap-2"><div class="bg-blue-900 border border-blue-700 rounded-sm p-3 max-w-[85%] text-xs markdown-body">Hallo! Ik ben je Trading AI Assistant. Chat is gereset.</div></div>';
-          toggleAiSettings();
-        }
+        showConfirm(
+          "Weet je zeker dat je de chatgeschiedenis wilt wissen?",
+          function () {
+            aiChatHistory = [];
+            saveAiMessages();
+            document.getElementById("aiChatMessages").innerHTML =
+              '<div class="flex items-start gap-2"><div class="bg-blue-900 border border-blue-700 rounded-sm p-3 max-w-[85%] text-xs markdown-body">Hallo! Ik ben je Trading AI Assistant. Chat is gereset.</div></div>';
+            toggleAiSettings();
+          },
+        );
       }
 
       function toggleAiChat() {
