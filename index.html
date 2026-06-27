@@ -799,6 +799,37 @@
             </table>
           </div>
         </div>
+
+        <!-- CUSTOM WIDGET CHARTS -->
+        <div class="mt-8 pt-6 border-t border-terminal border-dashed">
+          <div class="flex justify-between items-center mb-4">
+            <h3
+              class="text-sm font-bold font-mono text-zinc-200 uppercase tracking-widest"
+            >
+              Aangepaste Grafieken
+            </h3>
+            <div class="space-x-2">
+              <button
+                onclick="snapCustomCharts()"
+                class="bg-zinc-800 border border-slate-600 text-xs text-zinc-300 hover:text-white px-3 py-1 rounded-sm font-mono transition-colors"
+              >
+                Snap Grafieken
+              </button>
+              <button
+                onclick="addCustomChart()"
+                class="bg-zinc-800 border border-slate-600 text-xs text-zinc-300 hover:text-white px-3 py-1 rounded-sm font-mono transition-colors"
+              >
+                + Voeg Grafiek Toe
+              </button>
+            </div>
+          </div>
+          <div
+            id="customChartsContainer"
+            class="flex flex-wrap gap-4 items-start"
+          >
+            <!-- Custom charts will be rendered here -->
+          </div>
+        </div>
       </div>
 
       <!-- CALENDAR VIEW -->
@@ -1473,12 +1504,6 @@
                 placeholder="CREATE STRATEGY VALUE..."
                 class="bg-terminal-input border border-terminal rounded-sm px-2 py-1 text-zinc-200 focus:outline-none flex-1 uppercase text-xs"
               />
-              <input
-                type="color"
-                id="newTagColorInput"
-                value="#64748b"
-                class="h-[26px] w-[26px] p-0 border border-terminal bg-terminal-input cursor-pointer rounded-sm"
-              />
               <button
                 onclick="createNewTag()"
                 class="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-terminal px-3 rounded-sm text-[11px]"
@@ -1618,6 +1643,83 @@
             class="px-4 py-1.5 bg-terminal-input border border-terminal rounded-sm hover:bg-zinc-800 text-white"
           >
             SLUITEN
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CUSTOM CHART SETTINGS MODAL -->
+    <div
+      id="customChartSettingsModal"
+      class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[110] px-4 hidden"
+      onclick="if (event.target === this) closeCustomChartSettingsModal();"
+    >
+      <div
+        class="bg-terminal-card border-2 border-zinc-500 shadow-[0_0_30px_rgba(0,0,0,0.8)] w-full max-w-md flex flex-col rounded-sm font-mono text-xs"
+      >
+        <div
+          class="flex justify-between items-center p-4 border-b border-terminal bg-zinc-900"
+        >
+          <span
+            class="text-[11px] font-bold tracking-widest text-zinc-300 uppercase"
+            >GRAFIEK INSTELLINGEN</span
+          >
+          <button
+            onclick="closeCustomChartSettingsModal()"
+            class="text-zinc-400 hover:text-white transition-colors"
+          >
+            <i class="fas fa-times text-sm"></i>
+          </button>
+        </div>
+        <div class="p-4 space-y-4">
+          <div>
+            <label
+              class="block text-[10px] text-zinc-400 uppercase tracking-wider mb-1"
+              >Filter Logica</label
+            >
+            <select
+              id="ccSettingsLogic"
+              class="w-full bg-terminal-input border border-terminal rounded-sm px-3 py-2 text-zinc-200 focus:outline-none"
+            >
+              <option value="AND">AND (Alle tags moeten aanwezig zijn)</option>
+              <option value="OR">
+                OR (Elke van deze tags mag aanwezig zijn)
+              </option>
+            </select>
+          </div>
+          <div>
+            <label
+              class="block text-[10px] text-zinc-400 uppercase tracking-wider mb-1"
+              >Actieve Tags</label
+            >
+            <div
+              id="ccSettingsActiveTags"
+              class="flex flex-wrap gap-1.5 mb-2 min-h-[30px] p-2 border border-terminal/50 bg-zinc-900/50 rounded-sm"
+            ></div>
+            <label
+              class="block text-[10px] text-zinc-400 uppercase tracking-wider mb-1"
+              >Beschikbare Tags</label
+            >
+            <div
+              id="ccSettingsAvailableTags"
+              class="flex flex-wrap gap-1.5 p-2 border border-terminal/50 rounded-sm"
+            ></div>
+          </div>
+        </div>
+        <div
+          class="p-4 border-t border-terminal bg-zinc-900/50 flex justify-end gap-2"
+        >
+          <button
+            onclick="closeCustomChartSettingsModal()"
+            class="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-sm transition-colors uppercase tracking-wider text-[10px] font-bold"
+          >
+            Annuleren
+          </button>
+          <button
+            onclick="saveCustomChartSettings()"
+            class="px-4 py-2 bg-zinc-200 hover:bg-white text-zinc-900 rounded-sm transition-colors uppercase tracking-wider text-[10px] font-bold"
+          >
+            Opslaan
           </button>
         </div>
       </div>
@@ -1927,8 +2029,8 @@
       } catch (err) {}
 
       var globalTags = [];
+      var customCharts = [];
 
-      var tagColors = {};
       var currentEditTags = [];
       var analyticsFilterTags = [];
       var analyticsFilterLogic =
@@ -1993,6 +2095,7 @@
         loadHiddenCols();
         loadCommissions();
         loadGlobalTags();
+        loadCustomCharts();
         loadData();
 
         // Setup initial MC stats
@@ -2088,18 +2191,32 @@
             "VWAP_BOUNCE",
           ];
         }
-
-        try {
-          var c = localStorage.getItem("qt_tag_colors_v3");
-          if (c) {
-            tagColors = JSON.parse(c);
-          }
-        } catch (e) {}
       }
 
       function saveGlobalTags() {
         localStorage.setItem("qt_global_tags_v3", JSON.stringify(globalTags));
-        localStorage.setItem("qt_tag_colors_v3", JSON.stringify(tagColors));
+      }
+
+      function loadCustomCharts() {
+        try {
+          var s = localStorage.getItem("qt_custom_charts_v1");
+          if (s) {
+            customCharts = JSON.parse(s);
+          }
+        } catch (e) {}
+      }
+
+      function saveCustomCharts() {
+        var toSave = customCharts.map(function (cc) {
+          return {
+            id: cc.id,
+            tags: cc.tags,
+            logic: cc.logic,
+            width: cc.width,
+            height: cc.height,
+          };
+        });
+        localStorage.setItem("qt_custom_charts_v1", JSON.stringify(toSave));
       }
 
       function loadCommissions() {
@@ -3615,11 +3732,8 @@
           var tagsHtml =
             (trade.tags || [])
               .map(function (tg) {
-                var c = tagColors[tg] || "#64748b";
                 return (
-                  '<span class="bg-zinc-800 text-zinc-300 px-1 py-0.5 rounded-sm text-[10px] mr-1 border border-zinc-700/50 uppercase" style="border-left: 3px solid ' +
-                  c +
-                  '">' +
+                  '<span class="bg-zinc-800 text-zinc-300 px-1 py-0.5 rounded-sm text-[10px] mr-1 border border-zinc-700/50 uppercase" style="border-left: 3px solid #64748b">' +
                   esc(tg) +
                   "</span>"
                 );
@@ -4067,11 +4181,9 @@
         var containerActive = document.getElementById("modalActiveTags");
         containerActive.innerHTML = "";
         currentEditTags.forEach(function (t) {
-          var c = tagColors[t] || "#64748b";
           var pill = document.createElement("span");
           pill.className =
             "bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded-sm text-[10px] font-bold uppercase tracking-wide flex items-center gap-1.5 select-none border border-zinc-700/50";
-          pill.style.borderLeft = "3px solid " + c;
           pill.innerHTML =
             esc(t) +
             '<i class="fas fa-times text-[8px] cursor-pointer text-zinc-400 hover:text-white transition-colors"></i>';
@@ -4088,51 +4200,27 @@
         containerAvailable.innerHTML = "";
         globalTags.forEach(function (t) {
           if (currentEditTags.indexOf(t) >= 0) return;
-          var c = tagColors[t] || "#64748b";
-
-          var wrapper = document.createElement("div");
-          wrapper.className = "flex items-center gap-0.5";
 
           var btn = document.createElement("button");
           btn.className =
-            "bg-terminal-input hover:bg-zinc-800 text-zinc-300 border border-terminal px-2 py-0.5 rounded-l-sm text-[10px] uppercase";
-          btn.style.borderLeft = "3px solid " + c;
+            "bg-terminal-input hover:bg-zinc-800 text-zinc-300 border border-terminal px-2 py-0.5 rounded-sm text-[10px] uppercase";
           btn.textContent = t;
           btn.onclick = function () {
             currentEditTags.push(t);
             renderModalTags();
           };
 
-          var colorPicker = document.createElement("input");
-          colorPicker.type = "color";
-          colorPicker.value = c;
-          colorPicker.className =
-            "h-[22px] w-[18px] p-0 border-y border-r border-terminal bg-terminal-input cursor-pointer rounded-r-sm";
-          colorPicker.onchange = function (e) {
-            tagColors[t] = e.target.value;
-            saveGlobalTags();
-            updateUI(); // live update table
-            renderModalTags();
-          };
-
-          wrapper.appendChild(btn);
-          wrapper.appendChild(colorPicker);
-          containerAvailable.appendChild(wrapper);
+          containerAvailable.appendChild(btn);
         });
       }
 
       function createNewTag() {
         var input = document.getElementById("newTagInput");
-        var colorInput = document.getElementById("newTagColorInput") || {
-          value: "#64748b",
-        };
         var val = input.value.trim().toUpperCase().replace(/\s+/g, "_");
         if (!val) return;
         if (globalTags.indexOf(val) === -1) {
           globalTags.push(val);
         }
-        // Also update color
-        tagColors[val] = colorInput.value;
         saveGlobalTags();
 
         if (currentEditTags.indexOf(val) === -1) {
@@ -4281,11 +4369,8 @@
 
           var tagsHtml = (trade.tags || [])
             .map(function (tg) {
-              var cc = tagColors[tg] || "#64748b";
               return (
-                '<span class="bg-zinc-800 text-zinc-300 px-1 py-0.5 rounded-sm text-[10px] mr-1 border border-zinc-700/50 uppercase" style="border-left: 3px solid ' +
-                cc +
-                '">' +
+                '<span class="bg-zinc-800 text-zinc-300 px-1 py-0.5 rounded-sm text-[10px] mr-1 border border-zinc-700/50 uppercase" style="border-left: 3px solid #64748b">' +
                 esc(tg) +
                 "</span>"
               );
@@ -4498,13 +4583,12 @@
         globalTags.forEach(function (t) {
           var active = analyticsFilterTags.indexOf(t) >= 0;
           var btn = document.createElement("button");
-          var c = tagColors[t] || "#64748b";
           btn.className =
             "px-2.5 py-1 rounded-sm text-xs border transition-colors uppercase font-mono " +
             (active
               ? "bg-white text-black border-white font-bold"
               : "bg-terminal-input text-zinc-300 border-terminal hover:text-white");
-          btn.style.borderLeft = "4px solid " + c;
+          btn.style.borderLeft = "4px solid #64748b";
           btn.textContent = t;
           btn.onclick = function () {
             if (active) {
@@ -4530,11 +4614,8 @@
           var row = document.createElement("div");
           row.className =
             "flex justify-between items-center bg-terminal-input/50 border border-terminal/60 rounded-sm px-2 py-1 text-[11px]";
-          var c = tagColors[t] || "#64748b";
           row.innerHTML =
-            '<span class="text-zinc-300 uppercase font-mono tracking-tight pt-1 pb-1" style="border-bottom: 2px solid ' +
-            c +
-            ';">' +
+            '<span class="text-zinc-300 uppercase font-mono tracking-tight pt-1 pb-1" style="border-bottom: 2px solid #64748b;">' +
             esc(t) +
             "</span>" +
             '<button class="text-zinc-300 hover:text-red-400 transition-colors font-bold text-xs px-1">&times;</button>';
@@ -4545,6 +4626,7 @@
         });
 
         calculateTagSpecificMetrics();
+        renderCustomCharts();
       }
 
       function purgeGlobalTagPermanently(tagName) {
@@ -4643,11 +4725,8 @@
               : trade.dateStr;
           var badges = trade.tags
             .map(function (tg) {
-              var c = tagColors[tg] || "#64748b";
               return (
-                '<span class="bg-zinc-800 text-zinc-300 px-1 py-0.5 rounded-sm text-[10px] mr-1 border border-zinc-700/40 uppercase" style="border-left: 3px solid ' +
-                c +
-                '">' +
+                '<span class="bg-zinc-800 text-zinc-300 px-1 py-0.5 rounded-sm text-[10px] mr-1 border border-zinc-700/40 uppercase" style="border-left: 3px solid #64748b">' +
                 esc(tg) +
                 "</span>"
               );
@@ -4837,6 +4916,319 @@
         });
       }
 
+      function renderCustomCharts() {
+        var container = document.getElementById("customChartsContainer");
+        if (!container) return;
+        container.innerHTML = "";
+
+        customCharts.forEach(function (cc, index) {
+          if (!cc.width) cc.width = 400;
+          if (!cc.height) cc.height = 250;
+
+          var wrapper = document.createElement("div");
+          wrapper.className =
+            "bg-terminal-card border border-terminal rounded-sm relative flex flex-col";
+          wrapper.style.width = cc.width + "px";
+          wrapper.style.height = cc.height + "px";
+          wrapper.style.resize = "both";
+          wrapper.style.overflow = "hidden";
+
+          wrapper.onmouseup = function () {
+            if (
+              wrapper.offsetWidth !== cc.width ||
+              wrapper.offsetHeight !== cc.height
+            ) {
+              cc.width = wrapper.offsetWidth;
+              cc.height = wrapper.offsetHeight;
+              saveCustomCharts();
+              if (cc.chartInstance) {
+                cc.chartInstance.resize();
+              }
+            }
+          };
+
+          var header = document.createElement("div");
+          header.className =
+            "flex justify-between items-center bg-zinc-900 border-b border-terminal px-2 py-1";
+
+          var titleStr = "ALL TRADES";
+          if (cc.tags && cc.tags.length > 0) {
+            titleStr = cc.tags.join(cc.logic === "AND" ? " + " : " | ");
+          }
+          var title = document.createElement("div");
+          title.className =
+            "text-[10px] text-slate-300 uppercase tracking-widest font-mono flex-1 overflow-hidden text-ellipsis whitespace-nowrap";
+          title.innerText = titleStr;
+
+          var controls = document.createElement("div");
+          controls.className = "flex items-center gap-2";
+
+          var editBtn = document.createElement("button");
+          editBtn.className = "text-zinc-400 hover:text-white";
+          editBtn.innerHTML = '<i class="fas fa-cog text-[10px]"></i>';
+          editBtn.onclick = function () {
+            openCustomChartSettings(index);
+          };
+
+          var delBtn = document.createElement("button");
+          delBtn.className = "text-zinc-400 hover:text-red-400";
+          delBtn.innerHTML = '<i class="fas fa-times text-[10px]"></i>';
+          delBtn.onclick = function () {
+            if (confirm("Grafiek verwijderen?")) {
+              customCharts.splice(index, 1);
+              saveCustomCharts();
+              renderCustomCharts();
+            }
+          };
+
+          controls.appendChild(editBtn);
+          controls.appendChild(delBtn);
+          header.appendChild(title);
+          header.appendChild(controls);
+          wrapper.appendChild(header);
+
+          var body = document.createElement("div");
+          body.className = "flex-1 w-full relative p-2";
+          var canvas = document.createElement("canvas");
+          canvas.id = "customChartCanvas_" + index;
+          body.appendChild(canvas);
+          wrapper.appendChild(body);
+
+          container.appendChild(wrapper);
+
+          renderCustomChartCanvas(cc, canvas);
+
+          if (window.ResizeObserver) {
+            var ro = new ResizeObserver(function () {
+              if (
+                wrapper.offsetWidth !== cc.width ||
+                wrapper.offsetHeight !== cc.height
+              ) {
+                cc.width = wrapper.offsetWidth;
+                cc.height = wrapper.offsetHeight;
+                saveCustomCharts();
+                if (cc.chartInstance) {
+                  cc.chartInstance.resize();
+                }
+              }
+            });
+            ro.observe(wrapper);
+          }
+        });
+      }
+
+      function renderCustomChartCanvas(cc, canvas) {
+        if (cc.chartInstance) {
+          cc.chartInstance.destroy();
+        }
+
+        var pool = getFilteredTrades();
+        var matches = pool.filter(function (t) {
+          if (!cc.tags || cc.tags.length === 0) return true;
+          if (cc.logic === "OR") {
+            return cc.tags.some(function (nt) {
+              return t.tags && t.tags.indexOf(nt) >= 0;
+            });
+          } else {
+            return cc.tags.every(function (nt) {
+              return t.tags && t.tags.indexOf(nt) >= 0;
+            });
+          }
+        });
+
+        var chron = matches.slice().sort(function (a, b) {
+          return a.time - b.time;
+        });
+        var cum = 0;
+        var labels = chron.map(function (t) {
+          return t.time instanceof Date && !isNaN(t.time)
+            ? fmtDateCore(t.time)
+            : t.dateStr || "Unknown";
+        });
+        var data = chron.map(function (t) {
+          var f = t.fee || 0;
+          cum += t.pnl - f;
+          return Math.round(cum * 100) / 100;
+        });
+
+        var ctx = canvas.getContext("2d");
+        var isProfitable = cum >= 0;
+        var lineColor = isProfitable ? "#34d399" : "#f87171";
+        var gradientCss = isProfitable
+          ? "rgba(52, 211, 153,"
+          : "rgba(248, 113, 113,";
+        var gradient = ctx.createLinearGradient(0, 0, 0, cc.height || 300);
+        gradient.addColorStop(0, gradientCss + " 0.2)");
+        gradient.addColorStop(1, gradientCss + " 0)");
+
+        cc.chartInstance = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: "Netto P&L",
+                data: data,
+                borderColor: lineColor,
+                backgroundColor: gradient,
+                borderWidth: 2,
+                fill: true,
+                tension: 0.1,
+                pointRadius: 0,
+                pointHoverRadius: 4,
+                pointBackgroundColor: "#fff",
+                pointHoverBackgroundColor: lineColor,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: false,
+            interaction: {
+              mode: "index",
+              intersect: false,
+            },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: "rgba(9, 9, 11, 0.9)",
+                titleColor: "#fff",
+                bodyColor: "#fff",
+                borderColor: "#27272a",
+                borderWidth: 1,
+                padding: 8,
+                displayColors: false,
+                callbacks: {
+                  label: function (ctx) {
+                    return fmtUSD(ctx.parsed.y);
+                  },
+                },
+              },
+            },
+            scales: {
+              x: { display: false },
+              y: {
+                display: true,
+                position: "right",
+                grid: { color: "rgba(255,255,255,0.05)", drawBorder: false },
+                ticks: {
+                  color: "rgba(255,255,255,0.4)",
+                  font: {
+                    family: "monospace",
+                    size: 9,
+                  },
+                  callback: function (val) {
+                    return "$" + val;
+                  },
+                },
+              },
+            },
+          },
+        });
+      }
+
+      function addCustomChart() {
+        customCharts.push({
+          id: "cc_" + Date.now(),
+          tags: [],
+          logic: "AND",
+          width: 400,
+          height: 250,
+        });
+        saveCustomCharts();
+        renderCustomCharts();
+      }
+
+      function snapCustomCharts() {
+        var container = document.getElementById("customChartsContainer");
+        if (!container) return;
+        var containerWidth = container.clientWidth;
+        var gap = 16;
+        var cols = 3;
+        if (containerWidth < 800) cols = 2;
+        if (containerWidth < 500) cols = 1;
+
+        var targetWidth =
+          Math.floor((containerWidth - gap * (cols - 1)) / cols) - 1;
+        if (targetWidth < 200) targetWidth = 200;
+
+        customCharts.forEach(function (cc) {
+          cc.width = targetWidth;
+          cc.height = 250;
+        });
+        saveCustomCharts();
+        renderCustomCharts();
+      }
+
+      var currentEditChartIndex = -1;
+      var ccModalTempTags = [];
+
+      function openCustomChartSettings(index) {
+        currentEditChartIndex = index;
+        var cc = customCharts[index];
+        document.getElementById("ccSettingsLogic").value = cc.logic || "AND";
+        ccModalTempTags = (cc.tags || []).slice();
+        renderCCModalTags();
+        document
+          .getElementById("customChartSettingsModal")
+          .classList.remove("hidden");
+      }
+
+      function closeCustomChartSettingsModal() {
+        document
+          .getElementById("customChartSettingsModal")
+          .classList.add("hidden");
+        currentEditChartIndex = -1;
+      }
+
+      function renderCCModalTags() {
+        var activeContainer = document.getElementById("ccSettingsActiveTags");
+        activeContainer.innerHTML = "";
+        ccModalTempTags.forEach(function (t) {
+          var pill = document.createElement("span");
+          pill.className =
+            "bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded-sm text-[10px] font-bold uppercase tracking-wide flex items-center gap-1.5 select-none border border-zinc-700/50";
+          pill.style.borderLeft = "3px solid #64748b";
+          pill.innerHTML =
+            esc(t) +
+            '<i class="fas fa-times text-[8px] cursor-pointer text-zinc-400 hover:text-white transition-colors"></i>';
+          pill.querySelector("i").onclick = function () {
+            ccModalTempTags = ccModalTempTags.filter(function (x) {
+              return x !== t;
+            });
+            renderCCModalTags();
+          };
+          activeContainer.appendChild(pill);
+        });
+
+        var availContainer = document.getElementById("ccSettingsAvailableTags");
+        availContainer.innerHTML = "";
+        globalTags.forEach(function (t) {
+          if (ccModalTempTags.indexOf(t) >= 0) return;
+          var btn = document.createElement("button");
+          btn.className =
+            "bg-terminal-input hover:bg-zinc-800 text-zinc-300 border border-terminal px-2 py-0.5 rounded-sm text-[10px] uppercase";
+          btn.textContent = t;
+          btn.onclick = function () {
+            ccModalTempTags.push(t);
+            renderCCModalTags();
+          };
+          availContainer.appendChild(btn);
+        });
+      }
+
+      function saveCustomChartSettings() {
+        if (currentEditChartIndex >= 0 && customCharts[currentEditChartIndex]) {
+          var cc = customCharts[currentEditChartIndex];
+          cc.logic = document.getElementById("ccSettingsLogic").value;
+          cc.tags = ccModalTempTags.slice();
+          saveCustomCharts();
+          renderCustomCharts();
+        }
+        closeCustomChartSettingsModal();
+      }
+
       function fmtUSD(n) {
         return new Intl.NumberFormat("en-US", {
           style: "currency",
@@ -4853,11 +5245,21 @@
       }
 
       function exportBackup() {
+        var cleanCustomCharts = customCharts.map(function (cc) {
+          return {
+            id: cc.id,
+            tags: cc.tags,
+            logic: cc.logic,
+            width: cc.width,
+            height: cc.height,
+          };
+        });
+
         var data = {
           trades: trades,
           globalTags: globalTags,
-          tagColors: tagColors,
           commissionRules: commissionRules,
+          customCharts: cleanCustomCharts,
         };
         var backupDataString = JSON.stringify(data, null, 2);
 
@@ -4918,14 +5320,16 @@
                 globalTags = importedData.knownTags;
               }
 
-              if (importedData.tagColors) {
-                tagColors = importedData.tagColors;
-              }
               saveGlobalTags();
 
               if (importedData.commissionRules) {
                 commissionRules = importedData.commissionRules;
                 saveCommissions();
+              }
+
+              if (importedData.customCharts) {
+                customCharts = importedData.customCharts;
+                saveCustomCharts();
               }
 
               saveData();
@@ -5720,7 +6124,6 @@
             })
             .slice(-2500),
           globalTags: globalTags,
-          tagColors: tagColors,
           commissionRules: commissionRules,
         };
 
