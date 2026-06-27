@@ -825,7 +825,8 @@
           </div>
           <div
             id="customChartsContainer"
-            class="flex flex-wrap gap-4 items-start"
+            class="relative w-full"
+            style="min-height: 400px"
           >
             <!-- Custom charts will be rendered here -->
           </div>
@@ -4927,29 +4928,139 @@
 
           var wrapper = document.createElement("div");
           wrapper.className =
-            "bg-terminal-card border border-terminal rounded-sm relative flex flex-col";
+            "bg-terminal-card border border-terminal rounded-sm absolute flex flex-col";
           wrapper.style.width = cc.width + "px";
           wrapper.style.height = cc.height + "px";
-          wrapper.style.resize = "both";
+          wrapper.style.left = (cc.x || 0) + "px";
+          wrapper.style.top = (cc.y || 0) + "px";
           wrapper.style.overflow = "hidden";
 
-          wrapper.onmouseup = function () {
-            if (
-              wrapper.offsetWidth !== cc.width ||
-              wrapper.offsetHeight !== cc.height
-            ) {
-              cc.width = wrapper.offsetWidth;
-              cc.height = wrapper.offsetHeight;
-              saveCustomCharts();
-              if (cc.chartInstance) {
-                cc.chartInstance.resize();
-              }
-            }
+          var updateContainerHeight = function () {
+            var maxH = 0;
+            customCharts.forEach(function (c) {
+              var bottom = (c.y || 0) + (c.height || 250);
+              if (bottom > maxH) maxH = bottom;
+            });
+            container.style.minHeight = maxH + 100 + "px";
           };
+          updateContainerHeight();
 
           var header = document.createElement("div");
           header.className =
-            "flex justify-between items-center bg-zinc-900 border-b border-terminal px-2 py-1";
+            "flex justify-between items-center bg-zinc-900 border-b border-terminal px-2 py-1 cursor-move";
+
+          header.onpointerdown = function (e) {
+            if (e.target.tagName === "BUTTON" || e.target.closest("button"))
+              return;
+            e.preventDefault();
+            e.target.setPointerCapture(e.pointerId);
+            var startX = e.clientX;
+            var startY = e.clientY;
+            var startCcX = cc.x || 0;
+            var startCcY = cc.y || 0;
+
+            wrapper.style.zIndex = 100;
+
+            var guideX = document.getElementById("snapGuideX");
+            var guideY = document.getElementById("snapGuideY");
+            if (!guideX) {
+              guideX = document.createElement("div");
+              guideX.id = "snapGuideX";
+              guideX.className =
+                "absolute bg-emerald-500/50 pointer-events-none z-[50]";
+              guideX.style.width = "1px";
+              guideX.style.height = "100%";
+              guideX.style.top = "0";
+              container.appendChild(guideX);
+
+              guideY = document.createElement("div");
+              guideY.id = "snapGuideY";
+              guideY.className =
+                "absolute bg-emerald-500/50 pointer-events-none z-[50]";
+              guideY.style.height = "1px";
+              guideY.style.width = "100%";
+              guideY.style.left = "0";
+              container.appendChild(guideY);
+            }
+            guideX.style.display = "none";
+            guideY.style.display = "none";
+
+            var onPointerMove = function (ev) {
+              var dx = ev.clientX - startX;
+              var dy = ev.clientY - startY;
+              var newX = startCcX + dx;
+              var newY = startCcY + dy;
+              if (newX < 0) newX = 0;
+              if (newY < 0) newY = 0;
+
+              var snapThresh = 15;
+              var snappedX = false;
+              var snappedY = false;
+
+              customCharts.forEach(function (other) {
+                if (other === cc) return;
+                var targetXs = [other.x, other.x + other.width];
+                targetXs.forEach(function (targetX) {
+                  if (!snappedX && Math.abs(newX - targetX) < snapThresh) {
+                    newX = targetX;
+                    snappedX = true;
+                    guideX.style.display = "block";
+                    guideX.style.left = targetX + "px";
+                  }
+                  if (
+                    !snappedX &&
+                    Math.abs(newX + cc.width - targetX) < snapThresh
+                  ) {
+                    newX = targetX - cc.width;
+                    snappedX = true;
+                    guideX.style.display = "block";
+                    guideX.style.left = targetX + "px";
+                  }
+                });
+
+                var targetYs = [other.y, other.y + other.height];
+                targetYs.forEach(function (targetY) {
+                  if (!snappedY && Math.abs(newY - targetY) < snapThresh) {
+                    newY = targetY;
+                    snappedY = true;
+                    guideY.style.display = "block";
+                    guideY.style.top = targetY + "px";
+                  }
+                  if (
+                    !snappedY &&
+                    Math.abs(newY + cc.height - targetY) < snapThresh
+                  ) {
+                    newY = targetY - cc.height;
+                    snappedY = true;
+                    guideY.style.display = "block";
+                    guideY.style.top = targetY + "px";
+                  }
+                });
+              });
+
+              if (!snappedX) guideX.style.display = "none";
+              if (!snappedY) guideY.style.display = "none";
+
+              wrapper.style.left = newX + "px";
+              wrapper.style.top = newY + "px";
+              cc.x = newX;
+              cc.y = newY;
+            };
+
+            var onPointerUp = function (ev) {
+              e.target.releasePointerCapture(ev.pointerId);
+              header.removeEventListener("pointermove", onPointerMove);
+              header.removeEventListener("pointerup", onPointerUp);
+              wrapper.style.zIndex = "";
+              if (guideX) guideX.style.display = "none";
+              if (guideY) guideY.style.display = "none";
+              saveCustomCharts();
+              updateContainerHeight();
+            };
+
+            header.addEventListener("pointermove", onPointerMove);
+            header.addEventListener("pointerup", onPointerUp);
+          };
 
           var titleStr = "ALL TRADES";
           if (cc.tags && cc.tags.length > 0) {
@@ -4961,25 +5072,36 @@
           title.innerText = titleStr;
 
           var controls = document.createElement("div");
-          controls.className = "flex items-center gap-2";
+          controls.className =
+            "flex items-center gap-2 pointer-events-auto z-50 relative";
 
           var editBtn = document.createElement("button");
-          editBtn.className = "text-zinc-400 hover:text-white";
-          editBtn.innerHTML = '<i class="fas fa-cog text-[10px]"></i>';
-          editBtn.onclick = function () {
+          editBtn.className =
+            "text-zinc-400 hover:text-white p-1 cursor-pointer";
+          editBtn.innerHTML = '<i class="fas fa-cog text-[12px]"></i>';
+          editBtn.addEventListener("pointerdown", function (e) {
+            e.stopPropagation();
+          });
+          editBtn.addEventListener("click", function (e) {
+            e.stopPropagation();
             openCustomChartSettings(index);
-          };
+          });
 
           var delBtn = document.createElement("button");
-          delBtn.className = "text-zinc-400 hover:text-red-400";
-          delBtn.innerHTML = '<i class="fas fa-times text-[10px]"></i>';
-          delBtn.onclick = function () {
+          delBtn.className =
+            "text-zinc-400 hover:text-red-400 p-1 cursor-pointer z-50 relative pointer-events-auto";
+          delBtn.innerHTML = '<i class="fas fa-times text-[12px]"></i>';
+          delBtn.addEventListener("pointerdown", function (e) {
+            e.stopPropagation();
+          });
+          delBtn.addEventListener("click", function (e) {
+            e.stopPropagation();
             if (confirm("Grafiek verwijderen?")) {
               customCharts.splice(index, 1);
               saveCustomCharts();
               renderCustomCharts();
             }
-          };
+          });
 
           controls.appendChild(editBtn);
           controls.appendChild(delBtn);
@@ -4994,26 +5116,126 @@
           body.appendChild(canvas);
           wrapper.appendChild(body);
 
+          var resizer = document.createElement("div");
+          resizer.className =
+            "absolute bottom-0 right-0 w-4 h-4 cursor-se-resize z-10 flex items-end justify-end p-0.5 text-zinc-500 hover:text-white";
+          resizer.innerHTML =
+            '<svg viewBox="0 0 10 10" class="w-2.5 h-2.5"><path d="M8 10V8H10V10H8ZM5 10V8H7V10H5ZM8 7V5H10V7H8ZM2 10V8H4V10H2ZM5 7V5H7V7H5ZM8 4V2H10V4H8Z" fill="currentColor"/></svg>';
+          wrapper.appendChild(resizer);
+
+          resizer.onpointerdown = function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.target.setPointerCapture(e.pointerId);
+            var startX = e.clientX;
+            var startY = e.clientY;
+            var startW = cc.width || 400;
+            var startH = cc.height || 250;
+
+            var guideX = document.getElementById("snapGuideX");
+            var guideY = document.getElementById("snapGuideY");
+
+            var onPointerMove = function (ev) {
+              var dx = ev.clientX - startX;
+              var dy = ev.clientY - startY;
+              var newW = startW + dx;
+              var newH = startH + dy;
+              if (newW < 200) newW = 200;
+              if (newH < 150) newH = 150;
+
+              var snapThresh = 15;
+              var snappedX = false;
+              var snappedY = false;
+
+              var currentRight = (cc.x || 0) + newW;
+              var currentBottom = (cc.y || 0) + newH;
+
+              customCharts.forEach(function (other) {
+                if (other === cc) return;
+
+                if (!snappedX && Math.abs(newW - other.width) < snapThresh) {
+                  newW = other.width;
+                  snappedX = true;
+                }
+                if (
+                  !snappedX &&
+                  Math.abs(currentRight - other.x) < snapThresh
+                ) {
+                  newW = other.x - (cc.x || 0);
+                  snappedX = true;
+                  if (guideX) {
+                    guideX.style.display = "block";
+                    guideX.style.left = other.x + "px";
+                  }
+                }
+                if (
+                  !snappedX &&
+                  Math.abs(currentRight - (other.x + other.width)) < snapThresh
+                ) {
+                  newW = other.x + other.width - (cc.x || 0);
+                  snappedX = true;
+                  if (guideX) {
+                    guideX.style.display = "block";
+                    guideX.style.left = other.x + other.width + "px";
+                  }
+                }
+
+                if (!snappedY && Math.abs(newH - other.height) < snapThresh) {
+                  newH = other.height;
+                  snappedY = true;
+                }
+                if (
+                  !snappedY &&
+                  Math.abs(currentBottom - other.y) < snapThresh
+                ) {
+                  newH = other.y - (cc.y || 0);
+                  snappedY = true;
+                  if (guideY) {
+                    guideY.style.display = "block";
+                    guideY.style.top = other.y + "px";
+                  }
+                }
+                if (
+                  !snappedY &&
+                  Math.abs(currentBottom - (other.y + other.height)) <
+                    snapThresh
+                ) {
+                  newH = other.y + other.height - (cc.y || 0);
+                  snappedY = true;
+                  if (guideY) {
+                    guideY.style.display = "block";
+                    guideY.style.top = other.y + other.height + "px";
+                  }
+                }
+              });
+
+              if (!snappedX && guideX) guideX.style.display = "none";
+              if (!snappedY && guideY) guideY.style.display = "none";
+
+              wrapper.style.width = newW + "px";
+              wrapper.style.height = newH + "px";
+              cc.width = newW;
+              cc.height = newH;
+              if (cc.chartInstance) cc.chartInstance.resize();
+            };
+
+            var onPointerUp = function (ev) {
+              e.target.releasePointerCapture(ev.pointerId);
+              resizer.removeEventListener("pointermove", onPointerMove);
+              resizer.removeEventListener("pointerup", onPointerUp);
+              if (guideX) guideX.style.display = "none";
+              if (guideY) guideY.style.display = "none";
+              saveCustomCharts();
+              updateContainerHeight();
+            };
+
+            resizer.addEventListener("pointermove", onPointerMove);
+            resizer.addEventListener("pointerup", onPointerUp);
+          };
+
           container.appendChild(wrapper);
 
           renderCustomChartCanvas(cc, canvas);
-
-          if (window.ResizeObserver) {
-            var ro = new ResizeObserver(function () {
-              if (
-                wrapper.offsetWidth !== cc.width ||
-                wrapper.offsetHeight !== cc.height
-              ) {
-                cc.width = wrapper.offsetWidth;
-                cc.height = wrapper.offsetHeight;
-                saveCustomCharts();
-                if (cc.chartInstance) {
-                  cc.chartInstance.resize();
-                }
-              }
-            });
-            ro.observe(wrapper);
-          }
         });
       }
 
@@ -5129,12 +5351,21 @@
       }
 
       function addCustomChart() {
+        var maxY = 0;
+        customCharts.forEach(function (cc) {
+          var b = (cc.y || 0) + (cc.height || 250);
+          if (b > maxY) maxY = b;
+        });
+        if (maxY > 0) maxY += 16;
+
         customCharts.push({
           id: "cc_" + Date.now(),
           tags: [],
           logic: "AND",
           width: 400,
           height: 250,
+          x: 0,
+          y: maxY,
         });
         saveCustomCharts();
         renderCustomCharts();
@@ -5153,9 +5384,25 @@
           Math.floor((containerWidth - gap * (cols - 1)) / cols) - 1;
         if (targetWidth < 200) targetWidth = 200;
 
+        var row = 0;
+        var col = 0;
+        var yOffset = 0;
+        var rowHeight = 250;
+
         customCharts.forEach(function (cc) {
           cc.width = targetWidth;
-          cc.height = 250;
+          cc.height = rowHeight;
+
+          if (col >= cols) {
+            col = 0;
+            row++;
+            yOffset += rowHeight + gap;
+          }
+
+          cc.x = col * (targetWidth + gap);
+          cc.y = yOffset;
+
+          col++;
         });
         saveCustomCharts();
         renderCustomCharts();
