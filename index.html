@@ -611,13 +611,45 @@
                 id="analyticsLogicLabel"
                 >Tag Filter (AND-Logica)</span
               >
-              <button
-                onclick="toggleAnalyticsLogic()"
-                id="analyticsLogicToggleBtn"
-                class="bg-zinc-800 border border-slate-600 text-xs text-zinc-300 hover:text-white px-2 py-0.5 rounded-sm font-mono transition-colors"
-              >
-                Switch OR-Logica
-              </button>
+              <div class="relative">
+                <button
+                  onclick="
+                    document
+                      .getElementById('analyticsLogicDropdownMenu')
+                      .classList.toggle('hidden')
+                  "
+                  id="analyticsLogicDropdownBtn"
+                  class="bg-zinc-800 border border-slate-600 text-xs text-zinc-300 hover:text-white px-3 py-1 rounded-sm font-mono transition-colors flex items-center gap-2"
+                >
+                  <span id="analyticsLogicCurrentText">AND-Logica</span>
+                  <i class="fas fa-chevron-down text-[10px]"></i>
+                </button>
+                <div
+                  id="analyticsLogicDropdownMenu"
+                  class="hidden absolute right-0 top-full mt-1 w-48 bg-zinc-900 border border-zinc-700 rounded-sm shadow-xl z-[100] py-1"
+                >
+                  <button
+                    onclick="setAnalyticsLogic('AND')"
+                    class="w-full text-left px-3 py-2 text-xs font-mono text-zinc-300 hover:bg-zinc-800 hover:text-white flex items-center justify-between"
+                  >
+                    <span>AND (Alle tags)</span>
+                    <i
+                      id="logicCheckAND"
+                      class="fas fa-check text-emerald-500 hidden"
+                    ></i>
+                  </button>
+                  <button
+                    onclick="setAnalyticsLogic('OR')"
+                    class="w-full text-left px-3 py-2 text-xs font-mono text-zinc-300 hover:bg-zinc-800 hover:text-white flex items-center justify-between"
+                  >
+                    <span>OR (Elke tag)</span>
+                    <i
+                      id="logicCheckOR"
+                      class="fas fa-check text-emerald-500 hidden"
+                    ></i>
+                  </button>
+                </div>
+              </div>
             </div>
             <div id="analyticsTagCloud" class="flex flex-wrap gap-1.5"></div>
           </div>
@@ -1673,7 +1705,7 @@
           </button>
         </div>
         <div class="p-4 space-y-4">
-          <div>
+          <div class="hidden">
             <label
               class="block text-[10px] text-zinc-400 uppercase tracking-wider mb-1"
               >Filter Logica</label
@@ -1682,8 +1714,7 @@
               id="ccSettingsLogic"
               class="w-full bg-terminal-input border border-terminal rounded-sm px-3 py-2 text-zinc-200 focus:outline-none"
             >
-              <option value="AND">AND (Alle tags moeten aanwezig zijn)</option>
-              <option value="OR">
+              <option value="OR" selected>
                 OR (Elke van deze tags mag aanwezig zijn)
               </option>
             </select>
@@ -4562,22 +4593,42 @@
       }
 
       // ---- INTERSECTIVE MATRIX & POOL PURGE LOGIC ----
-      function toggleAnalyticsLogic() {
-        analyticsFilterLogic = analyticsFilterLogic === "AND" ? "OR" : "AND";
+      document.addEventListener('click', function(event) {
+        var dropdown = document.getElementById('analyticsLogicDropdownMenu');
+        var btn = document.getElementById('analyticsLogicDropdownBtn');
+        if (dropdown && btn && !dropdown.classList.contains('hidden')) {
+          if (!dropdown.contains(event.target) && !btn.contains(event.target)) {
+            dropdown.classList.add('hidden');
+          }
+        }
+      });
+
+      function setAnalyticsLogic(logic) {
+        analyticsFilterLogic = logic;
         localStorage.setItem("qt_analytics_logic", analyticsFilterLogic);
+        document
+          .getElementById("analyticsLogicDropdownMenu")
+          .classList.add("hidden");
         renderAnalyticsView();
       }
 
       function renderAnalyticsView() {
         var label = document.getElementById("analyticsLogicLabel");
-        var btnSwitch = document.getElementById("analyticsLogicToggleBtn");
+        var currentText = document.getElementById("analyticsLogicCurrentText");
+        var checkAND = document.getElementById("logicCheckAND");
+        var checkOR = document.getElementById("logicCheckOR");
+
         if (label)
           label.innerText = "Tag Filter (" + analyticsFilterLogic + "-Logica)";
-        if (btnSwitch)
-          btnSwitch.innerText =
-            "Switch " +
-            (analyticsFilterLogic === "AND" ? "OR" : "AND") +
-            "-Logica";
+
+        if (currentText)
+          currentText.innerText = analyticsFilterLogic + "-Logica";
+
+        if (checkAND)
+          checkAND.classList.toggle("hidden", analyticsFilterLogic !== "AND");
+
+        if (checkOR)
+          checkOR.classList.toggle("hidden", analyticsFilterLogic !== "OR");
 
         var cloud = document.getElementById("analyticsTagCloud");
         cloud.innerHTML = "";
@@ -5361,7 +5412,7 @@
         customCharts.push({
           id: "cc_" + Date.now(),
           tags: [],
-          logic: "AND",
+          logic: "OR",
           width: 400,
           height: 250,
           x: 0,
@@ -5414,7 +5465,9 @@
       function openCustomChartSettings(index) {
         currentEditChartIndex = index;
         var cc = customCharts[index];
-        document.getElementById("ccSettingsLogic").value = cc.logic || "AND";
+        // Enforce OR logic for custom charts as requested
+        cc.logic = "OR";
+        document.getElementById("ccSettingsLogic").value = "OR";
         ccModalTempTags = (cc.tags || []).slice();
         renderCCModalTags();
         document
