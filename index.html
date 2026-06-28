@@ -2246,6 +2246,8 @@
             logic: cc.logic,
             width: cc.width,
             height: cc.height,
+            x: cc.x,
+            y: cc.y,
           };
         });
         localStorage.setItem("qt_custom_charts_v1", JSON.stringify(toSave));
@@ -4593,12 +4595,12 @@
       }
 
       // ---- INTERSECTIVE MATRIX & POOL PURGE LOGIC ----
-      document.addEventListener('click', function(event) {
-        var dropdown = document.getElementById('analyticsLogicDropdownMenu');
-        var btn = document.getElementById('analyticsLogicDropdownBtn');
-        if (dropdown && btn && !dropdown.classList.contains('hidden')) {
+      document.addEventListener("click", function (event) {
+        var dropdown = document.getElementById("analyticsLogicDropdownMenu");
+        var btn = document.getElementById("analyticsLogicDropdownBtn");
+        if (dropdown && btn && !dropdown.classList.contains("hidden")) {
           if (!dropdown.contains(event.target) && !btn.contains(event.target)) {
-            dropdown.classList.add('hidden');
+            dropdown.classList.add("hidden");
           }
         }
       });
@@ -5552,6 +5554,8 @@
             logic: cc.logic,
             width: cc.width,
             height: cc.height,
+            x: cc.x,
+            y: cc.y,
           };
         });
 
