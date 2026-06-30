@@ -203,6 +203,13 @@
           >
             [ 04. MONTE CARLO ]
           </button>
+          <button
+            onclick="switchTab('flowchart')"
+            id="tab-flowchart"
+            class="py-1 border-b-2 border-transparent transition-colors hover:text-zinc-200"
+          >
+            [ 05. FLOW CHARTS ]
+          </button>
         </div>
       </div>
 
@@ -1204,9 +1211,426 @@
           </div>
         </div>
       </div>
+
+      <!-- FLOW CHARTS VIEW -->
+      <div
+        id="view-flowchart"
+        class="space-y-6 hidden pb-20 font-sans h-[80vh] flex flex-col relative"
+      >
+        <div
+          class="flex justify-between items-center bg-terminal-card border border-terminal p-3 rounded-sm font-mono text-xs gap-2"
+        >
+          <div class="flex items-center gap-4">
+            <span class="text-zinc-400 font-bold tracking-widest uppercase"
+              >Selecteer Strategie Flow:</span
+            >
+            <select
+              id="flowchartSelector"
+              onchange="loadSelectedFlowchart()"
+              class="bg-terminal-input border border-slate-600 rounded-sm px-2 py-1 text-zinc-200 outline-none w-48 text-xs"
+            >
+              <!-- Options loaded dynamically -->
+            </select>
+          </div>
+          <div class="flex gap-2">
+            <button
+              onclick="createNewFlowchart()"
+              class="bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-sm font-bold uppercase transition-colors text-xs flex items-center gap-2"
+            >
+              <i class="fas fa-plus"></i> Nieuw
+            </button>
+            <button
+              onclick="deleteCurrentFlowchart()"
+              class="bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-sm font-bold uppercase transition-colors text-xs flex items-center gap-2"
+            >
+              <i class="fas fa-trash"></i> Verwijder
+            </button>
+          </div>
+        </div>
+
+        <div
+          class="flex-1 bg-terminal-card border border-terminal rounded-sm relative overflow-hidden flex"
+          id="flowchartWorkspace"
+        >
+          <!-- Toolbar -->
+          <div
+            class="w-16 border-r border-terminal bg-zinc-900/50 p-2 flex flex-col items-center gap-4 z-10 font-mono text-[10px]"
+          >
+            <button
+              onclick="addFlowNode('conditie')"
+              class="w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/50 flex flex-col items-center justify-center hover:bg-blue-500/30 transition-colors"
+              title="Conditie toevoegen"
+            >
+              <i class="fas fa-question"></i>
+            </button>
+            <button
+              onclick="addFlowNode('actie')"
+              class="w-10 h-10 rounded-sm bg-purple-500/20 text-purple-400 border border-purple-500/50 flex flex-col items-center justify-center hover:bg-purple-500/30 transition-colors"
+              title="Actie toevoegen"
+            >
+              <i class="fas fa-bolt"></i>
+            </button>
+            <button
+              onclick="addFlowNode('start')"
+              class="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 flex flex-col items-center justify-center hover:bg-emerald-500/30 transition-colors"
+              title="Start/Entry toevoegen"
+            >
+              <i class="fas fa-play"></i>
+            </button>
+            <button
+              onclick="addFlowNode('stop')"
+              class="w-10 h-10 rounded-full bg-red-500/20 text-red-400 border border-red-500/50 flex flex-col items-center justify-center hover:bg-red-500/30 transition-colors"
+              title="Stop/Exit toevoegen"
+            >
+              <i class="fas fa-stop"></i>
+            </button>
+          </div>
+
+          <!-- Canvas Area -->
+          <div
+            id="flowchartCanvas"
+            class="flex-1 relative overflow-auto bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9IiMzZjNmNDYiLz48L3N2Zz4=')]"
+          >
+            <svg
+              id="flowchartEdges"
+              class="absolute top-0 left-0 w-full h-full pointer-events-none"
+              style="min-width: 2000px; min-height: 2000px"
+            ></svg>
+            <div
+              id="flowchartNodes"
+              class="absolute top-0 left-0 w-full h-full"
+              style="min-width: 2000px; min-height: 2000px"
+            ></div>
+          </div>
+        </div>
+      </div>
     </main>
 
     <!-- Modals follow here... -->
+
+    <!-- IE Text Modal -->
+    <div
+      id="ieTextModal"
+      class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[250] flex items-center justify-center p-4"
+    >
+      <div
+        class="bg-terminal-card border border-terminal w-full max-w-sm flex flex-col rounded-sm font-mono text-xs shadow-2xl"
+      >
+        <div
+          class="p-4 border-b border-terminal bg-zinc-900/50 text-zinc-300 font-bold uppercase tracking-widest flex items-center gap-2"
+        >
+          <i class="fas fa-font"></i> Tekst Invoeren
+        </div>
+        <div class="p-4">
+          <input
+            type="text"
+            id="ieTextInput"
+            class="w-full bg-terminal-input border border-slate-600 rounded-sm px-2 py-1.5 text-slate-200 outline-none text-xs focus:border-blue-500 transition-colors"
+            placeholder="Jouw tekst hier..."
+            onkeyup="if (event.key === 'Enter') ieConfirmText();"
+          />
+        </div>
+        <div
+          class="p-4 border-t border-terminal flex justify-end gap-3 bg-zinc-900/50"
+        >
+          <button
+            onclick="
+              document.getElementById('ieTextModal').classList.add('hidden')
+            "
+            class="px-4 py-2 border border-slate-600 text-slate-300 hover:bg-slate-800 rounded-sm transition-colors uppercase font-bold text-[10px] tracking-widest"
+          >
+            Annuleren
+          </button>
+          <button
+            onclick="ieConfirmText()"
+            class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white border border-blue-500 rounded-sm transition-colors uppercase font-bold text-[10px] tracking-widest"
+          >
+            Plaatsen
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Image Editor Modal -->
+    <div
+      id="imageEditorModal"
+      class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[200] flex items-center justify-center p-4"
+    >
+      <div
+        class="bg-terminal-card border border-terminal w-full max-w-5xl flex flex-col rounded-sm font-mono text-xs shadow-2xl h-[90vh]"
+      >
+        <div
+          class="flex justify-between items-center p-4 border-b border-terminal"
+        >
+          <div class="flex items-center gap-4">
+            <span
+              class="font-bold text-zinc-300 uppercase tracking-widest flex items-center gap-2"
+            >
+              <i class="fas fa-paint-brush"></i> Screenshot Bewerken
+            </span>
+            <div
+              class="flex items-center gap-2 border-l border-zinc-700 pl-4"
+              id="ieTools"
+            >
+              <button
+                onclick="ieSetTool('select')"
+                class="ie-tool w-8 h-8 rounded bg-transparent text-zinc-400 border border-transparent hover:bg-zinc-800"
+                title="Selecteer"
+              >
+                <i class="fas fa-mouse-pointer"></i>
+              </button>
+              <button
+                onclick="ieSetTool('arrow')"
+                class="ie-tool w-8 h-8 rounded bg-blue-500/20 text-blue-400 border border-blue-500/50 hover:bg-blue-500/40"
+                title="Pijl"
+              >
+                <i class="fas fa-location-arrow"></i>
+              </button>
+              <button
+                onclick="ieSetTool('line')"
+                class="ie-tool w-8 h-8 rounded bg-transparent text-zinc-400 border border-transparent hover:bg-zinc-800"
+                title="Rechte Lijn"
+              >
+                <i class="fas fa-minus"></i>
+              </button>
+              <button
+                onclick="ieSetTool('text')"
+                class="ie-tool w-8 h-8 rounded bg-transparent text-zinc-400 border border-transparent hover:bg-zinc-800"
+                title="Tekst"
+              >
+                <i class="fas fa-font"></i>
+              </button>
+
+              <div class="w-px h-6 bg-zinc-700 mx-2"></div>
+
+              <input
+                type="color"
+                id="ieColor"
+                value="#ff0000"
+                class="w-8 h-8 rounded cursor-pointer bg-transparent border-0 p-0"
+                title="Kleur"
+                onchange="ieUpdateSelectedObject()"
+              />
+
+              <input
+                type="number"
+                id="ieThickness"
+                min="1"
+                max="50"
+                value="5"
+                class="w-16 bg-zinc-900 border border-zinc-700 text-zinc-300 text-center rounded-sm outline-none focus:border-blue-500 py-1"
+                title="Dikte / Tekstgrootte"
+                onchange="ieUpdateSelectedObject()"
+                oninput="ieUpdateSelectedObject()"
+              />
+
+              <button
+                onclick="ieDeleteSelected()"
+                class="w-8 h-8 rounded bg-transparent text-red-400 border border-transparent hover:bg-red-500/20 ml-2"
+                title="Verwijder geselecteerd"
+              >
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <button
+              onclick="ieUndo()"
+              class="text-zinc-400 hover:text-white"
+              title="Undo"
+            >
+              <i class="fas fa-undo"></i>
+            </button>
+            <button
+              onclick="closeImageEditor()"
+              class="text-zinc-500 hover:text-white transition-colors ml-4"
+            >
+              <i class="fas fa-times text-lg"></i>
+            </button>
+          </div>
+        </div>
+
+        <div
+          class="flex-1 bg-zinc-950 relative overflow-auto flex items-center justify-center p-4"
+          id="ieContainer"
+        >
+          <canvas
+            id="ieCanvas"
+            class="max-w-full h-auto shadow-2xl cursor-crosshair border border-zinc-800"
+          ></canvas>
+        </div>
+
+        <div
+          class="p-4 border-t border-terminal flex justify-end gap-3 bg-zinc-900/50"
+        >
+          <button
+            onclick="closeImageEditor()"
+            class="px-4 py-2 border border-slate-600 text-slate-300 hover:bg-slate-800 rounded-sm transition-colors uppercase font-bold text-[10px] tracking-widest"
+          >
+            Annuleren
+          </button>
+          <button
+            onclick="saveImageEdit()"
+            class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white border border-blue-500 rounded-sm transition-colors uppercase font-bold text-[10px] tracking-widest"
+          >
+            Opslaan
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Flowchart Node Modal -->
+    <div
+      id="flowchartNodeModal"
+      class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[150] flex items-center justify-center p-4"
+      onclick="if (event.target === this) closeFlowchartNodeModal();"
+    >
+      <div
+        class="bg-terminal-card border border-terminal w-full max-w-2xl flex flex-col rounded-sm font-mono text-xs shadow-2xl"
+      >
+        <div
+          class="flex justify-between items-center p-4 border-b border-terminal bg-zinc-900/50"
+        >
+          <span
+            class="font-bold text-zinc-300 uppercase tracking-widest flex items-center gap-2"
+          >
+            <i class="fas fa-edit"></i> Node Bewerken
+          </span>
+          <button
+            onclick="closeFlowchartNodeModal()"
+            class="text-zinc-500 hover:text-white transition-colors"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="p-4 space-y-4">
+          <div class="space-y-1">
+            <label
+              class="text-[10px] text-zinc-400 font-bold uppercase tracking-widest"
+              >Titel</label
+            >
+            <input
+              type="text"
+              id="fcNodeTitle"
+              class="w-full bg-terminal-input border border-slate-600 rounded-sm px-2 py-1.5 text-slate-200 outline-none text-xs focus:border-blue-500 transition-colors"
+            />
+          </div>
+          <div class="space-y-1">
+            <label
+              class="text-[10px] text-zinc-400 font-bold uppercase tracking-widest"
+              >Beschrijving / Notities</label
+            >
+            <textarea
+              id="fcNodeDesc"
+              rows="4"
+              class="w-full bg-terminal-input border border-slate-600 rounded-sm px-2 py-1.5 text-slate-200 outline-none text-xs focus:border-blue-500 transition-colors"
+              placeholder="Voeg details toe over deze stap..."
+            ></textarea>
+          </div>
+
+          <div class="space-y-2">
+            <div class="flex justify-between items-center">
+              <label
+                class="text-[10px] text-zinc-400 font-bold uppercase tracking-widest"
+                >Screenshots</label
+              >
+              <button
+                onclick="
+                  document.getElementById('fcNodeScreenshotInput').click()
+                "
+                class="text-[10px] bg-zinc-800 hover:bg-zinc-700 text-zinc-300 px-2 py-1 rounded border border-zinc-600"
+              >
+                <i class="fas fa-upload"></i> Upload
+              </button>
+              <input
+                type="file"
+                id="fcNodeScreenshotInput"
+                accept="image/*"
+                class="hidden"
+                onchange="handleFcNodeScreenshot(event)"
+              />
+            </div>
+            <div
+              id="fcNodeScreenshotPreviews"
+              class="grid grid-cols-3 sm:grid-cols-4 gap-2"
+            ></div>
+          </div>
+        </div>
+        <div
+          class="p-4 border-t border-terminal flex justify-end gap-3 bg-zinc-900/50"
+        >
+          <button
+            onclick="closeFlowchartNodeModal()"
+            class="px-4 py-2 border border-slate-600 text-slate-300 hover:bg-slate-800 rounded-sm transition-colors uppercase font-bold text-[10px] tracking-widest"
+          >
+            Annuleren
+          </button>
+          <button
+            onclick="saveFlowchartNode()"
+            class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-500 rounded-sm transition-colors uppercase font-bold text-[10px] tracking-widest"
+          >
+            Opslaan
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="newFlowchartModal"
+      class="hidden fixed inset-0 bg-black/30 backdrop-blur-sm z-[60] flex items-center justify-center p-4"
+      onclick="if (event.target === this) closeNewFlowchartModal();"
+    >
+      <div
+        class="bg-terminal-card border border-terminal w-full max-w-sm flex flex-col rounded-sm font-mono text-xs shadow-2xl"
+      >
+        <div
+          class="flex justify-between items-center p-4 border-b border-terminal"
+        >
+          <span
+            class="font-bold text-zinc-300 uppercase tracking-widest flex items-center gap-2"
+          >
+            <i class="fas fa-plus"></i> Nieuwe Strategie
+          </span>
+          <button
+            onclick="closeNewFlowchartModal()"
+            class="text-zinc-500 hover:text-white transition-colors"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="p-4 space-y-4">
+          <div class="space-y-1">
+            <label
+              class="text-[10px] text-zinc-400 font-bold uppercase tracking-widest"
+              >Naam Strategie Flow</label
+            >
+            <input
+              type="text"
+              id="newFlowchartName"
+              class="w-full bg-terminal-input border border-slate-600 rounded-sm px-2 py-1.5 text-slate-200 outline-none text-xs focus:border-blue-500 transition-colors"
+              placeholder="bv. MA Crossover"
+              onkeyup="if (event.key === 'Enter') submitNewFlowchart();"
+            />
+          </div>
+        </div>
+        <div
+          class="p-4 border-t border-terminal flex justify-end gap-3 bg-zinc-900/50"
+        >
+          <button
+            onclick="closeNewFlowchartModal()"
+            class="px-4 py-2 border border-slate-600 text-slate-300 hover:bg-slate-800 rounded-sm transition-colors uppercase font-bold text-[10px] tracking-widest"
+          >
+            Annuleren
+          </button>
+          <button
+            onclick="submitNewFlowchart()"
+            class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white border border-blue-500 rounded-sm transition-colors uppercase font-bold text-[10px] tracking-widest"
+          >
+            Aanmaken
+          </button>
+        </div>
+      </div>
+    </div>
 
     <div
       id="genericConfirmModal"
@@ -2209,7 +2633,9 @@
           .getElementById("view-calendar")
           .classList.toggle("hidden", tabId !== "calendar");
         var mcView = document.getElementById("view-montecarlo");
-        if (mcView) mcView.classList.toggle("hidden", tabId !== "montecarlo"); // CALENDAR
+        if (mcView) mcView.classList.toggle("hidden", tabId !== "montecarlo");
+        var fcView = document.getElementById("view-flowchart");
+        if (fcView) fcView.classList.toggle("hidden", tabId !== "flowchart");
 
         document
           .getElementById("tab-dashboard")
@@ -2223,6 +2649,10 @@
         var mcTab = document.getElementById("tab-montecarlo");
         if (mcTab)
           mcTab.classList.toggle("tab-nav-active", tabId === "montecarlo");
+        var fcTab = document.getElementById("tab-flowchart");
+        if (fcTab)
+          fcTab.classList.toggle("tab-nav-active", tabId === "flowchart");
+
         if (tabId === "montecarlo") {
           if (!mcChartInstance) {
             resetMCStats();
@@ -2234,6 +2664,8 @@
           renderAnalyticsView();
         } else if (tabId === "calendar") {
           renderCalendarView();
+        } else if (tabId === "flowchart") {
+          renderFlowchartView();
         } else {
           updateUI();
         }
@@ -4438,16 +4870,20 @@
       function renderScreenshotPreviews(list) {
         var container = document.getElementById("screenshotPreviewContainer");
         container.innerHTML = "";
-        list.forEach(function (b64, index) {
+        list.forEach(function (item, index) {
+          var imgSrc = typeof item === "string" ? item : item.current;
           var div = document.createElement("div");
           div.className =
             "relative group border border-terminal rounded-sm aspect-video bg-black overflow-hidden";
           div.innerHTML =
             '<img src="' +
-            b64 +
-            '" class="w-full h-full object-cover cursor-zoom-in"><button class="absolute top-1 right-1 bg-black/80 text-red-400 p-0.5 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity">&times;</button>';
+            imgSrc +
+            '" class="w-full h-full object-cover cursor-pointer">' +
+            '<button class="absolute top-1 right-1 bg-black/80 text-red-400 p-0.5 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity"><i class="fas fa-times text-[10px]"></i></button>' +
+            '<div class="absolute bottom-1 right-1 bg-blue-600 text-white rounded-sm px-1.5 py-0.5 text-[8px] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none uppercase font-bold tracking-widest"><i class="fas fa-paint-brush"></i> Bewerk</div>';
+
           div.querySelector("img").onclick = function () {
-            openLightbox(b64);
+            openImageEditorForTrade(index);
           };
           div.querySelector("button").onclick = function (e) {
             e.stopPropagation();
@@ -6686,6 +7122,1131 @@
         msgDiv.appendChild(innerDiv);
         document.getElementById("aiChatMessages").appendChild(msgDiv);
         scrollToBottomAiChat();
+      }
+    </script>
+    <script>
+      // ---- IMAGE EDITOR LOGIC ----
+      var ieModal = null;
+      var ieCanvas = null;
+      var ieCtx = null;
+      var ieImg = null;
+      var ieTool = "arrow";
+      var ieIsDrawing = false;
+      var ieStartX = 0;
+      var ieStartY = 0;
+      var ieObjects = [];
+      var ieSelectedObjectIndex = -1;
+      var ieSaveCallback = null;
+      var ieDraggingSelected = false;
+      var ieDragOffsetX = 0;
+      var ieDragOffsetY = 0;
+
+      // We still need a temporary object being drawn
+      var ieCurrentDrawingObj = null;
+      var iePendingTextPos = null;
+
+      function ieConfirmText() {
+        var text = document.getElementById("ieTextInput").value;
+        if (text && iePendingTextPos) {
+          ieObjects.push({
+            type: "text",
+            x: iePendingTextPos.x,
+            y: iePendingTextPos.y,
+            text: text,
+            color: document.getElementById("ieColor").value,
+            width:
+              parseInt(document.getElementById("ieThickness").value, 10) || 5,
+          });
+          ieSelectedObjectIndex = ieObjects.length - 1;
+          ieRender();
+        }
+        document.getElementById("ieTextModal").classList.add("hidden");
+        iePendingTextPos = null;
+      }
+
+      document.addEventListener("keydown", function (e) {
+        if (ieModal && !ieModal.classList.contains("hidden")) {
+          if (
+            document.activeElement.tagName === "INPUT" ||
+            document.activeElement.tagName === "TEXTAREA"
+          ) {
+            return;
+          }
+          if (e.key === "Delete" || e.key === "Backspace") {
+            ieDeleteSelected();
+          }
+        }
+      });
+
+      document.addEventListener("DOMContentLoaded", function () {
+        ieModal = document.getElementById("imageEditorModal");
+        ieCanvas = document.getElementById("ieCanvas");
+        if (ieCanvas) {
+          ieCtx = ieCanvas.getContext("2d");
+          ieCanvas.addEventListener("mousedown", ieMouseDown);
+          ieCanvas.addEventListener("mousemove", ieMouseMove);
+          ieCanvas.addEventListener("mouseup", ieMouseUp);
+          ieCanvas.addEventListener("mouseout", ieMouseUp);
+        }
+      });
+
+      function openImageEditor(imgData, onSave) {
+        ieSaveCallback = onSave;
+        ieObjects = [];
+        ieSelectedObjectIndex = -1;
+        ieImg = new Image();
+        
+        if (typeof imgData === "string") {
+          ieImg.onload = function () {
+            ieCanvas.width = ieImg.width;
+            ieCanvas.height = ieImg.height;
+            ieRender();
+            ieModal.classList.remove("hidden");
+            ieSetTool("arrow");
+          };
+          ieImg.src = imgData;
+        } else {
+          if (imgData.objects) {
+            ieObjects = JSON.parse(JSON.stringify(imgData.objects));
+          }
+          ieImg.onload = function () {
+            ieCanvas.width = ieImg.width;
+            ieCanvas.height = ieImg.height;
+            ieRender();
+            ieModal.classList.remove("hidden");
+            ieSetTool("arrow");
+          };
+          ieImg.src = imgData.original;
+        }
+      }
+
+      function closeImageEditor() {
+        ieModal.classList.add("hidden");
+        ieSaveCallback = null;
+      }
+
+      function saveImageEdit() {
+        if (ieSaveCallback) {
+          ieSelectedObjectIndex = -1; // Deselect before saving
+          ieRender();
+          var currentB64 = ieCanvas.toDataURL("image/jpeg", 0.9);
+          var result = {
+            original: ieImg.src,
+            current: currentB64,
+            objects: ieObjects
+          };
+          ieSaveCallback(result);
+        }
+        closeImageEditor();
+      }
+
+      function ieSetTool(tool) {
+        ieTool = tool;
+        document.querySelectorAll(".ie-tool").forEach(function (btn) {
+          btn.classList.remove(
+            "bg-blue-500/20",
+            "text-blue-400",
+            "border-blue-500/50",
+          );
+          btn.classList.add(
+            "bg-transparent",
+            "text-zinc-400",
+            "border-transparent",
+          );
+        });
+        var activeBtn = document.querySelector(
+          ".ie-tool[onclick=\"ieSetTool('" + tool + "')\"]",
+        );
+        if (activeBtn) {
+          activeBtn.classList.add(
+            "bg-blue-500/20",
+            "text-blue-400",
+            "border-blue-500/50",
+          );
+          activeBtn.classList.remove(
+            "bg-transparent",
+            "text-zinc-400",
+            "border-transparent",
+          );
+        }
+
+        if (tool === "text") {
+          ieCanvas.style.cursor = "text";
+        } else if (tool === "select") {
+          ieCanvas.style.cursor = "default";
+        } else {
+          ieCanvas.style.cursor = "crosshair";
+        }
+      }
+
+      function ieUndo() {
+        if (ieObjects.length > 0) {
+          ieObjects.pop();
+          ieSelectedObjectIndex = -1;
+          ieRender();
+        }
+      }
+
+      function ieGetMousePos(evt) {
+        var rect = ieCanvas.getBoundingClientRect();
+        var scaleX = ieCanvas.width / rect.width;
+        var scaleY = ieCanvas.height / rect.height;
+        return {
+          x: (evt.clientX - rect.left) * scaleX,
+          y: (evt.clientY - rect.top) * scaleY,
+        };
+      }
+
+      function ieUpdateSelectedObject() {
+        if (
+          ieSelectedObjectIndex >= 0 &&
+          ieSelectedObjectIndex < ieObjects.length
+        ) {
+          var obj = ieObjects[ieSelectedObjectIndex];
+          obj.color = document.getElementById("ieColor").value;
+          obj.width = parseInt(
+            document.getElementById("ieThickness").value,
+            10,
+          );
+          ieRender();
+        }
+      }
+
+      function ieDeleteSelected() {
+        if (
+          ieSelectedObjectIndex >= 0 &&
+          ieSelectedObjectIndex < ieObjects.length
+        ) {
+          ieObjects.splice(ieSelectedObjectIndex, 1);
+          ieSelectedObjectIndex = -1;
+          ieRender();
+        }
+      }
+
+      function ieRender() {
+        ieCtx.clearRect(0, 0, ieCanvas.width, ieCanvas.height);
+        if (ieImg) {
+          ieCtx.drawImage(ieImg, 0, 0);
+        }
+
+        var renderObj = function (obj, index) {
+          ieCtx.strokeStyle = obj.color;
+          ieCtx.fillStyle = obj.color;
+          var w = obj.width || 5;
+          ieCtx.lineWidth = w;
+          var isSelected = index === ieSelectedObjectIndex;
+
+          if (obj.type === "line") {
+            ieCtx.beginPath();
+            ieCtx.moveTo(obj.startX, obj.startY);
+            ieCtx.lineTo(obj.endX, obj.endY);
+            ieCtx.stroke();
+            if (isSelected) {
+              ieCtx.strokeStyle = "rgba(59, 130, 246, 0.8)";
+              ieCtx.lineWidth = 2;
+              ieCtx.setLineDash([5, 5]);
+              ieCtx.strokeRect(
+                Math.min(obj.startX, obj.endX) - w,
+                Math.min(obj.startY, obj.endY) - w,
+                Math.abs(obj.endX - obj.startX) + w * 2,
+                Math.abs(obj.endY - obj.startY) + w * 2,
+              );
+              ieCtx.setLineDash([]);
+            }
+          } else if (obj.type === "arrow") {
+            var headlen = Math.max(15, w * 3);
+            var dx = obj.endX - obj.startX;
+            var dy = obj.endY - obj.startY;
+            var angle = Math.atan2(dy, dx);
+
+            ieCtx.beginPath();
+            ieCtx.moveTo(obj.startX, obj.startY);
+            ieCtx.lineTo(obj.endX, obj.endY);
+            ieCtx.stroke();
+
+            ieCtx.beginPath();
+            ieCtx.moveTo(obj.endX, obj.endY);
+            ieCtx.lineTo(
+              obj.endX - headlen * Math.cos(angle - Math.PI / 6),
+              obj.endY - headlen * Math.sin(angle - Math.PI / 6),
+            );
+            ieCtx.lineTo(
+              obj.endX - headlen * Math.cos(angle + Math.PI / 6),
+              obj.endY - headlen * Math.sin(angle + Math.PI / 6),
+            );
+            ieCtx.lineTo(obj.endX, obj.endY);
+            ieCtx.fill();
+
+            if (isSelected) {
+              ieCtx.strokeStyle = "rgba(59, 130, 246, 0.8)";
+              ieCtx.lineWidth = 2;
+              ieCtx.setLineDash([5, 5]);
+              ieCtx.strokeRect(
+                Math.min(obj.startX, obj.endX) - headlen,
+                Math.min(obj.startY, obj.endY) - headlen,
+                Math.abs(obj.endX - obj.startX) + headlen * 2,
+                Math.abs(obj.endY - obj.startY) + headlen * 2,
+              );
+              ieCtx.setLineDash([]);
+            }
+          } else if (obj.type === "text") {
+            ieCtx.font = "bold " + (w * 5 + 10) + "px sans-serif";
+            ieCtx.fillText(obj.text, obj.x, obj.y);
+            if (isSelected) {
+              var metrics = ieCtx.measureText(obj.text);
+              ieCtx.strokeStyle = "rgba(59, 130, 246, 0.8)";
+              ieCtx.lineWidth = 2;
+              ieCtx.setLineDash([5, 5]);
+              var height = w * 5 + 10;
+              ieCtx.strokeRect(
+                obj.x - 5,
+                obj.y - height,
+                metrics.width + 10,
+                height + 10,
+              );
+              ieCtx.setLineDash([]);
+            }
+          }
+        };
+
+        ieObjects.forEach(renderObj);
+
+        if (ieCurrentDrawingObj) {
+          renderObj(ieCurrentDrawingObj, -1);
+        }
+      }
+
+      function ieHitTest(pos) {
+        for (var i = ieObjects.length - 1; i >= 0; i--) {
+          var obj = ieObjects[i];
+          var padding = 20;
+          if (obj.type === "text") {
+            var w = obj.width || 5;
+            var height = w * 5 + 10;
+            ieCtx.font = "bold " + height + "px sans-serif";
+            var metrics = ieCtx.measureText(obj.text);
+            if (
+              pos.x >= obj.x - padding &&
+              pos.x <= obj.x + metrics.width + padding &&
+              pos.y >= obj.y - height - padding &&
+              pos.y <= obj.y + padding
+            ) {
+              return i;
+            }
+          } else {
+            var minX = Math.min(obj.startX, obj.endX) - padding;
+            var maxX = Math.max(obj.startX, obj.endX) + padding;
+            var minY = Math.min(obj.startY, obj.endY) - padding;
+            var maxY = Math.max(obj.startY, obj.endY) + padding;
+            if (
+              pos.x >= minX &&
+              pos.x <= maxX &&
+              pos.y >= minY &&
+              pos.y <= maxY
+            ) {
+              return i;
+            }
+          }
+        }
+        return -1;
+      }
+
+      function ieMouseDown(e) {
+        var pos = ieGetMousePos(e);
+
+        if (ieTool === "select") {
+          ieSelectedObjectIndex = ieHitTest(pos);
+          if (ieSelectedObjectIndex !== -1) {
+            var obj = ieObjects[ieSelectedObjectIndex];
+            document.getElementById("ieColor").value = obj.color;
+            document.getElementById("ieThickness").value = obj.width || 5;
+
+            ieDraggingSelected = true;
+            if (obj.type === "text") {
+              ieDragOffsetX = pos.x - obj.x;
+              ieDragOffsetY = pos.y - obj.y;
+            } else {
+              ieDragOffsetX = pos.x - obj.startX;
+              ieDragOffsetY = pos.y - obj.startY;
+            }
+          }
+          ieRender();
+          return;
+        }
+
+        ieSelectedObjectIndex = -1; // deselect if drawing new thing
+
+        if (ieTool === "text") {
+          iePendingTextPos = pos;
+          document.getElementById("ieTextInput").value = "";
+          document.getElementById("ieTextModal").classList.remove("hidden");
+          setTimeout(function () {
+            document.getElementById("ieTextInput").focus();
+          }, 50);
+          return;
+        }
+
+        ieIsDrawing = true;
+        ieStartX = pos.x;
+        ieStartY = pos.y;
+
+        ieCurrentDrawingObj = {
+          type: ieTool,
+          startX: ieStartX,
+          startY: ieStartY,
+          endX: pos.x,
+          endY: pos.y,
+          color: document.getElementById("ieColor").value,
+          width: parseInt(document.getElementById("ieThickness").value, 10),
+        };
+      }
+
+      function ieMouseMove(e) {
+        var pos = ieGetMousePos(e);
+
+        if (ieDraggingSelected && ieSelectedObjectIndex !== -1) {
+          var obj = ieObjects[ieSelectedObjectIndex];
+          if (obj.type === "text") {
+            obj.x = pos.x - ieDragOffsetX;
+            obj.y = pos.y - ieDragOffsetY;
+          } else {
+            var dx = pos.x - ieDragOffsetX - obj.startX;
+            var dy = pos.y - ieDragOffsetY - obj.startY;
+            obj.startX += dx;
+            obj.startY += dy;
+            obj.endX += dx;
+            obj.endY += dy;
+            ieDragOffsetX = pos.x - obj.startX;
+            ieDragOffsetY = pos.y - obj.startY;
+          }
+          ieRender();
+          return;
+        }
+
+        if (!ieIsDrawing || !ieCurrentDrawingObj) return;
+        ieCurrentDrawingObj.endX = pos.x;
+        ieCurrentDrawingObj.endY = pos.y;
+        ieRender();
+      }
+
+      function ieMouseUp(e) {
+        if (ieDraggingSelected) {
+          ieDraggingSelected = false;
+          return;
+        }
+
+        if (!ieIsDrawing || !ieCurrentDrawingObj) return;
+        ieIsDrawing = false;
+
+        // Prevent adding 0-length lines
+        var dx = ieCurrentDrawingObj.endX - ieCurrentDrawingObj.startX;
+        var dy = ieCurrentDrawingObj.endY - ieCurrentDrawingObj.startY;
+        if (Math.abs(dx) > 2 || Math.abs(dy) > 2) {
+          ieObjects.push(ieCurrentDrawingObj);
+          ieSelectedObjectIndex = ieObjects.length - 1;
+        }
+        ieCurrentDrawingObj = null;
+        ieRender();
+      }
+
+      function openImageEditorForNode(index) {
+        var fc = getActiveFc();
+        var node = fc.nodes.find(function (n) {
+          return n.id === activeEditNodeId;
+        });
+        if (node && node.screenshots) {
+          openImageEditor(node.screenshots[index], function (newB64) {
+            node.screenshots[index] = newB64;
+            renderFcNodeScreenshots();
+            saveFlowcharts();
+          });
+        }
+      }
+
+      function openImageEditorForTrade(index) {
+        var id = document.getElementById("editTradeId").value;
+        var trade = trades.find(function (t) {
+          return t.id === id;
+        });
+        if (trade && trade.screenshots) {
+          openImageEditor(trade.screenshots[index], function (newB64) {
+            trade.screenshots[index] = newB64;
+            renderScreenshotPreviews(trade.screenshots);
+            saveData(); // optional, but good to save immediately
+          });
+        }
+      }
+      var flowcharts = [];
+      var activeFlowchartId = null;
+      var isDraggingNode = false;
+      var dragNodeId = null;
+      var dragOffsetX = 0;
+      var dragOffsetY = 0;
+
+      // Edge creation state
+      var isDrawingEdge = false;
+      var drawingSourceId = null;
+      var drawingSourcePort = null; // 'out' or 'in'
+
+      document.addEventListener("DOMContentLoaded", function () {
+        loadFlowcharts();
+      });
+
+      function loadFlowcharts() {
+        try {
+          var s = localStorage.getItem("qt_flowcharts_v1");
+          if (s) {
+            flowcharts = JSON.parse(s);
+          }
+        } catch (e) {}
+        if (flowcharts.length === 0) {
+          flowcharts.push({
+            id: "fc_" + Date.now(),
+            name: "Nieuwe Strategie",
+            nodes: [],
+            edges: [],
+          });
+        }
+        activeFlowchartId = flowcharts[0].id;
+      }
+
+      function saveFlowcharts() {
+        localStorage.setItem("qt_flowcharts_v1", JSON.stringify(flowcharts));
+      }
+
+      function renderFlowchartView() {
+        var sel = document.getElementById("flowchartSelector");
+        if (!sel) return;
+        sel.innerHTML = "";
+        flowcharts.forEach(function (fc) {
+          var opt = document.createElement("option");
+          opt.value = fc.id;
+          opt.textContent = fc.name;
+          if (fc.id === activeFlowchartId) opt.selected = true;
+          sel.appendChild(opt);
+        });
+
+        drawFlowchart();
+      }
+
+      function loadSelectedFlowchart() {
+        activeFlowchartId = document.getElementById("flowchartSelector").value;
+        drawFlowchart();
+      }
+
+      function createNewFlowchart() {
+        document.getElementById("newFlowchartName").value = "";
+        document.getElementById("newFlowchartModal").classList.remove("hidden");
+        document.getElementById("newFlowchartName").focus();
+      }
+
+      function closeNewFlowchartModal() {
+        document.getElementById("newFlowchartModal").classList.add("hidden");
+      }
+
+      function submitNewFlowchart() {
+        var name = document.getElementById("newFlowchartName").value.trim();
+        if (!name) return;
+        var newFc = {
+          id: "fc_" + Date.now(),
+          name: name,
+          nodes: [],
+          edges: [],
+        };
+        flowcharts.push(newFc);
+        activeFlowchartId = newFc.id;
+        saveFlowcharts();
+        renderFlowchartView();
+        closeNewFlowchartModal();
+      }
+
+      function deleteCurrentFlowchart() {
+        showConfirm("Deze flowchart definitief verwijderen?", function() {
+          flowcharts = flowcharts.filter(function (fc) {
+            return fc.id !== activeFlowchartId;
+          });
+          if (flowcharts.length === 0) {
+            flowcharts.push({
+              id: "fc_" + Date.now(),
+              name: "Nieuwe Strategie",
+              nodes: [],
+              edges: [],
+            });
+          }
+          activeFlowchartId = flowcharts[0].id;
+          saveFlowcharts();
+          renderFlowchartView();
+        });
+      }
+
+      function getActiveFc() {
+        return flowcharts.find(function (fc) {
+          return fc.id === activeFlowchartId;
+        });
+      }
+
+      function addFlowNode(type) {
+        var fc = getActiveFc();
+        if (!fc) return;
+        var text = "Nieuwe " + type;
+        if (type === "start") text = "START";
+        if (type === "stop") text = "STOP";
+        if (type === "conditie") text = "Conditie?";
+        if (type === "actie") text = "Actie / Entry";
+
+        fc.nodes.push({
+          id: "n_" + Date.now(),
+          type: type,
+          text: text,
+          x: window.innerWidth / 4 + Math.random() * 50,
+          y: window.innerHeight / 4 + Math.random() * 50,
+        });
+        saveFlowcharts();
+        drawFlowchart();
+      }
+
+      function removeNode(nodeId) {
+        if (!confirm("Node verwijderen?")) return;
+        var fc = getActiveFc();
+        if (!fc) return;
+        fc.nodes = fc.nodes.filter(function (n) {
+          return n.id !== nodeId;
+        });
+        fc.edges = fc.edges.filter(function (e) {
+          return e.from !== nodeId && e.to !== nodeId;
+        });
+        saveFlowcharts();
+        drawFlowchart();
+      }
+
+      var activeEditNodeId = null;
+
+      function openNodeEditor(nodeId) {
+        var fc = getActiveFc();
+        if (!fc) return;
+        var node = fc.nodes.find(function (n) {
+          return n.id === nodeId;
+        });
+        if (!node) return;
+
+        activeEditNodeId = nodeId;
+        document.getElementById("fcNodeTitle").value = node.text || "";
+        document.getElementById("fcNodeDesc").value = node.description || "";
+
+        if (!node.screenshots) node.screenshots = [];
+        renderFcNodeScreenshots();
+
+        document
+          .getElementById("flowchartNodeModal")
+          .classList.remove("hidden");
+      }
+
+      function closeFlowchartNodeModal() {
+        document.getElementById("flowchartNodeModal").classList.add("hidden");
+        activeEditNodeId = null;
+      }
+
+      function saveFlowchartNode() {
+        if (!activeEditNodeId) return;
+        var fc = getActiveFc();
+        var node = fc.nodes.find(function (n) {
+          return n.id === activeEditNodeId;
+        });
+        if (node) {
+          node.text = document.getElementById("fcNodeTitle").value;
+          node.description = document.getElementById("fcNodeDesc").value;
+          saveFlowcharts();
+          drawFlowchart();
+        }
+        closeFlowchartNodeModal();
+      }
+
+      function handleFcNodeScreenshot(event) {
+        var file = event.target.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function (e) {
+          var img = new Image();
+          img.onload = function () {
+            var canvas = document.createElement("canvas");
+            var ctx = canvas.getContext("2d");
+            var MAX_WIDTH = 1200;
+            var MAX_HEIGHT = 1200;
+            var width = img.width;
+            var height = img.height;
+
+            if (width > height) {
+              if (width > MAX_WIDTH) {
+                height *= MAX_WIDTH / width;
+                width = MAX_WIDTH;
+              }
+            } else {
+              if (height > MAX_HEIGHT) {
+                width *= MAX_HEIGHT / height;
+                height = MAX_HEIGHT;
+              }
+            }
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(img, 0, 0, width, height);
+            var b64 = canvas.toDataURL("image/jpeg", 0.7);
+
+            var fc = getActiveFc();
+            var node = fc.nodes.find(function (n) {
+              return n.id === activeEditNodeId;
+            });
+            if (node) {
+              if (!node.screenshots) node.screenshots = [];
+              node.screenshots.push(b64);
+              renderFcNodeScreenshots();
+            }
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function renderFcNodeScreenshots() {
+        var container = document.getElementById("fcNodeScreenshotPreviews");
+        container.innerHTML = "";
+        if (!activeEditNodeId) return;
+        var fc = getActiveFc();
+        var node = fc.nodes.find(function (n) {
+          return n.id === activeEditNodeId;
+        });
+        if (!node || !node.screenshots) return;
+
+        node.screenshots.forEach(function (item, index) {
+          var imgSrc = typeof item === "string" ? item : item.current;
+          var div = document.createElement("div");
+          div.className =
+            "relative group rounded overflow-hidden border border-zinc-700 bg-zinc-900 aspect-video";
+          div.innerHTML =
+            '<img src="' +
+            imgSrc +
+            '" class="w-full h-full object-cover cursor-pointer" onclick="openImageEditorForNode(' +
+            index +
+            ')" />' +
+            '<button onclick="removeFcNodeScreenshot(' +
+            index +
+            ')" class="absolute top-1 right-1 bg-red-600 hover:bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10 shadow"><i class="fas fa-times text-[10px]"></i></button>' +
+            '<div class="absolute bottom-1 right-1 bg-blue-600 text-white rounded-sm px-1.5 py-0.5 text-[8px] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none uppercase font-bold tracking-widest"><i class="fas fa-paint-brush"></i> Bewerk</div>';
+          container.appendChild(div);
+        });
+      }
+
+      function removeFcNodeScreenshot(index) {
+        var fc = getActiveFc();
+        var node = fc.nodes.find(function (n) {
+          return n.id === activeEditNodeId;
+        });
+        if (node && node.screenshots) {
+          node.screenshots.splice(index, 1);
+          renderFcNodeScreenshots();
+        }
+      }
+
+      function startNodeDrag(e, nodeId) {
+        if (e.target.classList.contains("port")) return; // don't drag node if clicking port
+        if (
+          e.target.tagName === "BUTTON" ||
+          e.target.closest("button") ||
+          e.target.tagName === "I"
+        )
+          return;
+        isDraggingNode = true;
+        dragNodeId = nodeId;
+        var fc = getActiveFc();
+        var node = fc.nodes.find(function (n) {
+          return n.id === nodeId;
+        });
+        var rect = e.currentTarget.getBoundingClientRect();
+        var workspaceRect = document
+          .getElementById("flowchartWorkspace")
+          .getBoundingClientRect();
+        dragOffsetX = e.clientX - rect.left;
+        dragOffsetY = e.clientY - rect.top;
+        e.stopPropagation();
+      }
+
+      document.addEventListener("mousemove", function (e) {
+        if (isDraggingNode && dragNodeId) {
+          var workspaceRect = document
+            .getElementById("flowchartWorkspace")
+            .getBoundingClientRect();
+          var x = e.clientX - workspaceRect.left - dragOffsetX - 64; // subtract toolbar width
+          var y = e.clientY - workspaceRect.top - dragOffsetY;
+          var fc = getActiveFc();
+          var node = fc.nodes.find(function (n) {
+            return n.id === dragNodeId;
+          });
+          if (node) {
+            node.x = x > 0 ? x : 0;
+            node.y = y > 0 ? y : 0;
+            var el = document.getElementById(node.id);
+            if (el) {
+              el.style.left = node.x + "px";
+              el.style.top = node.y + "px";
+            }
+            drawEdges(); // Redraw lines while dragging
+          }
+        }
+
+        if (isDrawingEdge && drawingSourceId) {
+          var workspaceRect = document
+            .getElementById("flowchartWorkspace")
+            .getBoundingClientRect();
+          var mouseX =
+            e.clientX -
+            workspaceRect.left -
+            64 +
+            document.getElementById("flowchartCanvas").scrollLeft;
+          var mouseY =
+            e.clientY -
+            workspaceRect.top +
+            document.getElementById("flowchartCanvas").scrollTop;
+          drawEdges(mouseX, mouseY); // Redraw with temporary line
+        }
+      });
+
+      document.addEventListener("mouseup", function () {
+        if (isDraggingNode) {
+          isDraggingNode = false;
+          dragNodeId = null;
+          saveFlowcharts();
+        }
+        if (isDrawingEdge) {
+          isDrawingEdge = false;
+          drawingSourceId = null;
+          drawingSourcePort = null;
+          drawEdges(); // Clear temp line
+        }
+      });
+
+      function startEdge(e, nodeId, port) {
+        e.stopPropagation();
+        isDrawingEdge = true;
+        drawingSourceId = nodeId;
+        drawingSourcePort = port;
+      }
+
+      function endEdge(e, targetNodeId, targetPort) {
+        e.stopPropagation();
+        if (
+          isDrawingEdge &&
+          drawingSourceId &&
+          drawingSourceId !== targetNodeId
+        ) {
+          createEdge(
+            drawingSourceId,
+            targetNodeId,
+            drawingSourcePort,
+            targetPort,
+          );
+        }
+        isDrawingEdge = false;
+        drawingSourceId = null;
+        drawingSourcePort = null;
+      }
+
+      function createEdge(fromId, toId, fromPort, toPort) {
+        var fc = getActiveFc();
+        // check duplicate
+        var exists = fc.edges.find(function (e) {
+          return (
+            e.from === fromId &&
+            e.to === toId &&
+            e.fromPort === fromPort &&
+            e.toPort === toPort
+          );
+        });
+        if (!exists) {
+          fc.edges.push({
+            from: fromId,
+            to: toId,
+            fromPort: fromPort,
+            toPort: toPort,
+          });
+          saveFlowcharts();
+          drawEdges();
+        }
+      }
+
+      function removeEdge(fromId, toId, fromPort, toPort) {
+        var fc = getActiveFc();
+        fc.edges = fc.edges.filter(function (e) {
+          return !(
+            e.from === fromId &&
+            e.to === toId &&
+            e.fromPort === fromPort &&
+            e.toPort === toPort
+          );
+        });
+        saveFlowcharts();
+        drawEdges();
+      }
+
+      function drawFlowchart() {
+        var fc = getActiveFc();
+        var nodesContainer = document.getElementById("flowchartNodes");
+        if (!nodesContainer) return;
+        nodesContainer.innerHTML = "";
+
+        if (!fc) return;
+
+        fc.nodes.forEach(function (n) {
+          var el = document.createElement("div");
+          el.id = n.id;
+          el.className =
+            "group absolute p-3 rounded-sm shadow-lg border border-zinc-500 cursor-move text-xs text-white text-center flex flex-col justify-center items-center min-w-[120px]";
+
+          if (n.type === "start")
+            el.className +=
+              " bg-emerald-700/80 !rounded-full font-bold uppercase";
+          else if (n.type === "stop")
+            el.className += " bg-red-700/80 !rounded-full font-bold uppercase";
+          else if (n.type === "conditie") el.className += " bg-blue-800/80";
+          else if (n.type === "actie") el.className += " bg-purple-800/80";
+
+          el.style.left = n.x + "px";
+          el.style.top = n.y + "px";
+
+          el.onmousedown = function (e) {
+            startNodeDrag(e, n.id);
+          };
+          el.ondblclick = function (e) {
+            openNodeEditor(n.id);
+          };
+
+          // Delete button
+          var delBtn = document.createElement("button");
+          delBtn.className =
+            "absolute -top-2 -right-2 bg-red-500 hover:bg-red-400 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] z-10 shadow-md opacity-0 transition-opacity";
+          delBtn.innerHTML = '<i class="fas fa-times"></i>';
+          delBtn.onclick = function (e) {
+            e.stopPropagation();
+            removeNode(n.id);
+          };
+          el.appendChild(delBtn);
+
+          el.onmouseenter = function () {
+            delBtn.style.opacity = "1";
+          };
+          el.onmouseleave = function () {
+            delBtn.style.opacity = "0";
+          };
+
+          var textSpan = document.createElement("span");
+          textSpan.textContent = n.text;
+          textSpan.className = "pointer-events-none font-bold";
+          el.appendChild(textSpan);
+
+          if (n.description || (n.screenshots && n.screenshots.length > 0)) {
+            var iconsDiv = document.createElement("div");
+            iconsDiv.className =
+              "flex gap-2 mt-2 text-zinc-300 pointer-events-none opacity-80 text-[10px]";
+            if (n.description)
+              iconsDiv.innerHTML += '<i class="fas fa-align-left"></i>';
+            if (n.screenshots && n.screenshots.length > 0)
+              iconsDiv.innerHTML += '<i class="fas fa-image"></i>';
+            el.appendChild(iconsDiv);
+          }
+
+          // Ports
+          function createPort(posClass, portType) {
+            var port = document.createElement("div");
+            port.className =
+              "port opacity-0 group-hover:opacity-100 absolute w-3 h-3 bg-zinc-400 border border-zinc-800 rounded-full cursor-crosshair z-10 hover:bg-white hover:scale-125 transition-all " +
+              posClass;
+            port.onmousedown = function (e) {
+              startEdge(e, n.id, portType);
+            };
+            port.onmouseup = function (e) {
+              endEdge(e, n.id, portType);
+            };
+            return port;
+          }
+
+          el.appendChild(
+            createPort("-top-1.5 left-1/2 -translate-x-1/2", "top"),
+          );
+          el.appendChild(
+            createPort("-bottom-1.5 left-1/2 -translate-x-1/2", "bottom"),
+          );
+          el.appendChild(
+            createPort("top-1/2 -left-1.5 -translate-y-1/2", "left"),
+          );
+          el.appendChild(
+            createPort("top-1/2 -right-1.5 -translate-y-1/2", "right"),
+          );
+
+          nodesContainer.appendChild(el);
+        });
+
+        drawEdges();
+      }
+
+      function getPortCoords(el, portType, workspaceRect, svg) {
+        var rect = el.getBoundingClientRect();
+        var x, y;
+        if (portType === "top") {
+          x = rect.left + rect.width / 2;
+          y = rect.top;
+        } else if (portType === "bottom") {
+          x = rect.left + rect.width / 2;
+          y = rect.bottom;
+        } else if (portType === "left") {
+          x = rect.left;
+          y = rect.top + rect.height / 2;
+        } else if (portType === "right") {
+          x = rect.right;
+          y = rect.top + rect.height / 2;
+        }
+        return {
+          x: x - workspaceRect.left + svg.scrollLeft,
+          y: y - workspaceRect.top + svg.scrollTop,
+        };
+      }
+
+      function drawEdges(tempMouseX, tempMouseY) {
+        var svg = document.getElementById("flowchartEdges");
+        if (!svg) return;
+        svg.innerHTML = ""; // Clear existing
+        var fc = getActiveFc();
+        if (!fc) return;
+
+        fc.edges.forEach(function (e) {
+          var fromEl = document.getElementById(e.from);
+          var toEl = document.getElementById(e.to);
+          if (!fromEl || !toEl) return;
+
+          var workspaceRect = document
+            .getElementById("flowchartCanvas")
+            .getBoundingClientRect();
+
+          // Use saved ports, or default to bottom -> top if undefined from old data
+          var fPort = e.fromPort || "bottom";
+          var tPort = e.toPort || "top";
+
+          var start = getPortCoords(fromEl, fPort, workspaceRect, svg);
+          var end = getPortCoords(toEl, tPort, workspaceRect, svg);
+
+          var cp1x = start.x;
+          var cp1y = start.y;
+          if (fPort === "top") cp1y -= 50;
+          else if (fPort === "bottom") cp1y += 50;
+          else if (fPort === "left") cp1x -= 50;
+          else if (fPort === "right") cp1x += 50;
+
+          var cp2x = end.x;
+          var cp2y = end.y;
+          if (tPort === "top") cp2y -= 50;
+          else if (tPort === "bottom") cp2y += 50;
+          else if (tPort === "left") cp2x -= 50;
+          else if (tPort === "right") cp2x += 50;
+
+          var path = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "path",
+          );
+          var d =
+            "M " +
+            start.x +
+            " " +
+            start.y +
+            " C " +
+            cp1x +
+            " " +
+            cp1y +
+            ", " +
+            cp2x +
+            " " +
+            cp2y +
+            ", " +
+            end.x +
+            " " +
+            end.y;
+          path.setAttribute("d", d);
+          path.setAttribute("fill", "none");
+          path.setAttribute("stroke", "#94a3b8");
+          path.setAttribute("stroke-width", "3");
+          path.setAttribute("stroke-linecap", "round");
+          path.setAttribute("marker-end", "url(#arrowhead)");
+
+          // Double click to delete edge
+          path.setAttribute(
+            "class",
+            "cursor-pointer hover:stroke-red-500 transition-colors pointer-events-auto",
+          );
+          path.ondblclick = function () {
+            removeEdge(e.from, e.to, e.fromPort, e.toPort);
+          };
+
+          svg.appendChild(path);
+        });
+
+        // Draw temporary line
+        if (isDrawingEdge && drawingSourceId && tempMouseX !== undefined) {
+          var sourceEl = document.getElementById(drawingSourceId);
+          if (sourceEl) {
+            var workspaceRect = document
+              .getElementById("flowchartCanvas")
+              .getBoundingClientRect();
+            var start = getPortCoords(
+              sourceEl,
+              drawingSourcePort,
+              workspaceRect,
+              svg,
+            );
+
+            var path = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "path",
+            );
+            var d =
+              "M " +
+              start.x +
+              " " +
+              start.y +
+              " L " +
+              tempMouseX +
+              " " +
+              tempMouseY;
+            path.setAttribute("d", d);
+            path.setAttribute("fill", "none");
+            path.setAttribute("stroke", "#3b82f6");
+            path.setAttribute("stroke-width", "2");
+            path.setAttribute("stroke-dasharray", "5,5");
+            svg.appendChild(path);
+          }
+        }
+
+        // Ensure arrowhead marker exists
+        if (!document.getElementById("arrowhead")) {
+          var defs = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "defs",
+          );
+          var marker = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "marker",
+          );
+          marker.setAttribute("id", "arrowhead");
+          marker.setAttribute("markerWidth", "10");
+          marker.setAttribute("markerHeight", "7");
+          marker.setAttribute("refX", "9");
+          marker.setAttribute("refY", "3.5");
+          marker.setAttribute("orient", "auto");
+          var polygon = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "polygon",
+          );
+          polygon.setAttribute("points", "0 0, 10 3.5, 0 7");
+          polygon.setAttribute("fill", "#94a3b8");
+          marker.appendChild(polygon);
+          defs.appendChild(marker);
+          svg.appendChild(defs);
+        }
       }
     </script>
   </body>
