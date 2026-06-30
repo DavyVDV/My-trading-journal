@@ -503,32 +503,6 @@
                 class="bg-terminal-input border border-terminal rounded-sm pl-7 pr-3 py-1 text-zinc-200 focus:outline-none w-48 placeholder-slate-400 uppercase text-xs"
               />
             </div>
-            <div class="flex items-center gap-1">
-              <input
-                type="date"
-                id="dateFilterStart"
-                onchange="updateUI()"
-                class="bg-terminal-input border border-terminal rounded-sm px-2 py-1 text-zinc-200 focus:outline-none text-xs text-slate-400 focus:text-white"
-              />
-              <span class="text-zinc-500 text-[10px]">-</span>
-              <input
-                type="date"
-                id="dateFilterEnd"
-                onchange="updateUI()"
-                class="bg-terminal-input border border-terminal rounded-sm px-2 py-1 text-zinc-200 focus:outline-none text-xs text-slate-400 focus:text-white"
-              />
-              <button
-                onclick="
-                  document.getElementById('dateFilterStart').value = '';
-                  document.getElementById('dateFilterEnd').value = '';
-                  updateUI();
-                "
-                class="text-zinc-500 hover:text-white px-2 py-1 text-[10px] bg-terminal-input rounded-sm border border-terminal transition-colors"
-                title="Clear Date Filter"
-              >
-                <i class="fas fa-times"></i>
-              </button>
-            </div>
           </div>
 
           <div class="relative">
@@ -1838,6 +1812,28 @@
       <div class="space-y-1 mb-3">
         <label
           class="text-[10px] text-zinc-400 font-bold uppercase tracking-widest"
+          >Datum</label
+        >
+        <div class="flex items-center justify-between text-[11px]">
+          <input
+            type="date"
+            id="dateFilterStart"
+            class="bg-terminal-input border border-slate-600 rounded-sm px-1 py-1 text-slate-200 outline-none w-[45%]"
+            title="Startdatum"
+          />
+          <span class="text-zinc-500 font-bold">-</span>
+          <input
+            type="date"
+            id="dateFilterEnd"
+            class="bg-terminal-input border border-slate-600 rounded-sm px-1 py-1 text-slate-200 outline-none w-[45%]"
+            title="Einddatum"
+          />
+        </div>
+      </div>
+
+      <div class="space-y-1 mb-3">
+        <label
+          class="text-[10px] text-zinc-400 font-bold uppercase tracking-widest"
           >Tijdsframe</label
         >
         <div class="flex items-center justify-between text-[11px]">
@@ -1866,6 +1862,48 @@
         </button>
         <button
           onclick="applyTimeFilter()"
+          class="px-2 py-1.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border border-blue-500/30 rounded-sm text-[10px] uppercase font-bold transition-colors w-full"
+        >
+          Toepassen
+        </button>
+      </div>
+    </div>
+
+    <div
+      id="sideFilterDropdown"
+      class="hidden absolute w-48 bg-slate-800 border border-slate-600 rounded-sm shadow-2xl p-3 z-50 animate-fade-in font-mono"
+      style="margin-top: 5px"
+    >
+      <div
+        class="text-xs font-bold text-white mb-2 uppercase pb-1 border-b border-slate-600"
+      >
+        Filter Richting
+      </div>
+      <div class="space-y-2 mb-3">
+        <label
+          class="flex items-center space-x-1.5 cursor-pointer text-[11px] text-slate-200"
+          ><input
+            type="checkbox"
+            class="side-filter-cb accent-blue-500"
+            value="long"
+            checked
+          />
+          <span>Longs</span></label
+        >
+        <label
+          class="flex items-center space-x-1.5 cursor-pointer text-[11px] text-slate-200"
+          ><input
+            type="checkbox"
+            class="side-filter-cb accent-blue-500"
+            value="short"
+            checked
+          />
+          <span>Shorts</span></label
+        >
+      </div>
+      <div class="flex justify-end gap-2 pt-2 border-t border-slate-600">
+        <button
+          onclick="applySideFilter()"
           class="px-2 py-1.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border border-blue-500/30 rounded-sm text-[10px] uppercase font-bold transition-colors w-full"
         >
           Toepassen
@@ -2145,6 +2183,14 @@
               .getElementById("timeFilterDropdown")
               .classList.add("hidden");
           }
+          if (
+            !e.target.closest("#sideFilterDropdown") &&
+            !e.target.closest(".fa-filter")
+          ) {
+            document
+              .getElementById("sideFilterDropdown")
+              .classList.add("hidden");
+          }
         });
 
         // Auto switch to calendar if preferred or keep testing dashboard
@@ -2234,6 +2280,29 @@
           var s = localStorage.getItem("qt_custom_charts_v1");
           if (s) {
             customCharts = JSON.parse(s);
+
+            // Auto-fix charts missing x, y coordinates from older saves
+            var needsFix = false;
+            var currentY = 0;
+            var zeros = 0;
+            customCharts.forEach(function (cc) {
+              if (cc.x === 0 && cc.y === 0) zeros++;
+              if (
+                cc.x === undefined ||
+                cc.y === undefined ||
+                (zeros > 1 && cc.x === 0 && cc.y === 0)
+              ) {
+                needsFix = true;
+                cc.x = 0;
+                cc.y = currentY;
+              }
+              var bottom = (cc.y || 0) + (cc.height || 250);
+              if (bottom > currentY) currentY = bottom + 16;
+            });
+
+            if (needsFix) {
+              saveCustomCharts();
+            }
           }
         } catch (e) {}
       }
@@ -2311,7 +2380,45 @@
         timeFilter.days = [];
         timeFilter.startTime = "";
         timeFilter.endTime = "";
+
+        var dateStart = document.getElementById("dateFilterStart");
+        if (dateStart) dateStart.value = "";
+
+        var dateEnd = document.getElementById("dateFilterEnd");
+        if (dateEnd) dateEnd.value = "";
+
         document.getElementById("timeFilterDropdown").classList.add("hidden");
+        updateUI();
+      }
+
+      var sideFilter = {
+        long: true,
+        short: true,
+      };
+
+      function toggleSideFilter(event, element) {
+        event.stopPropagation();
+        var dd = document.getElementById("sideFilterDropdown");
+        var rect = element.getBoundingClientRect();
+        dd.style.top = rect.bottom + window.scrollY + "px";
+        dd.style.left = rect.left + window.scrollX + "px";
+
+        var cbs = document.querySelectorAll(".side-filter-cb");
+        cbs.forEach(function (cb) {
+          if (cb.value === "long") cb.checked = sideFilter.long;
+          if (cb.value === "short") cb.checked = sideFilter.short;
+        });
+
+        dd.classList.toggle("hidden");
+      }
+
+      function applySideFilter() {
+        var cbs = document.querySelectorAll(".side-filter-cb");
+        cbs.forEach(function (cb) {
+          if (cb.value === "long") sideFilter.long = cb.checked;
+          if (cb.value === "short") sideFilter.short = cb.checked;
+        });
+        document.getElementById("sideFilterDropdown").classList.add("hidden");
         updateUI();
       }
 
@@ -2437,6 +2544,16 @@
             return t.time instanceof Date && t.time.getTime() <= endTs;
           });
         }
+
+        // Side filter
+        f = f.filter(function (t) {
+          var isLong =
+            t.side.toLowerCase().indexOf("buy") >= 0 ||
+            t.side.toLowerCase() === "long";
+          if (isLong && !sideFilter.long) return false;
+          if (!isLong && !sideFilter.short) return false;
+          return true;
+        });
 
         return f;
       }
@@ -3537,7 +3654,9 @@
             var isFilterActive =
               timeFilter.days.length > 0 ||
               timeFilter.startTime ||
-              timeFilter.endTime;
+              timeFilter.endTime ||
+              document.getElementById("dateFilterStart")?.value ||
+              document.getElementById("dateFilterEnd")?.value;
             var filterColor = isFilterActive
               ? "text-blue-400"
               : "text-zinc-500 hover:text-white";
@@ -3549,6 +3668,20 @@
               '<i class="fas fa-filter ' +
               filterColor +
               ' cursor-pointer ml-2 z-20" style="pointer-events:auto;" onclick="toggleTimeFilter(event, this)"></i></div>' +
+              '<div class="col-resizer cursor-col-resize absolute right-0 top-0 w-2 h-full hover:bg-white/20 z-10" onmousedown="initColResize(event, this)"></div>';
+          } else if (def.key === "side") {
+            var isFilterActive = !sideFilter.long || !sideFilter.short;
+            var filterColor = isFilterActive
+              ? "text-blue-400"
+              : "text-zinc-500 hover:text-white";
+            th.innerHTML =
+              '<div class="flex items-center justify-between"><span style="pointer-events:none">' +
+              def.label +
+              indicator +
+              "</span>" +
+              '<i class="fas fa-filter ' +
+              filterColor +
+              ' cursor-pointer ml-2 z-20" style="pointer-events:auto;" onclick="toggleSideFilter(event, this)"></i></div>' +
               '<div class="col-resizer cursor-col-resize absolute right-0 top-0 w-2 h-full hover:bg-white/20 z-10" onmousedown="initColResize(event, this)"></div>';
           } else {
             th.innerHTML =
