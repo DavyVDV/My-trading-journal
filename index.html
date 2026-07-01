@@ -7920,17 +7920,18 @@
       }
 
       function removeNode(nodeId) {
-        if (!confirm("Node verwijderen?")) return;
-        var fc = getActiveFc();
-        if (!fc) return;
-        fc.nodes = fc.nodes.filter(function (n) {
-          return n.id !== nodeId;
+        showConfirm("Node verwijderen?", function() {
+          var fc = getActiveFc();
+          if (!fc) return;
+          fc.nodes = fc.nodes.filter(function (n) {
+            return n.id !== nodeId;
+          });
+          fc.edges = fc.edges.filter(function (e) {
+            return e.from !== nodeId && e.to !== nodeId;
+          });
+          saveFlowcharts();
+          drawFlowchart();
         });
-        fc.edges = fc.edges.filter(function (e) {
-          return e.from !== nodeId && e.to !== nodeId;
-        });
-        saveFlowcharts();
-        drawFlowchart();
       }
 
       var activeEditNodeId = null;
@@ -8368,6 +8369,8 @@
           else if (tPort === "left") cp2x -= 50;
           else if (tPort === "right") cp2x += 50;
 
+          var group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+
           var path = document.createElementNS(
             "http://www.w3.org/2000/svg",
             "path",
@@ -8397,27 +8400,33 @@
           if (isSelected) {
             path.setAttribute("stroke", "#3b82f6"); // Blue highlight
             path.setAttribute("stroke-width", "4");
+            path.setAttribute("marker-end", "url(#arrowhead-selected)");
           } else {
             path.setAttribute("stroke", "#94a3b8");
             path.setAttribute("stroke-width", "3");
+            path.setAttribute("marker-end", "url(#arrowhead)");
           }
           
           path.setAttribute("stroke-linecap", "round");
-          path.setAttribute("marker-end", "url(#arrowhead)");
+          path.setAttribute("class", "transition-colors");
 
-          path.setAttribute(
-            "class",
-            "cursor-pointer hover:stroke-blue-400 transition-colors pointer-events-auto",
-          );
+          var hitPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+          hitPath.setAttribute("d", d);
+          hitPath.setAttribute("fill", "none");
+          hitPath.setAttribute("stroke", "transparent");
+          hitPath.setAttribute("stroke-width", "25"); // Fat hit area for easy clicking, covers arrowhead too
+          hitPath.setAttribute("class", "cursor-pointer pointer-events-auto");
           
           // Click to select edge
-          path.onclick = function (evt) {
+          hitPath.onclick = function (evt) {
             evt.stopPropagation();
             selectedEdge = e;
             drawEdges();
           };
 
-          svg.appendChild(path);
+          group.appendChild(path);
+          group.appendChild(hitPath);
+          svg.appendChild(group);
           
           // Render a floating delete button if selected
           if (isSelected) {
@@ -8425,20 +8434,21 @@
             var midX = (start.x + 3*cp1x + 3*cp2x + end.x) / 8;
             var midY = (start.y + 3*cp1y + 3*cp2y + end.y) / 8;
             
-            var btnSize = 24;
+            var btnSize = 16;
             var rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
             rect.setAttribute("x", midX - btnSize/2);
             rect.setAttribute("y", midY - btnSize/2);
             rect.setAttribute("width", btnSize);
             rect.setAttribute("height", btnSize);
-            rect.setAttribute("rx", "12");
+            rect.setAttribute("rx", "8");
             rect.setAttribute("fill", "#ef4444");
             rect.setAttribute("class", "cursor-pointer hover:fill-red-500 pointer-events-auto transition-colors");
             
             var cross = document.createElementNS("http://www.w3.org/2000/svg", "path");
-            cross.setAttribute("d", "M" + (midX - 4) + "," + (midY - 4) + " L" + (midX + 4) + "," + (midY + 4) + " M" + (midX + 4) + "," + (midY - 4) + " L" + (midX - 4) + "," + (midY + 4));
+            // draw a small cross inside the 16x16 circle
+            cross.setAttribute("d", "M" + (midX - 2.5) + "," + (midY - 2.5) + " L" + (midX + 2.5) + "," + (midY + 2.5) + " M" + (midX + 2.5) + "," + (midY - 2.5) + " L" + (midX - 2.5) + "," + (midY + 2.5));
             cross.setAttribute("stroke", "white");
-            cross.setAttribute("stroke-width", "2");
+            cross.setAttribute("stroke-width", "1.5");
             cross.setAttribute("stroke-linecap", "round");
             cross.setAttribute("class", "pointer-events-none");
             
@@ -8491,30 +8501,30 @@
           }
         }
 
-        // Ensure arrowhead marker exists
+        // Ensure arrowhead markers exist
         if (!document.getElementById("arrowhead")) {
           var defs = document.createElementNS(
             "http://www.w3.org/2000/svg",
             "defs",
           );
-          var marker = document.createElementNS(
-            "http://www.w3.org/2000/svg",
-            "marker",
-          );
-          marker.setAttribute("id", "arrowhead");
-          marker.setAttribute("markerWidth", "10");
-          marker.setAttribute("markerHeight", "7");
-          marker.setAttribute("refX", "9");
-          marker.setAttribute("refY", "3.5");
-          marker.setAttribute("orient", "auto");
-          var polygon = document.createElementNS(
-            "http://www.w3.org/2000/svg",
-            "polygon",
-          );
-          polygon.setAttribute("points", "0 0, 10 3.5, 0 7");
-          polygon.setAttribute("fill", "#94a3b8");
-          marker.appendChild(polygon);
-          defs.appendChild(marker);
+          
+          function createMarker(id, color) {
+            var marker = document.createElementNS("http://www.w3.org/2000/svg", "marker");
+            marker.setAttribute("id", id);
+            marker.setAttribute("markerWidth", "10");
+            marker.setAttribute("markerHeight", "7");
+            marker.setAttribute("refX", "9");
+            marker.setAttribute("refY", "3.5");
+            marker.setAttribute("orient", "auto");
+            var polygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+            polygon.setAttribute("points", "0 0, 10 3.5, 0 7");
+            polygon.setAttribute("fill", color);
+            marker.appendChild(polygon);
+            return marker;
+          }
+          
+          defs.appendChild(createMarker("arrowhead", "#94a3b8"));
+          defs.appendChild(createMarker("arrowhead-selected", "#3b82f6"));
           svg.appendChild(defs);
         }
       }
