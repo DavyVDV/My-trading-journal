@@ -125,6 +125,13 @@
         align-items: center;
         text-align: center;
       }
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
     </style>
     <style>
       /* ... other styles if any */
@@ -164,56 +171,156 @@
   </head>
   <body class="min-h-screen flex flex-col font-sans antialiased text-sm">
     <nav
-      class="bg-terminal-dark border-b border-terminal px-6 py-2.5 flex justify-between items-center sticky top-0 z-40"
+      class="bg-terminal-dark border-b border-terminal px-4 sm:px-6 py-2.5 flex flex-col sm:flex-row justify-between items-stretch sm:items-center sticky top-0 z-40 gap-3"
     >
-      <div class="flex items-center gap-8">
-        <div class="flex items-center gap-2">
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-8 flex-1">
+        <div class="flex items-center justify-between sm:justify-start">
           <div
-            class="h-5 px-1.5 bg-white text-black font-bold text-xs flex items-center justify-center rounded-sm tracking-tighter uppercase"
+            class="h-5 px-1.5 bg-white text-black font-bold text-xs flex items-center justify-center rounded-sm tracking-tighter uppercase font-sans"
           >
             Journal
           </div>
+
+          <!-- Mobile Only: menu and settings icons in top row -->
+          <div class="flex sm:hidden gap-2 items-center font-mono text-xs">
+            <button
+              onclick="openSettings()"
+              class="bg-terminal-input hover:bg-zinc-800 text-slate-200 border border-terminal px-2.5 py-1 rounded-sm transition-colors"
+            >
+              <i class="fas fa-sliders-h text-[10px]"></i>
+            </button>
+
+            <div class="relative inline-block text-left">
+              <button
+                onclick="toggleDropdown('dataMenuDropdownMobile')"
+                class="bg-terminal-input hover:bg-zinc-800 text-slate-200 border border-terminal px-2.5 py-1 rounded-sm font-semibold transition-colors flex items-center gap-1.5 focus:outline-none"
+              >
+                Menu <i class="fas fa-chevron-down text-[8px]"></i>
+              </button>
+              <div
+                id="dataMenuDropdownMobile"
+                class="hidden absolute right-0 mt-1.5 w-48 bg-slate-900 border border-slate-700 rounded-sm shadow-2xl p-1 z-50 text-slate-200"
+              >
+                <button
+                  onclick="
+                    document.getElementById('fileInput').click();
+                    toggleDropdown('dataMenuDropdownMobile');
+                  "
+                  class="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-white rounded-sm text-xs transition-colors flex items-start"
+                >
+                  <i class="fas fa-file-csv w-4 text-center mr-1.5 text-slate-200 mt-0.5 shrink-0"></i>
+                  <span>CSV Importeren</span>
+                </button>
+                <button
+                  onclick="
+                    openManualTradeModal();
+                    toggleDropdown('dataMenuDropdownMobile');
+                  "
+                  class="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-white rounded-sm text-xs transition-colors flex items-start"
+                >
+                  <i class="fas fa-keyboard w-4 text-center mr-1.5 text-slate-200 mt-0.5 shrink-0"></i>
+                  <span>Manuele Invoer</span>
+                </button>
+                <button
+                  onclick="
+                    resetColumnWidths();
+                    toggleDropdown('dataMenuDropdownMobile');
+                  "
+                  class="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-white rounded-sm text-xs transition-colors flex items-start"
+                >
+                  <i class="fas fa-arrows-alt-h w-4 text-center mr-1.5 text-slate-200 mt-0.5 shrink-0"></i>
+                  <span>Reset kolombreedte</span>
+                </button>
+                <div class="border-t border-zinc-800 my-1 mx-2"></div>
+                <button
+                  onclick="
+                    toggleTheme();
+                    toggleDropdown('dataMenuDropdownMobile');
+                  "
+                  class="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-white rounded-sm text-xs transition-colors flex items-start"
+                >
+                  <i class="fas fa-sun w-4 text-center mr-1.5 text-slate-200 mt-0.5 shrink-0"></i>
+                  <span>Lichte/Donkere modus</span>
+                </button>
+                <div class="border-t border-zinc-800 my-1 mx-2"></div>
+                <button
+                  onclick="
+                    exportBackup();
+                    toggleDropdown('dataMenuDropdownMobile');
+                  "
+                  class="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-white rounded-sm text-xs transition-colors flex items-start"
+                >
+                  <i class="fas fa-file-export w-4 text-center mr-1.5 text-slate-200 mt-0.5 shrink-0"></i>
+                  <span>Backup Maken</span>
+                </button>
+                <button
+                  onclick="
+                    document.getElementById('importBackupInput').click();
+                    toggleDropdown('dataMenuDropdownMobile');
+                  "
+                  class="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-white rounded-sm text-xs transition-colors flex items-start"
+                >
+                  <i class="fas fa-file-import w-4 text-center mr-1.5 text-slate-200 mt-0.5 shrink-0"></i>
+                  <span>Backup Herstellen</span>
+                </button>
+                <div class="border-t border-zinc-800 my-1 mx-2"></div>
+                <button
+                  onclick="
+                    clearAllData();
+                    toggleDropdown('dataMenuDropdownMobile');
+                  "
+                  class="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-red-400 rounded-sm text-xs transition-colors flex items-start"
+                >
+                  <i class="fas fa-trash-alt w-4 text-center mr-1.5 text-red-500 mt-0.5 shrink-0"></i>
+                  <span>Data Verwijderen</span>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="flex gap-5 text-xs font-mono text-slate-200">
+
+        <!-- Swipeable Tab Buttons on Mobile -->
+        <div class="flex gap-4 sm:gap-5 text-xs font-mono text-slate-200 overflow-x-auto no-scrollbar scroll-smooth snap-x w-full sm:w-auto -mx-4 px-4 sm:mx-0 sm:px-0">
           <button
             onclick="switchTab('dashboard')"
             id="tab-dashboard"
-            class="py-1 border-b-2 border-transparent transition-colors hover:text-zinc-200 tab-nav-active"
+            class="py-1 border-b-2 border-transparent transition-colors hover:text-zinc-200 tab-nav-active whitespace-nowrap snap-start"
           >
             [ 01. LOGBOEK &amp; EQUITY ]
           </button>
           <button
             onclick="switchTab('analytics')"
             id="tab-analytics"
-            class="py-1 border-b-2 border-transparent transition-colors hover:text-zinc-200"
+            class="py-1 border-b-2 border-transparent transition-colors hover:text-zinc-200 whitespace-nowrap snap-start"
           >
             [ 02. TAG MATRIX ]
           </button>
           <button
             onclick="switchTab('calendar')"
             id="tab-calendar"
-            class="py-1 border-b-2 border-transparent transition-colors hover:text-zinc-200"
+            class="py-1 border-b-2 border-transparent transition-colors hover:text-zinc-200 whitespace-nowrap snap-start"
           >
             [ 03. KALENDER ]
           </button>
           <button
             onclick="switchTab('montecarlo')"
             id="tab-montecarlo"
-            class="py-1 border-b-2 border-transparent transition-colors hover:text-zinc-200"
+            class="py-1 border-b-2 border-transparent transition-colors hover:text-zinc-200 whitespace-nowrap snap-start"
           >
             [ 04. MONTE CARLO ]
           </button>
           <button
             onclick="switchTab('flowchart')"
             id="tab-flowchart"
-            class="py-1 border-b-2 border-transparent transition-colors hover:text-zinc-200"
+            class="py-1 border-b-2 border-transparent transition-colors hover:text-zinc-200 whitespace-nowrap snap-start"
           >
             [ 05. FLOW CHARTS ]
           </button>
         </div>
       </div>
 
-      <div class="flex gap-2 items-center font-mono text-xs relative">
+      <!-- Desktop Only settings menu (hidden on mobile) -->
+      <div class="hidden sm:flex gap-2 items-center font-mono text-xs relative">
         <button
           onclick="openSettings()"
           class="bg-terminal-input hover:bg-zinc-800 text-slate-200 border border-terminal px-2.5 py-1 rounded-sm transition-colors"
@@ -317,7 +424,7 @@
               <i
                 class="fas fa-trash-alt w-4 text-center mr-1.5 text-red-500 mt-0.5 shrink-0"
               ></i>
-              <span>Trade Data Verwijderen</span>
+              <span>Data Verwijderen</span>
             </button>
           </div>
           <input
@@ -338,7 +445,7 @@
       </div>
     </nav>
 
-    <main class="flex-1 p-6 max-w-[1700px] mx-auto w-full space-y-6">
+    <main class="flex-1 p-3 sm:p-6 max-w-[1700px] mx-auto w-full space-y-4 sm:space-y-6">
       <!-- DASHBOARD VIEW -->
       <div id="view-dashboard" class="space-y-6">
         <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-6">
@@ -495,10 +602,10 @@
         </div>
 
         <div
-          class="flex justify-between items-center bg-terminal-card border border-terminal p-3 rounded-sm font-mono text-xs"
+          class="flex flex-col sm:flex-row gap-3 justify-between items-stretch sm:items-center bg-terminal-card border border-terminal p-3 rounded-sm font-mono text-xs"
         >
-          <div class="flex items-center gap-3">
-            <div class="relative">
+          <div class="flex items-center gap-3 w-full sm:w-auto">
+            <div class="relative w-full sm:w-auto">
               <i
                 class="fas fa-search absolute left-2.5 top-2 text-slate-200 text-[10px]"
               ></i>
@@ -507,15 +614,15 @@
                 id="searchInput"
                 onkeyup="renderTable()"
                 placeholder="FILTER SYM/TAGS..."
-                class="bg-terminal-input border border-terminal rounded-sm pl-7 pr-3 py-1 text-zinc-200 focus:outline-none w-48 placeholder-slate-400 uppercase text-xs"
+                class="bg-terminal-input border border-terminal rounded-sm pl-7 pr-3 py-1 text-zinc-200 focus:outline-none w-full sm:w-48 placeholder-slate-400 uppercase text-xs"
               />
             </div>
           </div>
 
-          <div class="relative">
+          <div class="relative w-full sm:w-auto flex justify-end">
             <button
               onclick="toggleDropdown('colDropdown')"
-              class="bg-terminal-input border border-terminal text-slate-200 px-2.5 py-1 rounded-sm flex items-center gap-1.5 hover:text-white"
+              class="bg-terminal-input border border-terminal text-slate-200 px-2.5 py-1 rounded-sm flex items-center justify-center gap-1.5 hover:text-white w-full sm:w-auto"
             >
               <i class="fas fa-table text-[10px]"></i> KOLOMMEN
               <i class="fas fa-chevron-down text-[8px]"></i>
@@ -531,21 +638,21 @@
 
         <div
           id="bulkActionsBar"
-          class="hidden bg-slate-800 border border-slate-600 rounded-sm p-3 flex justify-between items-center transition-all animate-fade-in font-mono"
+          class="hidden bg-slate-800 border border-slate-600 rounded-sm p-3 flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center transition-all animate-fade-in font-mono"
         >
           <div class="text-sm font-bold text-white uppercase tracking-widest">
             <span id="selectedCountDisplay">0</span> Trades Geselecteerd
           </div>
-          <div class="flex gap-2">
+          <div class="flex flex-wrap gap-2 w-full sm:w-auto">
             <button
               onclick="promptEditSelectedTrades()"
-              class="bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border border-blue-500/30 px-3 py-1.5 rounded-sm font-bold uppercase transition-colors text-xs flex items-center gap-2"
+              class="bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border border-blue-500/30 px-3 py-1.5 rounded-sm font-bold uppercase transition-colors text-xs flex items-center justify-center gap-2 flex-1 sm:flex-none"
             >
               <i class="fas fa-edit"></i> Bewerk Accounts/Tags
             </button>
             <button
               onclick="deleteSelectedTrades()"
-              class="bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-sm font-bold uppercase transition-colors text-xs flex items-center gap-2"
+              class="bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-sm font-bold uppercase transition-colors text-xs flex items-center justify-center gap-2 flex-1 sm:flex-none"
             >
               <i class="fas fa-trash-alt"></i> Verwijder
             </button>
@@ -849,32 +956,40 @@
       <!-- CALENDAR VIEW -->
       <div id="view-calendar" class="space-y-6 hidden">
         <div
-          class="flex justify-between items-center bg-terminal-card border border-terminal p-3 rounded-sm font-mono text-xs gap-2"
+          class="flex flex-col sm:flex-row gap-3 justify-between items-stretch sm:items-center bg-terminal-card border border-terminal p-3 rounded-sm font-mono text-xs"
         >
-          <button
-            onclick="changeCalendarOffset(-1)"
-            class="bg-terminal-input hover:bg-zinc-800 text-slate-200 px-3 py-1.5 rounded-sm border border-terminal transition-colors hover:text-white uppercase font-bold tracking-wider"
-          >
-            &lt; VORIGEN
-          </button>
-          <h2
-            id="calendarMonthLabel"
-            class="text-base font-bold text-zinc-200 uppercase tracking-widest text-center flex-1"
-          >
-            MAAND JJJJ
-          </h2>
-          <div class="flex items-center gap-2">
+          <div class="flex items-center justify-between gap-2 w-full sm:w-auto">
+            <button
+              onclick="changeCalendarOffset(-1)"
+              class="bg-terminal-input hover:bg-zinc-800 text-slate-200 px-3 py-1.5 rounded-sm border border-terminal transition-colors hover:text-white uppercase font-bold tracking-wider"
+            >
+              &lt; VORIGEN
+            </button>
+            <h2
+              id="calendarMonthLabel"
+              class="text-xs sm:text-base font-bold text-zinc-200 uppercase tracking-widest text-center"
+            >
+              MAAND JJJJ
+            </h2>
+            <button
+              onclick="changeCalendarOffset(1)"
+              class="bg-terminal-input hover:bg-zinc-800 text-slate-200 px-3 py-1.5 rounded-sm border border-terminal transition-colors hover:text-white uppercase font-bold tracking-wider sm:hidden"
+            >
+              VOLGENDE &gt;
+            </button>
+          </div>
+          <div class="flex items-center gap-2 w-full sm:w-auto">
             <select
               id="calendarModeSelector"
               onchange="toggleCalendarMode()"
-              class="bg-terminal-input border border-terminal rounded-sm px-2.5 py-1 text-slate-200 focus:outline-none cursor-pointer"
+              class="bg-terminal-input border border-terminal rounded-sm px-2.5 py-1.5 text-slate-200 focus:outline-none cursor-pointer flex-1 sm:flex-initial"
             >
               <option value="month">MAANDELIJKSE WEERGAVE</option>
               <option value="year">JAARLIJKSE WEERGAVE</option>
             </select>
             <button
               onclick="changeCalendarOffset(1)"
-              class="bg-terminal-input hover:bg-zinc-800 text-slate-200 px-3 py-1.5 rounded-sm border border-terminal transition-colors hover:text-white uppercase font-bold tracking-wider"
+              class="hidden sm:block bg-terminal-input hover:bg-zinc-800 text-slate-200 px-3 py-1.5 rounded-sm border border-terminal transition-colors hover:text-white uppercase font-bold tracking-wider"
             >
               VOLGENDE &gt;
             </button>
@@ -882,7 +997,7 @@
         </div>
 
         <!-- Metric summaries for the month -->
-        <div class="flex gap-8 mb-4">
+        <div class="flex flex-wrap gap-4 sm:gap-8 mb-4">
           <div class="flex flex-col">
             <span
               class="text-[11px] uppercase tracking-wider text-slate-200 mb-1 font-bold"
@@ -925,26 +1040,28 @@
         </div>
 
         <div
-          class="bg-terminal-card border border-terminal rounded-2xl overflow-hidden p-5"
+          class="bg-terminal-card border border-terminal rounded-2xl overflow-x-auto p-3 sm:p-5"
           id="calendarGridWrapper"
         >
-          <div
-            id="calendarHeader"
-            class="grid grid-cols-[repeat(7,1fr)_140px] gap-2 font-bold text-[12px] text-slate-200 uppercase tracking-wider mb-2 text-center pb-2"
-          >
-            <div class="py-2">Ma</div>
-            <div class="py-2">Di</div>
-            <div class="py-2">Wo</div>
-            <div class="py-2">Do</div>
-            <div class="py-2">Vr</div>
-            <div class="py-2">Za</div>
-            <div class="py-2">Zo</div>
-            <div class="text-slate-200 bg-slate-900/50 rounded-lg py-2">
-              Week Netto
+          <div class="min-w-[760px]">
+            <div
+              id="calendarHeader"
+              class="grid grid-cols-[repeat(7,1fr)_140px] gap-2 font-bold text-[12px] text-slate-200 uppercase tracking-wider mb-2 text-center pb-2"
+            >
+              <div class="py-2">Ma</div>
+              <div class="py-2">Di</div>
+              <div class="py-2">Wo</div>
+              <div class="py-2">Do</div>
+              <div class="py-2">Vr</div>
+              <div class="py-2">Za</div>
+              <div class="py-2">Zo</div>
+              <div class="text-slate-200 bg-slate-900/50 rounded-lg py-2">
+                Week Netto
+              </div>
             </div>
-          </div>
-          <div id="calendarGrid" class="flex flex-col gap-2">
-            <!-- Rows of weeks dynamically generated here -->
+            <div id="calendarGrid" class="flex flex-col gap-2">
+              <!-- Rows of weeks dynamically generated here -->
+            </div>
           </div>
         </div>
       </div>
@@ -1092,7 +1209,7 @@
 
             <!-- Stats Row -->
             <div
-              class="bg-terminal-card border border-terminal rounded-sm grid grid-cols-2 md:grid-cols-7 divide-y md:divide-y-0 md:divide-x divide-terminal uppercase tracking-tight"
+              class="bg-terminal-card border border-terminal rounded-sm grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 divide-y sm:divide-y-0 md:divide-x divide-zinc-800/80 uppercase tracking-tight"
             >
               <div
                 class="p-4 flex flex-col justify-between items-center h-full"
@@ -1218,30 +1335,30 @@
         class="space-y-6 hidden pb-20 font-sans h-[80vh] flex flex-col relative"
       >
         <div
-          class="flex justify-between items-center bg-terminal-card border border-terminal p-3 rounded-sm font-mono text-xs gap-2"
+          class="flex flex-col sm:flex-row gap-3 justify-between items-stretch sm:items-center bg-terminal-card border border-terminal p-3 rounded-sm font-mono text-xs"
         >
-          <div class="flex items-center gap-4">
-            <span class="text-zinc-400 font-bold tracking-widest uppercase"
-              >Selecteer Strategie Flow:</span
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
+            <span class="text-zinc-400 font-bold tracking-widest uppercase flex items-center"
+              >Selecteer Strategie:</span
             >
             <select
               id="flowchartSelector"
               onchange="loadSelectedFlowchart()"
-              class="bg-terminal-input border border-slate-600 rounded-sm px-2 py-1 text-zinc-200 outline-none w-48 text-xs"
+              class="bg-terminal-input border border-slate-600 rounded-sm px-2 py-1.5 text-zinc-200 outline-none w-full sm:w-48 text-xs"
             >
               <!-- Options loaded dynamically -->
             </select>
           </div>
-          <div class="flex gap-2">
+          <div class="flex gap-2 w-full sm:w-auto">
             <button
               onclick="createNewFlowchart()"
-              class="bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-sm font-bold uppercase transition-colors text-xs flex items-center gap-2"
+              class="bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-sm font-bold uppercase transition-colors text-xs flex items-center justify-center gap-2 flex-1 sm:flex-none"
             >
               <i class="fas fa-plus"></i> Nieuw
             </button>
             <button
               onclick="deleteCurrentFlowchart()"
-              class="bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-sm font-bold uppercase transition-colors text-xs flex items-center gap-2"
+              class="bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-sm font-bold uppercase transition-colors text-xs flex items-center justify-center gap-2 flex-1 sm:flex-none"
             >
               <i class="fas fa-trash"></i> Verwijder
             </button>
@@ -1254,35 +1371,43 @@
         >
           <!-- Toolbar -->
           <div
-            class="w-16 border-r border-terminal bg-zinc-900/50 p-2 flex flex-col items-center gap-4 z-10 font-mono text-[10px]"
+            class="w-12 sm:w-16 border-r border-terminal bg-zinc-900/50 py-3 px-1 sm:p-2 flex flex-col items-center gap-3 sm:gap-4 z-10 font-mono text-[10px] shrink-0"
           >
             <button
+              draggable="true"
+              ondragstart="onDragStartFlowNode(event, 'conditie')"
               onclick="addFlowNode('conditie')"
-              class="w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/50 flex flex-col items-center justify-center hover:bg-blue-500/30 transition-colors"
-              title="Conditie toevoegen"
+              class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/50 flex flex-col items-center justify-center hover:bg-blue-500/30 transition-colors cursor-grab active:cursor-grabbing"
+              title="Conditie toevoegen (Sleep naar veld)"
             >
-              <i class="fas fa-question"></i>
+              <i class="fas fa-question text-[10px] sm:text-xs pointer-events-none"></i>
             </button>
             <button
+              draggable="true"
+              ondragstart="onDragStartFlowNode(event, 'actie')"
               onclick="addFlowNode('actie')"
-              class="w-10 h-10 rounded-sm bg-purple-500/20 text-purple-400 border border-purple-500/50 flex flex-col items-center justify-center hover:bg-purple-500/30 transition-colors"
-              title="Actie toevoegen"
+              class="w-8 h-8 sm:w-10 sm:h-10 rounded-sm bg-purple-500/20 text-purple-400 border border-purple-500/50 flex flex-col items-center justify-center hover:bg-purple-500/30 transition-colors cursor-grab active:cursor-grabbing"
+              title="Actie toevoegen (Sleep naar veld)"
             >
-              <i class="fas fa-bolt"></i>
+              <i class="fas fa-bolt text-[10px] sm:text-xs pointer-events-none"></i>
             </button>
             <button
+              draggable="true"
+              ondragstart="onDragStartFlowNode(event, 'start')"
               onclick="addFlowNode('start')"
-              class="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 flex flex-col items-center justify-center hover:bg-emerald-500/30 transition-colors"
-              title="Start/Entry toevoegen"
+              class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 flex flex-col items-center justify-center hover:bg-emerald-500/30 transition-colors cursor-grab active:cursor-grabbing"
+              title="Start/Entry toevoegen (Sleep naar veld)"
             >
-              <i class="fas fa-play"></i>
+              <i class="fas fa-play text-[10px] sm:text-xs pointer-events-none"></i>
             </button>
             <button
+              draggable="true"
+              ondragstart="onDragStartFlowNode(event, 'stop')"
               onclick="addFlowNode('stop')"
-              class="w-10 h-10 rounded-full bg-red-500/20 text-red-400 border border-red-500/50 flex flex-col items-center justify-center hover:bg-red-500/30 transition-colors"
-              title="Stop/Exit toevoegen"
+              class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-red-500/20 text-red-400 border border-red-500/50 flex flex-col items-center justify-center hover:bg-red-500/30 transition-colors cursor-grab active:cursor-grabbing"
+              title="Stop/Exit toevoegen (Sleep naar veld)"
             >
-              <i class="fas fa-stop"></i>
+              <i class="fas fa-stop text-[10px] sm:text-xs pointer-events-none"></i>
             </button>
           </div>
 
@@ -1290,16 +1415,18 @@
           <div
             id="flowchartCanvas"
             class="flex-1 relative overflow-auto bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9IiMzZjNmNDYiLz48L3N2Zz4=')]"
+            ondragover="onDragOverCanvas(event)"
+            ondrop="onDropCanvas(event)"
           >
             <svg
               id="flowchartEdges"
               class="absolute top-0 left-0 w-full h-full pointer-events-none"
-              style="min-width: 2000px; min-height: 2000px"
+              style="min-width: 2000px; min-height: 2000px; z-index: 10;"
             ></svg>
             <div
               id="flowchartNodes"
-              class="absolute top-0 left-0 w-full h-full"
-              style="min-width: 2000px; min-height: 2000px"
+              class="absolute top-0 left-0 w-full h-full pointer-events-none"
+              style="min-width: 2000px; min-height: 2000px; z-index: 20;"
             ></div>
           </div>
         </div>
@@ -1360,92 +1487,97 @@
         class="bg-terminal-card border border-terminal w-full max-w-5xl flex flex-col rounded-sm font-mono text-xs shadow-2xl h-[90vh]"
       >
         <div
-          class="flex justify-between items-center p-4 border-b border-terminal"
+          class="flex flex-col border-b border-terminal"
         >
-          <div class="flex items-center gap-4">
+          <div class="flex justify-between items-center p-4 border-b border-zinc-800 bg-zinc-900/40">
             <span
               class="font-bold text-zinc-300 uppercase tracking-widest flex items-center gap-2"
             >
               <i class="fas fa-paint-brush"></i> Screenshot Bewerken
             </span>
-            <div
-              class="flex items-center gap-2 border-l border-zinc-700 pl-4"
-              id="ieTools"
-            >
+            <div class="flex items-center gap-3">
               <button
-                onclick="ieSetTool('select')"
-                class="ie-tool w-8 h-8 rounded bg-transparent text-zinc-400 border border-transparent hover:bg-zinc-800"
-                title="Selecteer"
+                onclick="ieUndo()"
+                class="text-zinc-400 hover:text-white p-1"
+                title="Undo"
               >
-                <i class="fas fa-mouse-pointer"></i>
+                <i class="fas fa-undo"></i>
               </button>
               <button
-                onclick="ieSetTool('arrow')"
-                class="ie-tool w-8 h-8 rounded bg-blue-500/20 text-blue-400 border border-blue-500/50 hover:bg-blue-500/40"
-                title="Pijl"
+                onclick="closeImageEditor()"
+                class="text-zinc-500 hover:text-white transition-colors p-1"
               >
-                <i class="fas fa-location-arrow"></i>
-              </button>
-              <button
-                onclick="ieSetTool('line')"
-                class="ie-tool w-8 h-8 rounded bg-transparent text-zinc-400 border border-transparent hover:bg-zinc-800"
-                title="Rechte Lijn"
-              >
-                <i class="fas fa-minus"></i>
-              </button>
-              <button
-                onclick="ieSetTool('text')"
-                class="ie-tool w-8 h-8 rounded bg-transparent text-zinc-400 border border-transparent hover:bg-zinc-800"
-                title="Tekst"
-              >
-                <i class="fas fa-font"></i>
-              </button>
-
-              <div class="w-px h-6 bg-zinc-700 mx-2"></div>
-
-              <input
-                type="color"
-                id="ieColor"
-                value="#ff0000"
-                class="w-8 h-8 rounded cursor-pointer bg-transparent border-0 p-0"
-                title="Kleur"
-                onchange="ieUpdateSelectedObject()"
-              />
-
-              <input
-                type="number"
-                id="ieThickness"
-                min="1"
-                max="50"
-                value="5"
-                class="w-16 bg-zinc-900 border border-zinc-700 text-zinc-300 text-center rounded-sm outline-none focus:border-blue-500 py-1"
-                title="Dikte / Tekstgrootte"
-                onchange="ieUpdateSelectedObject()"
-                oninput="ieUpdateSelectedObject()"
-              />
-
-              <button
-                onclick="ieDeleteSelected()"
-                class="w-8 h-8 rounded bg-transparent text-red-400 border border-transparent hover:bg-red-500/20 ml-2"
-                title="Verwijder geselecteerd"
-              >
-                <i class="fas fa-trash"></i>
+                <i class="fas fa-times text-lg"></i>
               </button>
             </div>
           </div>
-          <div class="flex items-center gap-3">
+          <div class="p-3 bg-zinc-900 flex flex-wrap items-center gap-3" id="ieTools">
             <button
-              onclick="ieUndo()"
-              class="text-zinc-400 hover:text-white"
-              title="Undo"
+              onclick="ieSetTool('select')"
+              class="ie-tool w-8 h-8 rounded bg-transparent text-zinc-400 border border-transparent hover:bg-zinc-800 flex items-center justify-center"
+              title="Selecteer"
             >
-              <i class="fas fa-undo"></i>
+              <i class="fas fa-mouse-pointer"></i>
             </button>
             <button
-              onclick="closeImageEditor()"
-              class="text-zinc-500 hover:text-white transition-colors ml-4"
+              onclick="ieSetTool('arrow')"
+              class="ie-tool w-8 h-8 rounded bg-blue-500/20 text-blue-400 border border-blue-500/50 hover:bg-blue-500/40 flex items-center justify-center"
+              title="Pijl"
             >
-              <i class="fas fa-times text-lg"></i>
+              <i class="fas fa-location-arrow"></i>
+            </button>
+            <button
+              onclick="ieSetTool('line')"
+              class="ie-tool w-8 h-8 rounded bg-transparent text-zinc-400 border border-transparent hover:bg-zinc-800 flex items-center justify-center"
+              title="Rechte Lijn"
+            >
+              <i class="fas fa-minus"></i>
+            </button>
+            <button
+              onclick="ieSetTool('text')"
+              class="ie-tool w-8 h-8 rounded bg-transparent text-zinc-400 border border-transparent hover:bg-zinc-800 flex items-center justify-center"
+              title="Tekst"
+            >
+              <i class="fas fa-font"></i>
+            </button>
+
+            <div class="w-px h-6 bg-zinc-700"></div>
+
+            <input
+              type="color"
+              id="ieColor"
+              value="#ffffff"
+              class="w-8 h-8 rounded cursor-pointer bg-transparent border-0 p-0"
+              title="Kleur"
+              onchange="ieColorPickerChanged()"
+            />
+
+            <button
+              onclick="ieSaveDefaultColor()"
+              class="px-2 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 rounded-sm text-[10px] font-bold uppercase tracking-wider transition-colors"
+              title="Huidige kleur opslaan als standaard"
+            >
+              Set Standaard
+            </button>
+
+            <input
+              type="number"
+              id="ieThickness"
+              min="1"
+              max="50"
+              value="5"
+              class="w-16 bg-zinc-900 border border-zinc-700 text-zinc-300 text-center rounded-sm outline-none focus:border-blue-500 py-1"
+              title="Dikte / Tekstgrootte"
+              onchange="ieUpdateSelectedObject()"
+              oninput="ieUpdateSelectedObject()"
+            />
+
+            <button
+              onclick="ieDeleteSelected()"
+              class="w-8 h-8 rounded bg-transparent text-red-400 border border-transparent hover:bg-red-500/20 flex items-center justify-center"
+              title="Verwijder geselecteerd"
+            >
+              <i class="fas fa-trash"></i>
             </button>
           </div>
         </div>
@@ -3034,10 +3166,16 @@
         });
 
       function clearAllData() {
-        showConfirm("Wipe complete local database?", function () {
+        showConfirm("Wipe complete local database (including flowcharts)?", function () {
           trades = [];
           analyticsFilterTags = [];
+          flowcharts = [];
+          currentFlowchartId = null;
           saveData();
+          saveFlowcharts();
+          if (activeTab === "flowchart" && typeof renderFlowchartView === "function") {
+            renderFlowchartView();
+          }
         });
       }
 
@@ -4880,9 +5018,13 @@
             imgSrc +
             '" class="w-full h-full object-cover cursor-pointer">' +
             '<button class="absolute top-1 right-1 bg-black/80 text-red-400 p-0.5 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity"><i class="fas fa-times text-[10px]"></i></button>' +
-            '<div class="absolute bottom-1 right-1 bg-blue-600 text-white rounded-sm px-1.5 py-0.5 text-[8px] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none uppercase font-bold tracking-widest"><i class="fas fa-paint-brush"></i> Bewerk</div>';
+            '<div class="absolute bottom-1 right-1 bg-blue-600 hover:bg-blue-500 text-white rounded-sm px-1.5 py-0.5 text-[8px] opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer uppercase font-bold tracking-widest flex items-center gap-1"><i class="fas fa-paint-brush"></i> Bewerk</div>';
 
           div.querySelector("img").onclick = function () {
+            openLightbox(imgSrc);
+          };
+          div.querySelector(".bg-blue-600").onclick = function (e) {
+            e.stopPropagation();
             openImageEditorForTrade(index);
           };
           div.querySelector("button").onclick = function (e) {
@@ -6133,6 +6275,7 @@
           globalTags: globalTags,
           commissionRules: commissionRules,
           customCharts: cleanCustomCharts,
+          flowcharts: flowcharts,
         };
         var backupDataString = JSON.stringify(data, null, 2);
 
@@ -6203,6 +6346,14 @@
               if (importedData.customCharts) {
                 customCharts = importedData.customCharts;
                 saveCustomCharts();
+              }
+
+              if (importedData.flowcharts) {
+                flowcharts = importedData.flowcharts;
+                saveFlowcharts();
+                if (typeof renderFlowchartView === "function") {
+                  renderFlowchartView();
+                }
               }
 
               saveData();
@@ -7190,7 +7341,27 @@
         }
       });
 
+      function ieSaveDefaultColor() {
+        var color = document.getElementById("ieColor").value;
+        localStorage.setItem("ie_default_color", color);
+        alert("Standaardkleur opgeslagen: " + color);
+      }
+
+      function ieColorPickerChanged() {
+        ieUpdateSelectedObject();
+        if (ieSelectedObjectIndex === -1) {
+          var color = document.getElementById("ieColor").value;
+          localStorage.setItem("ie_default_color", color);
+        }
+      }
+
       function openImageEditor(imgData, onSave) {
+        var defaultColor = localStorage.getItem("ie_default_color") || "#ffffff";
+        var colorInput = document.getElementById("ieColor");
+        if (colorInput) {
+          colorInput.value = defaultColor;
+        }
+
         ieSaveCallback = onSave;
         ieObjects = [];
         ieSelectedObjectIndex = -1;
@@ -7587,9 +7758,31 @@
       var isDrawingEdge = false;
       var drawingSourceId = null;
       var drawingSourcePort = null; // 'out' or 'in'
+      var selectedEdge = null;
 
       document.addEventListener("DOMContentLoaded", function () {
         loadFlowcharts();
+        
+        // Add listeners for flowchart interaction
+        var fcCanvas = document.getElementById("flowchartCanvas");
+        if (fcCanvas) {
+          fcCanvas.addEventListener("click", function(e) {
+            if (e.target.id === "flowchartCanvas" || e.target.id === "flowchartEdges") {
+              selectedEdge = null;
+              drawEdges();
+            }
+          });
+        }
+        
+        document.addEventListener("keydown", function(e) {
+          if (activeTab === "flowchart" && selectedEdge && (e.key === "Delete" || e.key === "Backspace")) {
+            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+              removeEdge(selectedEdge.from, selectedEdge.to, selectedEdge.fromPort, selectedEdge.toPort);
+              selectedEdge = null;
+              drawEdges();
+            }
+          }
+        });
       });
 
       function loadFlowcharts() {
@@ -7685,7 +7878,7 @@
         });
       }
 
-      function addFlowNode(type) {
+      function addFlowNode(type, x, y) {
         var fc = getActiveFc();
         if (!fc) return;
         var text = "Nieuwe " + type;
@@ -7698,11 +7891,32 @@
           id: "n_" + Date.now(),
           type: type,
           text: text,
-          x: window.innerWidth / 4 + Math.random() * 50,
-          y: window.innerHeight / 4 + Math.random() * 50,
+          x: x !== undefined ? x : window.innerWidth / 4 + Math.random() * 50,
+          y: y !== undefined ? y : window.innerHeight / 4 + Math.random() * 50,
         });
         saveFlowcharts();
         drawFlowchart();
+      }
+
+      function onDragStartFlowNode(event, type) {
+        event.dataTransfer.setData("nodeType", type);
+        event.dataTransfer.effectAllowed = "copy";
+      }
+
+      function onDragOverCanvas(event) {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = "copy";
+      }
+
+      function onDropCanvas(event) {
+        event.preventDefault();
+        var type = event.dataTransfer.getData("nodeType");
+        if (type) {
+          var rect = document.getElementById("flowchartCanvas").getBoundingClientRect();
+          var x = event.clientX - rect.left + document.getElementById("flowchartCanvas").scrollLeft - 60; // offset for centering node
+          var y = event.clientY - rect.top + document.getElementById("flowchartCanvas").scrollTop - 20;
+          addFlowNode(type, x, y);
+        }
       }
 
       function removeNode(nodeId) {
@@ -7824,13 +8038,19 @@
           div.innerHTML =
             '<img src="' +
             imgSrc +
-            '" class="w-full h-full object-cover cursor-pointer" onclick="openImageEditorForNode(' +
-            index +
-            ')" />' +
+            '" class="w-full h-full object-cover cursor-pointer" />' +
             '<button onclick="removeFcNodeScreenshot(' +
             index +
             ')" class="absolute top-1 right-1 bg-red-600 hover:bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10 shadow"><i class="fas fa-times text-[10px]"></i></button>' +
-            '<div class="absolute bottom-1 right-1 bg-blue-600 text-white rounded-sm px-1.5 py-0.5 text-[8px] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none uppercase font-bold tracking-widest"><i class="fas fa-paint-brush"></i> Bewerk</div>';
+            '<div class="absolute bottom-1 right-1 bg-blue-600 hover:bg-blue-500 text-white rounded-sm px-1.5 py-0.5 text-[8px] opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer uppercase font-bold tracking-widest flex items-center gap-1"><i class="fas fa-paint-brush"></i> Bewerk</div>';
+          
+          div.querySelector("img").onclick = function () {
+            openLightbox(imgSrc);
+          };
+          div.querySelector(".bg-blue-600").onclick = function (e) {
+            e.stopPropagation();
+            openImageEditorForNode(index);
+          };
           container.appendChild(div);
         });
       }
@@ -7992,13 +8212,16 @@
         if (!nodesContainer) return;
         nodesContainer.innerHTML = "";
 
-        if (!fc) return;
+        if (!fc) {
+          drawEdges();
+          return;
+        }
 
         fc.nodes.forEach(function (n) {
           var el = document.createElement("div");
           el.id = n.id;
           el.className =
-            "group absolute p-3 rounded-sm shadow-lg border border-zinc-500 cursor-move text-xs text-white text-center flex flex-col justify-center items-center min-w-[120px]";
+            "group absolute p-3 rounded-sm shadow-lg border border-zinc-500 cursor-move text-xs text-white text-center flex flex-col justify-center items-center min-w-[120px] pointer-events-auto";
 
           if (n.type === "start")
             el.className +=
@@ -8168,21 +8391,68 @@
             end.y;
           path.setAttribute("d", d);
           path.setAttribute("fill", "none");
-          path.setAttribute("stroke", "#94a3b8");
-          path.setAttribute("stroke-width", "3");
+          
+          var isSelected = selectedEdge && selectedEdge.from === e.from && selectedEdge.to === e.to && selectedEdge.fromPort === e.fromPort && selectedEdge.toPort === e.toPort;
+          
+          if (isSelected) {
+            path.setAttribute("stroke", "#3b82f6"); // Blue highlight
+            path.setAttribute("stroke-width", "4");
+          } else {
+            path.setAttribute("stroke", "#94a3b8");
+            path.setAttribute("stroke-width", "3");
+          }
+          
           path.setAttribute("stroke-linecap", "round");
           path.setAttribute("marker-end", "url(#arrowhead)");
 
-          // Double click to delete edge
           path.setAttribute(
             "class",
-            "cursor-pointer hover:stroke-red-500 transition-colors pointer-events-auto",
+            "cursor-pointer hover:stroke-blue-400 transition-colors pointer-events-auto",
           );
-          path.ondblclick = function () {
-            removeEdge(e.from, e.to, e.fromPort, e.toPort);
+          
+          // Click to select edge
+          path.onclick = function (evt) {
+            evt.stopPropagation();
+            selectedEdge = e;
+            drawEdges();
           };
 
           svg.appendChild(path);
+          
+          // Render a floating delete button if selected
+          if (isSelected) {
+            var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            var midX = (start.x + 3*cp1x + 3*cp2x + end.x) / 8;
+            var midY = (start.y + 3*cp1y + 3*cp2y + end.y) / 8;
+            
+            var btnSize = 24;
+            var rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            rect.setAttribute("x", midX - btnSize/2);
+            rect.setAttribute("y", midY - btnSize/2);
+            rect.setAttribute("width", btnSize);
+            rect.setAttribute("height", btnSize);
+            rect.setAttribute("rx", "12");
+            rect.setAttribute("fill", "#ef4444");
+            rect.setAttribute("class", "cursor-pointer hover:fill-red-500 pointer-events-auto transition-colors");
+            
+            var cross = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            cross.setAttribute("d", "M" + (midX - 4) + "," + (midY - 4) + " L" + (midX + 4) + "," + (midY + 4) + " M" + (midX + 4) + "," + (midY - 4) + " L" + (midX - 4) + "," + (midY + 4));
+            cross.setAttribute("stroke", "white");
+            cross.setAttribute("stroke-width", "2");
+            cross.setAttribute("stroke-linecap", "round");
+            cross.setAttribute("class", "pointer-events-none");
+            
+            g.appendChild(rect);
+            g.appendChild(cross);
+            
+            g.onclick = function(evt) {
+              evt.stopPropagation();
+              removeEdge(e.from, e.to, e.fromPort, e.toPort);
+              selectedEdge = null;
+            };
+            
+            svg.appendChild(g);
+          }
         });
 
         // Draw temporary line
